@@ -26,7 +26,7 @@ const Input = ({
     const isPassword = type === "password";
 
     return (
-        <div className="">
+        <div>
             {label && <label className="block mb-1 text-sm font-medium text-gray-700">{label}</label>}
 
             <div className="input-box">

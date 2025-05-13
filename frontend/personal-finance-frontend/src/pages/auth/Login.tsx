@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../components/AuthLayout";
 import { useState } from "react";
 import Input from "../../components/Inputs/Input";
+import { validateEmail } from "../../utils/helper";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,6 +14,17 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    if (!password) {
+      setError("Please enter a password");
+      return;
+    }
+    setError("");
     try {
       // Tambahkan logika login di sini nanti
       return;
@@ -45,10 +57,18 @@ export default function Login() {
             label="Password"
             type="password"
           />
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-          <button type="submit" className="w-full bg-primary text-white py-3 rounded-md mt-4">LOGIN</button>
+          {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
+          <button type="submit" className="btn-primary"
+           disabled={isLoading}>
+            {isLoading ? "Loading..." : "LOGIN"}
+          </button>
 
-          <p className="text-sm text-slate-700 mt-4">Don't have an account? <Link to="/register" className="text-primary">Register</Link></p>
+          <p className="text-[13px] text-slate-800 mt-3">
+            Don't have an account?{" "}
+            <Link to="/signup" className="font-medium text-primary underline">
+              Sign Up
+            </Link>
+          </p>
         </form>
       </div>
     </AuthLayout>
