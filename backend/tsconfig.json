@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "target": "ES2021",
+      "module": "commonjs",
+      "outDir": "./dist", // Compiled JS output
+      "rootDir": ".", // Root directory is project root
+      "strict": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "moduleResolution": "node",
+      "skipLibCheck": true,
+      "resolveJsonModule": true,
+      "noImplicitAny": true,
+      "noUnusedLocals": true,
+      // "noUnusedParameters": true,
+      "noEmitOnError": true,
+      "types": ["node"],
+      "lib": ["ES2021"],
+      "allowSyntheticDefaultImports": true,
+      "incremental": true,
+      "typeRoots": ["./node_modules/@types", "./interfaces"]
+    },
+    "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "configs/ecosystem.config.js"], // Include all .ts files in root
+    "exclude": ["node_modules", "dist"]
+  }
+  
