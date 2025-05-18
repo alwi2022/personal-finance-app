@@ -20,7 +20,7 @@
       "incremental": true,
       "typeRoots": ["./node_modules/@types", "./interfaces"]
     },
-    "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "configs/ecosystem.config.js"], // Include all .ts files in root
+    "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "configs/ecosystem.config.js", "model"], // Include all .ts files in root
     "exclude": ["node_modules", "dist"]
   }
   
