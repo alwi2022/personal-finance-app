@@ -1,5 +1,5 @@
-import CARD_2 from "../assets/image/expanste.tracker.png"; // Periksa nama file yang benar
-import type { AuthLayoutProps } from "../types/type";
+import CARD_2 from "../../assets/image/expanste.tracker.png"; // Periksa nama file yang benar
+import type { AuthLayoutProps } from "../../types/type";
 import { LuTrendingUpDown } from "react-icons/lu";
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
