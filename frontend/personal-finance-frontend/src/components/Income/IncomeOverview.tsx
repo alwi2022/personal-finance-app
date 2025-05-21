@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { TypeTransaction } from "../../types/type";
 import { prepareIncomeBarChartData } from "../../utils/helper";
-import { LuPlus } from "react-icons/lu";
 import CustomBarChart from "../Charts/CustomBarChart";
 
 interface Props {

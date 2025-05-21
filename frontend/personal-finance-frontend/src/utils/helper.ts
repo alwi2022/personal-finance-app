@@ -67,3 +67,17 @@ export const prepareIncomeBarChartData = (transactions: TypeTransaction[]) => {
   
 } 
 
+
+export const prepareExpanseLineChartData = (transactions: TypeTransaction[]) => {
+  const sortedData = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const chartData = sortedData.map((item)=>(
+    {
+      month: moment(item.date).format("DD MMM"),
+      amount: item.amount,
+      category: item.category
+    }
+  ))
+
+  return chartData;
+}
+

@@ -8,6 +8,7 @@ interface TransactionCardProps {
   amount: number;
   type: string;
   hideDeletBtn?: boolean;
+  onDelete?: () => void;
 }
 
 const getAmountStyles = (type: string) => {
@@ -23,6 +24,7 @@ const TransactionCard = ({
   amount,
   type,
   hideDeletBtn,
+  onDelete,
 }: TransactionCardProps) => {
   return (
     <div className="group relative flex items-center gap-4 mt-2 p-3 rounded-lg hover:bg-gray-100/60">
@@ -43,7 +45,7 @@ const TransactionCard = ({
 
         <div className="flex items-center gap-2">
           {!hideDeletBtn && (
-            <button className="text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+            <button onClick={onDelete} className="text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
               <LuTrash2 size={18} />
             </button>
           )}

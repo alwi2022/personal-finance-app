@@ -3,8 +3,9 @@ import Home from "./pages/Dashboard/Home";
 import Login from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import Income from "./pages/Dashboard/Income";
-import UserProvider from "./context/userContext";
 import Expense from "./pages/Dashboard/Expense";
+import UserProvider from "./context/userContext";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
@@ -19,11 +20,24 @@ const App = () => {
           <Route path="/dashboard/expense" element={<Expense />} />
         </Routes>
       </Router>
+
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          success: {
+            style: { fontSize: "16px" },
+          },
+          error: {
+            style: { fontSize: "16px" },
+          },
+        }}
+      />
     </UserProvider>
   );
 };
 
 export default App;
+
 
 const Root = () => {
   const isAuthenticated = !!localStorage.getItem("access_token");
