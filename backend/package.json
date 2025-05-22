@@ -23,9 +23,7 @@
     "multer": "^1.4.5-lts.2",
     "typescript": "^5.8.3",
     "xlsx": "^0.18.5",
-    "zod": "^3.25.20"
-  },
-  "devDependencies": {
+    "zod": "^3.25.20",
     "@eslint/js": "^9.26.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.18",
@@ -43,7 +41,10 @@
     "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "^16.1.0",
     "husky": "^9.1.7",
-    "nodemon": "^3.1.10",
+    "nodemon": "^3.1.10"
+  },
+  "devDependencies": {
+   
     "ts-node": "^10.9.2"
   }
 }
