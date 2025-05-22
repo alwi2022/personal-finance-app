@@ -1,6 +1,6 @@
 
 import { Request, Response, RequestHandler } from "express";
-import IncomeModel from "../model/income-model";
+import IncomeModel from "../models/income-model";
 
 import xlsx from "xlsx";
 

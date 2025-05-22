@@ -1,4 +1,4 @@
-import UserModel from "../model/user-model";
+import UserModel from "../models/user-model";
 import { comparePassword, hashPassword } from "../utils/bcrypt.util";
 import { signToken } from "../utils/jwt.util";
 import { Request, Response, RequestHandler } from "express";

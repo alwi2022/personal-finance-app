@@ -1,7 +1,7 @@
 
 
 import { Request, Response, RequestHandler } from "express";
-import ExpanseModel from "../model/expanse-model";
+import ExpanseModel from "../models/expanse-model";
 
 import xlsx from "xlsx";
 
