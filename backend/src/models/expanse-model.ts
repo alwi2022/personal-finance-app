@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { Expanse } from "../type/type";
+import { Expanse } from "../types/type";
 
 
 const Expenseschema: Schema<Expanse> = new Schema({

@@ -1,6 +1,6 @@
 import { RequestHandler, Request, Response } from "express";
-import IncomeModel from "../model/income-model";
-import ExpenseModel from "../model/expanse-model";
+import IncomeModel from "../models/income-model";
+import ExpenseModel from "../models/expanse-model";
 import { isValidObjectId, Types } from "mongoose";
 
 export default class DashboardController {

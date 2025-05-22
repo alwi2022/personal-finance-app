@@ -2,9 +2,10 @@
   "name": "expanse-tracker-backend",
   "version": "1.0.0",
   "main": "server.ts",
-  "scripts": {
-    "start": "ts-node server.ts",
-    "dev": "nodemon server.ts"
+ "scripts": {
+  "build": "tsc",
+  "heroku-postbuild": "npm run build",
+  "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
