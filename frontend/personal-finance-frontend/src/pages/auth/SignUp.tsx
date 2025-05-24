@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useContext, useState, type ChangeEvent, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../components/layouts/AuthLayout";
 import Input from "../../components/Inputs/Input";
 import ProfilePictureSelector from "../../components/Inputs/ProfilePictureSelector";
@@ -8,71 +8,65 @@ import axiosInstance from "../../utils/axios-instance";
 import { API_PATH } from "../../utils/api";
 import { UserContext } from "../../context/userContext";
 import uploadImage from "../../utils/uploadImage";
+import { toast } from "react-hot-toast";
+
+interface FormData {
+  fullName: string;
+  email: string;
+  password: string;
+}
 
 export default function SignUp() {
   const navigate = useNavigate();
   const userContext = useContext(UserContext);
 
+  const [form, setForm] = useState<FormData>({ fullName: "", email: "", password: "" });
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (!userContext) {
-    throw new Error("UserContext must be used inside a UserProvider");
-  }
+  if (!userContext) throw new Error("UserContext must be used within UserProvider");
 
-  const { updateUser } = userContext;
+  const handleChange = (field: keyof FormData) => (e: ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [field]: e.target.value });
+  };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const validateForm = () => {
+    if (!form.fullName.trim()) return "Full name is required.";
+    if (!validateEmail(form.email)) return "Invalid email address.";
+    if (form.password.length < 8) return "Password must be at least 8 characters.";
+    return "";
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-
-    // ✅ Basic form validation
-    if (!fullName.trim()) {
-      return setError("Please enter your full name.");
-    }
-    if (!validateEmail(email)) {
-      return setError("Please enter a valid email address.");
-    }
-    if (password.length < 8) {
-      return setError("Password must be at least 8 characters.");
-    }
+    const err = validateForm();
+    if (err) return setError(err);
 
     setLoading(true);
-
     try {
       let profileImageUrl = "";
-
-      // ✅ Upload image if exists
       if (profilePicture) {
         const uploadRes = await uploadImage(profilePicture);
-        profileImageUrl = uploadRes?.imageUrl || ""; // 🚀 Fix key here
+        profileImageUrl = uploadRes.imageUrl || "";
       }
 
-      // ✅ Register user
-      const res = await axiosInstance.post(API_PATH.AUTH.REGISTER, {
-        fullName,
-        email,
-        password,
-        profileImageUrl,
+      await axiosInstance.post(API_PATH.AUTH.REGISTER, {
+        email: form.email,
+        fullName: form.fullName,
       });
 
-      const { access_token, user } = res.data;
+      toast.success("OTP has been sent to your email");
 
-      if (access_token) {
-        localStorage.setItem("access_token", access_token);
-        updateUser(user);
-        navigate("/dashboard");
-      } else {
-        setError("Failed to receive access token.");
-      }
+      navigate("/verify-otp", {
+        state: {
+          ...form,
+          profileImageUrl,
+        },
+      });
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message || "Signup failed. Please try again.";
-      setError(message);
+      setError(err?.response?.data?.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
@@ -80,54 +74,30 @@ export default function SignUp() {
 
   return (
     <AuthLayout>
-      <div className="lg:w-full h-auto md:h-full flex flex-col justify-center">
-        <h3 className="text-xl font-semibold text-slate-700 mb-2">Create an Account</h3>
-        <p className="text-sm text-slate-500 mb-6">Join us today by filling in your details below.</p>
+      <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center">
+        <h3 className="text-xl font-semibold text-black">Create a New Account</h3>
+        <p className="text-xs text-slate-700 mt-[5px] mb-6">
+          Fill in the form below to create your account
+        </p>
 
-        <form onSubmit={handleSignUp} className="mt-2">
+        <form onSubmit={handleSubmit}>
           <ProfilePictureSelector image={profilePicture} setImage={setProfilePicture} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Full Name"
-              placeholder="John Doe"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              type="text"
-            />
-            <Input
-              label="Email Address"
-              placeholder="john@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-            />
-            <div className="col-span-2">
-              <Input
-                label="Password"
-                placeholder="Minimum 8 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-              />
-            </div>
-          </div>
+          <Input label="Full Name" value={form.fullName} onChange={handleChange("fullName")} placeholder="Enter your full name" />
+          <Input label="Email Address" type="email" value={form.email} onChange={handleChange("email")} placeholder="Enter your email address" />
+          <Input label="Password" type="password" value={form.password} onChange={handleChange("password")} placeholder="At least 8 characters" />
 
-          {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+          {error && <p className="text-red-500 text-xs pb-2.5 mt-2">{error}</p>}
 
-          <button
-            type="submit"
-            className={`btn-primary mt-4 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
-            disabled={loading}
-          >
-            {loading ? "Signing up..." : "SIGN UP"}
+          <button type="submit" className="btn-primary mt-2" disabled={loading}>
+            {loading ? "Sending..." : "Send OTP"}
           </button>
 
           <p className="text-[13px] text-slate-800 mt-4">
             Already have an account?{" "}
-            <Link to="/login" className="font-medium text-primary underline">
-              Login
-            </Link>
+            <a href="/login" className="font-medium text-primary underline">
+              Sign in here
+            </a>
           </p>
         </form>
       </div>

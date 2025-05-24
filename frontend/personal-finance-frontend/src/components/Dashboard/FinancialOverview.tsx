@@ -32,7 +32,7 @@ const balanceData = [
 
     return <div className="card">
         <div className="flex items-center justify-between">
-            <h5 className="text-lg">Financial Overview</h5>
+            <h2 className="text-lg font-bold">Financial Overview</h2>
         </div>
 <CustomPieChart
 data={balanceData}

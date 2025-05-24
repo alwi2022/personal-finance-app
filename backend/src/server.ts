@@ -21,9 +21,11 @@ app.get("/", (req, res) => {
 
 app.use("/", router)
 // === 🧾 Static Files ===
-const uploadsDir = path.resolve(process.cwd(), "uploads");
+const uploadsDir = path.join(process.cwd(), "backend/uploads");
+
+
 app.use("/uploads", express.static(uploadsDir));
-console.log("🧾 Serving uploads from:", uploadsDir);
+
 
 
 
