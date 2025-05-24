@@ -1,35 +1,40 @@
-
 import { LuTrendingUpDown } from "react-icons/lu";
 import type { AuthLayoutProps } from "../../types/type";
 
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
-    <div className="flex">
-      {/* Left: Login form area */}
-      <div className="w-screen h-screen md:w-[60vw] px-12 pt-8 pb-12 bg-white">
-        <h2 className="text-lg font-medium text-black">Expense Tracker</h2>
-        {children}
+    <div className="min-h-screen w-full flex flex-col md:flex-row">
+      {/* Left: Form Area */}
+      <div className="w-full md:w-3/5 px-6 py-6 bg-white flex flex-col">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-black">Expense Tracker</h2>
+        </div>
+        <div className="flex-1 overflow-auto">{children}</div>
       </div>
 
-      {/* Right: Illustration and decoration */}
-      <div className="hidden md:block w-[40vw] h-screen bg-violet-50 bg-cover bg-no-repeat bg-center overflow-hidden p-8 relative">
-        <div className="w-48 h-48 bg-purple-600 rounded-[40px] absolute -top-7 -left-5" />
-        <div className="w-48 h-56 rounded-[40px] border-[20px] border-fuchsia-600 absolute top-[30%] -right-10" />
-        <div className="w-48 h-48 bg-violet-500 rounded-[40px] absolute -bottom-7 -right-5" />
-        <div className="grid grid-cols-1 z-10">
+      {/* Right: Illustration */}
+      <div className="hidden md:flex w-2/5 bg-violet-50 relative items-center justify-center overflow-hidden">
+        {/* Decorative Background Shapes */}
+        <div className="absolute w-48 h-48 bg-purple-600 rounded-[40px] -top-7 -left-5" />
+        <div className="absolute w-48 h-56 border-[20px] border-fuchsia-600 rounded-[40px] top-[30%] -right-10" />
+        <div className="absolute w-48 h-48 bg-violet-500 rounded-[40px] -bottom-7 -right-5" />
+
+        {/* Info Card */}
+        <div className="z-10 w-[80%] max-w-sm">
           <StatsInfoCard
             icons={<LuTrendingUpDown />}
             label="Track your income and expenses"
-            value="430,000"
+            value="Rp430,000"
             color="bg-primary"
           />
         </div>
+
+        {/* Chart Image */}
         <img
           src="/assets/image/chartThum.png"
-          className="w-full max-w-[90%] h-auto absolute bottom-10 left-1/2 transform -translate-x-1/2 shadow-lg shadow-blue-400/15"
           alt="Finance app illustration"
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-[80%] max-w-xs shadow-lg"
         />
-
       </div>
     </div>
   );
@@ -46,15 +51,13 @@ interface StatsInfoCardProps {
 
 const StatsInfoCard = ({ icons, label, value, color }: StatsInfoCardProps) => {
   return (
-    <div className="flex gap-6 bg-white rounded-xl p-4 shadow-md shadow-purple-400/10 border border-gray-400/20 z-10">
-      <div
-        className={`w-12 h-12 flex items-center justify-center text-[26px] text-white rounded-full ${color} drop-shadow-xl`}
-      >
+    <div className="flex gap-4 bg-white rounded-xl p-4 shadow-md border border-gray-200">
+      <div className={`w-12 h-12 flex items-center justify-center text-[26px] text-white rounded-full ${color}`}>
         {icons}
       </div>
-      <div className="flex flex-col gap-1">
-        <h6 className="text-xs mb-1 text-gray-500">{label}</h6>
-        <p className="text-[20px]">{value}</p>
+      <div className="flex flex-col justify-center">
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className="text-lg font-semibold text-gray-800">{value}</p>
       </div>
     </div>
   );
