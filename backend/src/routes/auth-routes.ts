@@ -22,8 +22,8 @@ router.get("/me", authentication, AuthController.GetUserInfo);
 router.post("/upload-image", upload.single("image"), (req: Request, res: Response): void => {
   console.log("📸 File received:", req.file); // 👈 tambahkan log ini
   if (!req.file) {
-      res.status(400).json({ message: "No file uploaded" });
-      return;
+    res.status(400).json({ message: "No file uploaded" });
+    return;
   }
   const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
   res.status(200).json({ imageUrl });

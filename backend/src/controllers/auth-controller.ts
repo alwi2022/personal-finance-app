@@ -1,3 +1,4 @@
+// ✅ Controller Auth
 import UserModel from "../models/user-model";
 import { comparePassword, hashPassword } from "../utils/bcrypt.util";
 import { signToken } from "../utils/jwt.util";
@@ -24,7 +25,7 @@ export default class AuthController {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await OTPModel.findOneAndUpdate(
       { email },
-      { code: otp, expiredAt: Date.now() + 5 * 60 * 1000 },
+      { code: otp, expiredAt: Date.now() + 2 * 60 * 1000 },
       { upsert: true }
     );
 
@@ -37,22 +38,48 @@ export default class AuthController {
     });
 
     await transporter.sendMail({
-      from: "imamBahrialwi@gmail.com",
+      from: `"Expense Tracker App" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Kode OTP Pendaftaran",
+      subject: "Your OTP Code – Expense Tracker App",
       html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #333;">Kode OTP Anda</h2>
-            <p>Gunakan kode berikut untuk menyelesaikan pendaftaran:</p>
-            <div style="background-color: #f4f4f4; padding: 15px; text-align: center; margin: 20px 0;">
-              <h1 style="margin: 0; color: #333; letter-spacing: 5px;">${otp}</h1>
-            </div>
-            <p>Kode ini berlaku selama 1 menit.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0;">
+          <div style="text-align: center;">
+            <img src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" alt="Expense Tracker App Logo" style="width: 80px; height: 80px; margin-bottom: 16px;" />
+            <h1 style="font-size: 20px; color: #3b0764; margin-bottom: 4px;">Expense Tracker App</h1>
+            <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
           </div>
-        `,
+    
+          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e0e0e0;" />
+    
+          <p style="font-size: 15px; color: #333;">Hi <strong>${fullName || "there"}</strong>,</p>
+          <p style="font-size: 15px; color: #333;">Here's your <strong>One-Time Password (OTP)</strong> to verify your email and complete your registration:</p>
+    
+          <div style="background-color: #f3f0ff; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+            <p style="margin: 0; font-size: 30px; font-weight: bold; color: #3b0764; letter-spacing: 6px;">${otp}</p>
+          </div>
+    
+          <p style="font-size: 14px; color: #666;">
+            This code will expire in <strong>2 minutes</strong>. If you didn’t request this, you can safely ignore this email.
+          </p>
+    
+          <br/>
+    
+          <p style="font-size: 13px; color: #aaa; text-align: right;">
+            Regards,<br/>
+            Imam Bahri Alwi<br/>
+            <em>Developer, Expense Tracker App</em>
+          </p>
+        </div>
+      `,
     });
 
-    res.status(200).json({ success: true, message: "OTP telah dikirim ke email." });
+
+    res.status(200).json({
+      success: true,
+      message: "OTP has been sent to your email.",
+      expiredAt: Date.now() + 2 * 60 * 1000
+    });
+
   };
 
   // ✅ Langkah 2 - Verifikasi OTP dan Buat Akun
@@ -173,7 +200,7 @@ export default class AuthController {
       { email },
       {
         code: otp,
-        expiredAt: new Date(Date.now() + 5 * 60 * 1000),
+        expiredAt: Date.now() + 2 * 60 * 1000,
         lastSentAt: new Date(),
       },
       { upsert: true }
@@ -188,22 +215,44 @@ export default class AuthController {
     });
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: `"Expense Tracker App" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Kode OTP Baru",
+      subject: "Your OTP Code – Expense Tracker App",
       html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Kode OTP Baru</h2>
-        <p>Kode OTP baru Anda:</p>
-        <div style="background-color: #f4f4f4; padding: 15px; text-align: center; margin: 20px 0;">
-          <h1 style="margin: 0; color: #333; letter-spacing: 5px;">${otp}</h1>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0;">
+          <div style="text-align: center;">
+            <img src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" alt="Expense Tracker App Logo" style="width: 80px; height: 80px; margin-bottom: 16px;" />
+            <h1 style="font-size: 20px; color: #3b0764; margin-bottom: 4px;">Expense Tracker App</h1>
+            <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
+          </div>
+    
+          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e0e0e0;" />
+    
+          <p style="font-size: 15px; color: #333;">Hi <strong>${req.body.fullName || "there"}</strong>,</p>
+          <p style="font-size: 15px; color: #333;">Here's your <strong>One-Time Password (OTP)</strong> to verify your email and complete your registration:</p>
+    
+          <div style="background-color: #f3f0ff; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+            <p style="margin: 0; font-size: 30px; font-weight: bold; color: #3b0764; letter-spacing: 6px;">${otp}</p>
+          </div>
+    
+          <p style="font-size: 14px; color: #666;">
+            This code will expire in <strong>2 minutes</strong>. If you didn’t request this, you can safely ignore this email.
+          </p>
+    
+          <br/>
+    
+          <p style="font-size: 13px; color: #aaa; text-align: right;">
+            Regards,<br/>
+            Imam Bahri Alwi<br/>
+            <em>Developer, Expense Tracker App</em>
+          </p>
         </div>
-        <p>Kode ini berlaku selama 5 menit.</p>
-      </div>
-    `,
+      `,
     });
 
-    res.status(200).json({ success: true, message: "OTP baru telah dikirim ke email." });
+
+
+    res.status(200).json({ success: true, message: "OTP has been sent to your email.", expiredAt: Date.now() + 2 * 60 * 1000 });
   };
 
 
