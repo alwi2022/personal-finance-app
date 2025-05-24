@@ -52,10 +52,12 @@ export default function SignUp() {
         profileImageUrl = uploadRes.imageUrl || "";
       }
 
-      await axiosInstance.post(API_PATH.AUTH.REGISTER, {
+      const res = await axiosInstance.post(API_PATH.AUTH.REGISTER, {
         email: form.email,
         fullName: form.fullName,
       });
+
+      const expiredAt = res.data?.expiredAt;
 
       toast.success("OTP has been sent to your email");
 
@@ -63,6 +65,7 @@ export default function SignUp() {
         state: {
           ...form,
           profileImageUrl,
+          expiredAt,
         },
       });
     } catch (err: any) {
