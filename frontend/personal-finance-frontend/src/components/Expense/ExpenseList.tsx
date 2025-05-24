@@ -1,4 +1,4 @@
-import { LuDownload, LuTrash2 } from "react-icons/lu";
+import { LuDownload } from "react-icons/lu";
 import type { TypeTransaction } from "../../types/type";
 import TransactionCard from "../Cards/TransactionCard";
 import moment from "moment";
