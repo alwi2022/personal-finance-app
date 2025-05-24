@@ -1,6 +1,6 @@
 
 
-export const BASE_URL = "https://finance.alwi.tech"
+export const BASE_URL = "https://api.finance.alwi.tech"
 // export const BASE_URL = "http://localhost:3000"
 
 export const API_PATH = {

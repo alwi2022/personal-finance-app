@@ -1,4 +1,4 @@
-import CARD_3 from "../../../public/assets/image/chartThum.png";
+
 import { LuTrendingUpDown } from "react-icons/lu";
 import type { AuthLayoutProps } from "../../types/type";
 
@@ -25,7 +25,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
           />
         </div>
         <img
-          src={CARD_3}
+          src="/assets/image/chartThum.png"
           className="w-full max-w-[90%] h-auto absolute bottom-10 left-1/2 transform -translate-x-1/2 shadow-lg shadow-blue-400/15"
           alt="Finance app illustration"
         />
