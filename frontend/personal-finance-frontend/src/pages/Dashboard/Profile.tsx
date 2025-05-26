@@ -70,6 +70,7 @@ export default function Profile() {
   };
 
   const handleUpdate = async () => {
+    setLoading(true); 
     const updatePromise = axiosInstance.put(API_PATH.AUTH.UPDATE_PROFILE, {
       fullName: name,
       profileImageUrl: imageUrl,
@@ -85,6 +86,7 @@ export default function Profile() {
     });
 
     await updatePromise;
+    setLoading(false);
   };
 
   const isChanged = name !== originalName || imageUrl !== originalImageUrl;
