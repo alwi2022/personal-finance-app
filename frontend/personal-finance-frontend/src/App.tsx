@@ -7,6 +7,7 @@ import Expense from "./pages/Dashboard/Expense";
 import UserProvider from "./context/userContext";
 import { Toaster } from "react-hot-toast";
 import OtpVerification from "./pages/auth/OtpVerification";
+import Profile from "./pages/Dashboard/Profile";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/verify-otp" element={<OtpVerification />} />
+          <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard" element={<Home />} />
           <Route path="/dashboard/income" element={<Income />} />
           <Route path="/dashboard/expense" element={<Expense />} />

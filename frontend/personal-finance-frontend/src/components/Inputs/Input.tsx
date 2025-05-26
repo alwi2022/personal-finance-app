@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+import { formatNumberInput } from "../../utils/helper";
 
 interface InputProps {
   placeholder?: string;
@@ -8,6 +9,7 @@ interface InputProps {
   label?: string;
   type?: string;
   name?: string;
+  formatNumber?: boolean;
   required?: boolean;
 }
 
@@ -19,6 +21,7 @@ const Input = ({
   type = "text",
   name,
   required = false,
+  formatNumber = false,
 }: InputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => setShowPassword(!showPassword);
@@ -38,10 +41,21 @@ const Input = ({
           type={isPassword ? (showPassword ? "text" : "password") : type}
           placeholder={placeholder}
           className="w-full bg-transparent outline-none"
-          value={value}
+          value={formatNumber ? formatNumberInput(value || "") : value}
           name={name}
           required={required}
-          onChange={(e) => onChange?.(e)}
+          inputMode={formatNumber ? "numeric" : undefined}
+          onChange={(e) => {
+            const raw = e.target.value;
+            const clean = formatNumber ? raw.replace(/[^\d]/g, "") : raw;
+            onChange?.({
+              ...e,
+              target: {
+                ...e.target,
+                value: clean,
+              },
+            } as React.ChangeEvent<HTMLInputElement>);
+          }}
         />
 
         {isPassword && (

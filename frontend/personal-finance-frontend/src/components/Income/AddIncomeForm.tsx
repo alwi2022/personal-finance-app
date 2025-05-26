@@ -1,21 +1,30 @@
 import { useState } from "react";
 import Input from "../Inputs/Input";
 import EmojiPickerPopup from "../layouts/EmojiPickerPopup";
+import { parseFormattedNumber } from "../../utils/helper";
 
 type IncomeFormInput = {
-    amount: number;
-    date: string;
-    source: string;
-    icon: string;
-  };
-      
+  amount: string;
+  date: string;
+  source: string;
+  icon: string;
+};
+
+type IncomeFormPayload = {
+  amount: number;
+  date: string;
+  source: string;
+  icon: string;
+};
+
+
 const AddIncomeForm = ({
   onAddIncome,
 }: {
-  onAddIncome: (income: IncomeFormInput) => void;
+  onAddIncome: (income: IncomeFormPayload) => void;
 }) => {
   const [income, setIncome] = useState<IncomeFormInput>({
-    amount: 0,
+    amount: "",
     source: "",
     icon: "",
     date: "",
@@ -25,7 +34,6 @@ const AddIncomeForm = ({
     setIncome({ ...income, [key]: value });
   };
 
-  console.log(income.icon , "income");    
   return (
     <div className="space-y-4">
       <div>
@@ -45,11 +53,11 @@ const AddIncomeForm = ({
         placeholder="Freelance, salary, etc"
       />
       <Input
-        value={income.amount.toString()}
+        value={income.amount}
         onChange={(e) => handleChange("amount", e.target.value)}
         label="Amount"
-        placeholder="1000"
-        type="number"
+        placeholder="1.000.000"
+        formatNumber
       />
       <Input
         value={income.date}
@@ -63,7 +71,12 @@ const AddIncomeForm = ({
         <button
           type="button"
           className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md transition"
-          onClick={() => onAddIncome(income)}
+          onClick={() =>
+            onAddIncome({
+              ...income,
+              amount: parseFormattedNumber(income.amount),
+            })
+          }
         >
           Add Income
         </button>
