@@ -49,6 +49,7 @@ export default class AuthController {
   alt="Expense Tracker App Logo" 
   style="max-width: 160px; width: 100%; height: auto; display: block; margin: 0 auto 16px; border-radius: 8px;"
 />
+            <h1>Expense Tracker App</h1>
             <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
           </div>
     
@@ -169,8 +170,8 @@ export default class AuthController {
         return;
       }
       res.status(200).json({ user });
-    } catch (error) {
-      res.status(500).json({ message: "Internal Server Error" });
+    } catch (error: any) {
+      res.status(error.status || 500).json({ message: error.message || "Terjadi kesalahan" });
     }
   };
 
@@ -203,9 +204,8 @@ export default class AuthController {
         message: "Profile berhasil diperbarui.",
         user,
       });
-    } catch (error) {
-      console.error("❌ Error updating profile:", error);
-      res.status(500).json({ message: "Terjadi kesalahan saat memperbarui profil." });
+    } catch (error: any) {
+      res.status(error.status || 500).json({ message: error.message || "Terjadi kesalahan" });
     }
   };
 
@@ -261,6 +261,7 @@ export default class AuthController {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0;">
           <div style="text-align: center;">
             <img src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" alt="Expense Tracker App Logo"  style="max-width: 160px; width: 100%; height: auto; display: block; margin: 0 auto 16px; border-radius: 8px;"  />
+            <h1>Expense Tracker App</h1>
             <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
           </div>
     
