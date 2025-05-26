@@ -22,7 +22,7 @@ const Last30DaysExpenseChart = ({ transactions, onSeeMore }: Props) => {
   return (
     <div className="card p-4 rounded-xl shadow-sm border bg-white dark:bg-gray-900">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg ">
+        <h2 className="text-lg font-bold">
           Last 30 Days Expense
         </h2>
         <button

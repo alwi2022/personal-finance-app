@@ -1,6 +1,7 @@
 
 
-export const BASE_URL = "https://finance.alwi.tech"
+// export const BASE_URL = "https://api.finance.alwi.tech"
+export const BASE_URL = "http://localhost:3000"
 
 export const API_PATH = {
     AUTH: {
@@ -8,6 +9,9 @@ export const API_PATH = {
         REGISTER: "/auth/register",
         GET_USER_INFO: "/auth/me",
         UPLOAD_IMAGE: "/auth/upload-image",
+        RESEND_OTP: "/auth/resend-otp",
+        VERIFY_REGISTER: "/auth/verify-register",
+        UPDATE_PROFILE: "/auth/update-profile"
     },
     DASHBOARD: {
         GET_DASHBOARD_DATA: "/dashboard",

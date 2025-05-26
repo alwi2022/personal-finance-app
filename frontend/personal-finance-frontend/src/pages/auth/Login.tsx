@@ -6,55 +6,61 @@ import axiosInstance from "../../utils/axios-instance";
 import { API_PATH } from "../../utils/api";
 import { validateEmail } from "../../utils/helper";
 import { UserContext } from "../../context/userContext";
+import type { LoginResponse } from "../../types/type";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
   const navigate = useNavigate();
   const userContext = useContext(UserContext);
 
-  if (!userContext) {
-    throw new Error("UserContext must be used inside a UserProvider");
-  }
-  
-  const { updateUser } = userContext;
-  
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  if (!userContext) {
+    throw new Error("UserContext must be used within a UserProvider");
+  }
+
+  const { updateUser } = userContext;
+
+  const handleChange =
+    (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm({ ...form, [field]: e.target.value });
+    };
+
+  const validateForm = (): string => {
+    if (!validateEmail(form.email)) return "Please enter a valid email address.";
+    if (!form.password || form.password.length < 6)
+      return "Password must be at least 6 characters.";
+    return "";
+  };
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setIsLoading(true);
 
-    // ✅ Basic Validation
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!password || password.length < 6) {
-      setError("Please enter a valid password (min 6 characters)");
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const response = await axiosInstance.post(API_PATH.AUTH.LOGIN, {
-        email,
-        password,
+      const response = await axiosInstance.post<LoginResponse>(API_PATH.AUTH.LOGIN, {
+        email: form.email,
+        password: form.password,
       });
 
       const { access_token, user } = response.data;
 
       localStorage.setItem("access_token", access_token);
-      updateUser(user.user ?? user);
+      updateUser(user);
       navigate("/dashboard");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login failed:", err);
-      const message = err?.response?.data?.message || "Login failed. Please try again.";
+      const message =
+        (err as any)?.response?.data?.message || "Login failed. Please try again.";
       setError(message);
     } finally {
       setIsLoading(false);
@@ -66,36 +72,36 @@ export default function Login() {
       <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center">
         <h3 className="text-xl font-semibold text-black">Welcome back</h3>
         <p className="text-xs text-slate-700 mt-[5px] mb-6">
-          Please enter your details to log in
+          Enter your email and password to sign in
         </p>
 
         <form onSubmit={handleLogin}>
           <Input
             label="Email Address"
             type="text"
-            placeholder="johnExample@gmail.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            placeholder="example@email.com"
+            value={form.email}
+            onChange={handleChange("email")}
           />
 
           <Input
             label="Password"
             type="password"
-            placeholder="Min 6 characters"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            placeholder="At least 6 characters"
+            value={form.password}
+            onChange={handleChange("password")}
           />
 
-          {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
+          {error && <p className="text-red-500 text-xs pb-2.5 mt-2">{error}</p>}
 
-          <button type="submit" className="btn-primary" disabled={isLoading}>
-            {isLoading ? "Loading..." : "LOGIN"}
+          <button type="submit" className="btn-primary mt-2" disabled={isLoading}>
+            {isLoading ? "Loading..." : "SIGN IN"}
           </button>
 
-          <p className="text-[13px] text-slate-800 mt-3">
-            Don't have an account?{" "}
+          <p className="text-[13px] text-slate-800 mt-4">
+            Don’t have an account?{" "}
             <Link to="/signup" className="font-medium text-primary underline">
-              Sign Up
+              Sign Up Now
             </Link>
           </p>
         </form>

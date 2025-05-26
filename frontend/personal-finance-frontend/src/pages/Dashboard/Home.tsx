@@ -22,7 +22,6 @@ export default function Home() {
   const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = async () => {
     if (isLoading) return;
@@ -34,7 +33,6 @@ export default function Home() {
       }
     } catch (err) {
       console.error("Failed to fetch dashboard data:", err);
-      setError("Something went wrong while fetching dashboard data.");
     } finally {
       setIsLoading(false);
     }

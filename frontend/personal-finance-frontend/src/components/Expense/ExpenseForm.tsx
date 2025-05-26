@@ -1,8 +1,15 @@
 import { useState } from "react";
 import EmojiPickerPopup from "../layouts/EmojiPickerPopup";
 import Input from "../Inputs/Input";
-
+import { parseFormattedNumber } from "../../utils/helper";
 type ExpenseFormInput = {
+    category: string;
+    amount: string;
+    date: string;
+    icon: string;
+};
+
+type ExpenseFormPayload = {
     category: string;
     amount: number;
     date: string;
@@ -12,21 +19,18 @@ type ExpenseFormInput = {
 const AddExpenseForm = ({
     onAddExpense,
 }: {
-    onAddExpense: (expense: ExpenseFormInput) => void;
+    onAddExpense: (expense: ExpenseFormPayload) => void;
 }) => {
     const [expense, setExpense] = useState<ExpenseFormInput>({
         category: "",
-        amount: 0,
+        amount: "",
         date: "",
         icon: "",
     });
 
     const handleChange = (key: keyof ExpenseFormInput, value: string) => {
-        setExpense({
-            ...expense,
-            [key]: key === "amount" ? parseFloat(value) || 0 : value,
-        });
-    };
+        setExpense({ ...expense, [key]: value });
+      };
 
     return (
         <div className="space-y-4">
@@ -46,13 +50,13 @@ const AddExpenseForm = ({
                 label="Category"
             />
 
-            <Input
-                value={expense.amount.toString()}
-                onChange={(e) => handleChange("amount", e.target.value)}
-                placeholder="Enter amount"
-                type="number"
-                label="Amount"
-            />
+<Input
+  value={expense.amount}
+  onChange={(e) => handleChange("amount", e.target.value)}
+  label="Amount"
+  placeholder="1.000.000"
+  formatNumber
+/>
 
             <Input
                 value={expense.date}
@@ -66,7 +70,12 @@ const AddExpenseForm = ({
                 <button
                     type="button"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition text-sm"
-                    onClick={() => onAddExpense(expense)}
+                    onClick={() =>
+                        onAddExpense({
+                          ...expense,
+                          amount: parseFormattedNumber(expense.amount),
+                        })
+                    }
                 >
                     Add Expense
                 </button>

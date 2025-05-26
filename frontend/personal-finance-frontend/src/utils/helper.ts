@@ -22,6 +22,8 @@ export const addThousandSeparator = (value: number) => {
   return value.toLocaleString("id-ID", {
     style: "currency",
     currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 };
 
@@ -54,7 +56,7 @@ export const prepareBarExpenseChartData = (
 
 export const prepareIncomeBarChartData = (transactions: TypeTransaction[]) => {
   const sortedData = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const chartData = sortedData.map((item)=>(
+  const chartData = sortedData.map((item) => (
     {
       month: moment(item.date).format("DD MMM"),
       amount: item.amount,
@@ -64,13 +66,13 @@ export const prepareIncomeBarChartData = (transactions: TypeTransaction[]) => {
 
   return chartData;
 
-  
-} 
+
+}
 
 
 export const prepareExpanseLineChartData = (transactions: TypeTransaction[]) => {
   const sortedData = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const chartData = sortedData.map((item)=>(
+  const chartData = sortedData.map((item) => (
     {
       month: moment(item.date).format("DD MMM"),
       amount: item.amount,
@@ -81,3 +83,18 @@ export const prepareExpanseLineChartData = (transactions: TypeTransaction[]) => 
   return chartData;
 }
 
+
+export const formatNumberInput = (value: string) => {
+  // Hilangkan semua non-digit
+  const numeric = value.replace(/[^\d]/g, "");
+
+  if (!numeric) return "";
+
+  // Format jadi 1.000.000
+  return parseInt(numeric).toLocaleString("id-ID");
+};
+
+// Dapatkan nilai mentah number dari input yang sudah diformat
+export const parseFormattedNumber = (formatted: string) => {
+  return parseInt(formatted.replace(/\./g, "")) || 0;
+};

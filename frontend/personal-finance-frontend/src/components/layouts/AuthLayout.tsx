@@ -1,4 +1,4 @@
-import CARD_2 from "../../assets/image/expanste.tracker.png"; // Periksa nama file yang benar
+import CARD_2 from "../../assets/chartThum.png"; // Periksa nama file yang benar
 import type { AuthLayoutProps } from "../../types/type";
 import { LuTrendingUpDown } from "react-icons/lu";
 const AuthLayout = ({ children }: AuthLayoutProps) => {
@@ -52,5 +52,4 @@ const StatsInfoCard = ({ icons, label, value, color }: StatsInfoCardProps) => {
     </div>
   );
 };
-
 

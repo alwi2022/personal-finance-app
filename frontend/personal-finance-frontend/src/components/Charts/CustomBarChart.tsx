@@ -56,7 +56,7 @@ import {
             <Tooltip content={<CustomTooltip />} />
             <Legend content={<CustomLegend />} />
             <Bar dataKey="amount" radius={[10, 10, 0, 0]}>
-              {data.map((entry, index) => (
+              {data.map(( index) => (
                 <Cell key={`${index}`} fill={getBarColor(index)} />
               ))}
             </Bar>

@@ -13,7 +13,7 @@ const ExpanseTransactionsChart = ({
     return (
       <div className="card">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Expenses</h2>
+          <h2 className="text-lg font-bold">Expenses</h2>
           <button className="card-btn" onClick={onSeeMore}>
             See all <LuArrowRight className="text-base" />
           </button>

@@ -1,5 +1,6 @@
 import { LuUtensils, LuTrendingUp, LuTrendingDown, LuTrash2 } from "react-icons/lu";
-import { addThousandSeparator } from "../../utils/helper";
+import { addThousandSeparator, } from "../../utils/helper";
+
 
 interface TransactionCardProps {
   title?: string;
