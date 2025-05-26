@@ -44,8 +44,11 @@ export default class AuthController {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0;">
           <div style="text-align: center;">
-            <img src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" alt="Expense Tracker App Logo" style="width: 80px; height: 80px; margin-bottom: 16px;" />
-            <h1 style="font-size: 20px; color: #3b0764; margin-bottom: 4px;">Expense Tracker App</h1>
+           <img 
+  src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" 
+  alt="Expense Tracker App Logo" 
+  style="max-width: 160px; width: 100%; height: auto; display: block; margin: 0 auto 16px; border-radius: 8px;"
+/>
             <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
           </div>
     
@@ -171,6 +174,42 @@ export default class AuthController {
     }
   };
 
+  // ✅ Update profile (nama & foto)
+  static UpdateProfile: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user?._id;
+      const { fullName, profileImageUrl } = req.body;
+
+      if (!fullName) {
+        res.status(400).json({ message: "Nama lengkap wajib diisi." });
+        return;
+      }
+
+      const user = await UserModel.findByIdAndUpdate(
+        userId,
+        {
+          fullName,
+          profileImageUrl,
+        },
+        { new: true }
+      ).select("-password");
+
+      if (!user) {
+        res.status(404).json({ message: "User tidak ditemukan." });
+        return;
+      }
+
+      res.status(200).json({
+        message: "Profile berhasil diperbarui.",
+        user,
+      });
+    } catch (error) {
+      console.error("❌ Error updating profile:", error);
+      res.status(500).json({ message: "Terjadi kesalahan saat memperbarui profil." });
+    }
+  };
+
+
 
 
 
@@ -221,8 +260,7 @@ export default class AuthController {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0;">
           <div style="text-align: center;">
-            <img src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" alt="Expense Tracker App Logo" style="width: 80px; height: 80px; margin-bottom: 16px;" />
-            <h1 style="font-size: 20px; color: #3b0764; margin-bottom: 4px;">Expense Tracker App</h1>
+            <img src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" alt="Expense Tracker App Logo"  style="max-width: 160px; width: 100%; height: auto; display: block; margin: 0 auto 16px; border-radius: 8px;"  />
             <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
           </div>
     

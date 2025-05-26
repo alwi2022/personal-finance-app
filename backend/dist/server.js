@@ -22,7 +22,6 @@ app.get("/", (req, res) => {
 app.use("/", routes_1.default);
 // === 🧾 Static Files ===
 const uploadsDir = path_1.default.join(process.cwd(), "backend/uploads");
-console.log("🧾 Serving uploads fromaaaaaaaaa:", uploadsDir);
 app.use("/uploads", express_1.default.static(uploadsDir));
 const startServer = async () => {
     await (0, db_config_1.connectDB)();

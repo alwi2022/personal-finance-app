@@ -12,12 +12,12 @@ _a = ExpenseController;
 ExpenseController.addExpanse = async (req, res) => {
     try {
         const userId = req.user?._id;
-        const { icon, category, amount, date } = req.body;
+        const { category, amount, date } = req.body;
         if (!category || !amount || !date) {
             res.status(400).json({ message: "All fields are required" });
             return;
         }
-        const newExpanse = new expanse_model_1.default({ userId, icon, category, amount, date: new Date(date) });
+        const newExpanse = new expanse_model_1.default({ userId, category, amount, date: new Date(date) });
         await newExpanse.save();
         res.status(201).json(newExpanse);
     }

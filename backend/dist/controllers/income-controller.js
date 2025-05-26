@@ -12,12 +12,12 @@ _a = IncomeController;
 IncomeController.addIncome = async (req, res) => {
     try {
         const userId = req.user?._id;
-        const { icon, source, amount, date } = req.body;
+        const { source, amount, date } = req.body;
         if (!source || !amount || !date) {
             res.status(400).json({ message: "All fields are required" });
             return;
         }
-        const newIncome = new income_model_1.default({ userId, icon, source, amount, date: new Date(date) });
+        const newIncome = new income_model_1.default({ userId, source, amount, date: new Date(date) });
         await newIncome.save();
         res.status(201).json(newIncome);
     }

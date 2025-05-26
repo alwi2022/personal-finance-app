@@ -1,3 +1,4 @@
+//auth-routes.ts
 import { Router } from "express";
 import AuthController from "../controllers/auth-controller";
 import { authentication } from "../middlewares/auth-middleware";
@@ -17,6 +18,12 @@ router.post("/login", AuthController.Login);
 
 // ✅ Info user login
 router.get("/me", authentication, AuthController.GetUserInfo);
+
+// ✅ Update profile (nama dan foto)
+router.put("/update-profile", authentication, AuthController.UpdateProfile);
+
+
+
 
 // ✅ Upload gambar profil
 router.post("/upload-image", upload.single("image"), (req: Request, res: Response): void => {
