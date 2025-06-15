@@ -39,7 +39,7 @@ A modern, intuitive web app to help you **track your income and expenses**, **an
 - **React 19 + Vite**
 - **TypeScript**
 - **Tailwind CSS**
-- **React Router DOM**
+- **React Router**
 - **Recharts**
 - **Emoji Picker React**
 - **React Hot Toast**
