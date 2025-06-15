@@ -101,3 +101,4 @@ JWT_SECRET=your_jwt_secret
 - [ ] Recurring transactions
 - [ ] Email-based monthly reports
 - [ ] Mobile app support
+- [ ]  Cloudinary Integration – for secure and optimized avatar image uploads
