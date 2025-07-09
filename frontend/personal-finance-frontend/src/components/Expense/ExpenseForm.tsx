@@ -1,87 +1,295 @@
 import { useState } from "react";
-import EmojiPickerPopup from "../layouts/EmojiPickerPopup";
-import Input from "../Inputs/Input";
+import { DollarSign, Calendar, Tag, Plus, X, Save, ShoppingBag, Car, Utensils, Home, Gamepad2, Heart, GraduationCap, Plane, FileText, Wallet } from "lucide-react";
 import { parseFormattedNumber } from "../../utils/helper";
+
 type ExpenseFormInput = {
-    category: string;
-    amount: string;
-    date: string;
-    icon: string;
+  amount: string;
+  date: string;
+  category: string;
+  icon: string; // This will be the category ID
 };
 
 type ExpenseFormPayload = {
-    category: string;
-    amount: number;
-    date: string;
-    icon: string;
+  amount: number;
+  date: string;
+  category: string;
+  icon: string;
 };
 
+interface AddExpenseFormProps {
+  onAddExpense: (expense: ExpenseFormPayload) => void;
+  onCancel?: () => void;
+  isLoading?: boolean;
+}
+
+// Professional predefined expense categories with icons
+const EXPENSE_CATEGORIES = [
+  { id: 'food', label: 'Food & Dining', icon: Utensils, color: 'bg-orange-500' },
+  { id: 'transport', label: 'Transportation', icon: Car, color: 'bg-blue-500' },
+  { id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'bg-purple-500' },
+  { id: 'entertainment', label: 'Entertainment', icon: Gamepad2, color: 'bg-pink-500' },
+  { id: 'bills', label: 'Bills & Utilities', icon: FileText, color: 'bg-gray-500' },
+  { id: 'health', label: 'Healthcare', icon: Heart, color: 'bg-red-500' },
+  { id: 'education', label: 'Education', icon: GraduationCap, color: 'bg-green-500' },
+  { id: 'travel', label: 'Travel', icon: Plane, color: 'bg-indigo-500' },
+  { id: 'rent', label: 'Rent & Housing', icon: Home, color: 'bg-yellow-500' },
+  { id: 'other', label: 'Other', icon: Wallet, color: 'bg-teal-500' },
+];
+
 const AddExpenseForm = ({
-    onAddExpense,
-}: {
-    onAddExpense: (expense: ExpenseFormPayload) => void;
-}) => {
-    const [expense, setExpense] = useState<ExpenseFormInput>({
-        category: "",
-        amount: "",
-        date: "",
-        icon: "",
+  onAddExpense,
+  onCancel,
+  isLoading = false,
+}: AddExpenseFormProps) => {
+  const [expense, setExpense] = useState<ExpenseFormInput>({
+    amount: "",
+    category: "",
+    icon: "", // Will store category ID
+    date: new Date().toISOString().split('T')[0], // Default to today
+  });
+
+  const [errors, setErrors] = useState<Partial<ExpenseFormInput>>({});
+
+  const handleChange = (key: keyof ExpenseFormInput, value: string) => {
+    setExpense({ ...expense, [key]: value });
+    
+    // Clear error when user starts typing
+    if (errors[key]) {
+      setErrors({ ...errors, [key]: "" });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<ExpenseFormInput> = {};
+
+    if (!expense.category.trim()) {
+      newErrors.category = "Category description is required";
+    }
+
+    if (!expense.icon) {
+      newErrors.icon = "Please select a category type";
+    }
+
+    if (!expense.amount.trim()) {
+      newErrors.amount = "Amount is required";
+    } else if (parseFormattedNumber(expense.amount) <= 0) {
+      newErrors.amount = "Amount must be greater than 0";
+    }
+
+    if (!expense.date) {
+      newErrors.date = "Date is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+
+    onAddExpense({
+      ...expense,
+      amount: parseFormattedNumber(expense.amount),
     });
+  };
 
-    const handleChange = (key: keyof ExpenseFormInput, value: string) => {
-        setExpense({ ...expense, [key]: value });
-      };
+  const handleReset = () => {
+    setExpense({
+      amount: "",
+      category: "",
+      icon: "",
+      date: new Date().toISOString().split('T')[0],
+    });
+    setErrors({});
+  };
 
-    return (
-        <div className="space-y-4">
-            <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">Icon</label>
-                <EmojiPickerPopup
-                    icon={expense.icon}
-                    onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
-                />
-            </div>
+  const selectedCategory = EXPENSE_CATEGORIES.find(cat => cat.id === expense.icon);
+  const isFormValid = expense.category && expense.icon && expense.amount && expense.date;
 
-            <Input
-                value={expense.category}
-                onChange={(e) => handleChange("category", e.target.value)}
-                placeholder="Rent, Grocery, etc"
-                type="text"
-                label="Category"
-            />
+  return (
+    <div className="card">
+      <div className="card-header">
+        <h3 className="card-title">Add New Expense</h3>
+        <p className="card-subtitle">
+          Track your spending with professional categorization
+        </p>
+      </div>
 
-<Input
-  value={expense.amount}
-  onChange={(e) => handleChange("amount", e.target.value)}
-  label="Amount"
-  placeholder="1.000.000"
-  formatNumber
-/>
-
-            <Input
-                value={expense.date}
-                onChange={(e) => handleChange("date", e.target.value)}
-                placeholder="Select date"
-                type="date"
-                label="Date"
-            />
-
-            <div className="flex justify-end">
+      <form onSubmit={handleSubmit} className="card-content">
+        <div className="space-y-6">
+          {/* Category Type Selection */}
+          <div>
+            <label className="input-label">
+              <Tag size={16} className="inline mr-2" />
+              Expense Category
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+              {EXPENSE_CATEGORIES.map((category) => (
                 <button
-                    type="button"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition text-sm"
-                    onClick={() =>
-                        onAddExpense({
-                          ...expense,
-                          amount: parseFormattedNumber(expense.amount),
-                        })
-                    }
+                  key={category.id}
+                  type="button"
+                  onClick={() => handleChange("icon", category.id)}
+                  className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${
+                    expense.icon === category.id
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
                 >
-                    Add Expense
+                  <div className="flex items-center gap-2">
+                    <div className={`w-8 h-8 rounded-lg ${category.color} flex items-center justify-center`}>
+                      <category.icon size={16} className="text-white" />
+                    </div>
+                    <span className="text-sm font-medium">{category.label}</span>
+                  </div>
                 </button>
+              ))}
             </div>
+            {errors.icon && (
+              <p className="input-error">{errors.icon}</p>
+            )}
+          </div>
+
+          {/* Category Description */}
+          <div>
+            <label className="input-label">
+              <Tag size={16} className="inline mr-2" />
+              Description
+            </label>
+            <input
+              type="text"
+              value={expense.category}
+              onChange={(e) => handleChange("category", e.target.value)}
+              placeholder="e.g., Lunch at restaurant, Gas for car, Groceries"
+              className={`input-box ${errors.category ? 'error' : ''}`}
+              disabled={isLoading}
+            />
+            {errors.category && (
+              <p className="input-error">{errors.category}</p>
+            )}
+            <p className="input-help">
+              Enter a specific description for this expense
+            </p>
+          </div>
+
+          {/* Amount */}
+          <div>
+            <label className="input-label">
+              <DollarSign size={16} className="inline mr-2" />
+              Amount
+            </label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                $
+              </div>
+              <input
+                type="text"
+                value={expense.amount}
+                onChange={(e) => handleChange("amount", e.target.value)}
+                placeholder="0.00"
+                className={`input-box pl-8 ${errors.amount ? 'error' : ''}`}
+                disabled={isLoading}
+              />
+            </div>
+            {errors.amount && (
+              <p className="input-error">{errors.amount}</p>
+            )}
+            <p className="input-help">
+              Enter the expense amount (numbers only)
+            </p>
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="input-label">
+              <Calendar size={16} className="inline mr-2" />
+              Date
+            </label>
+            <input
+              type="date"
+              value={expense.date}
+              onChange={(e) => handleChange("date", e.target.value)}
+              className={`input-box ${errors.date ? 'error' : ''}`}
+              disabled={isLoading}
+              max={new Date().toISOString().split('T')[0]}
+            />
+            {errors.date && (
+              <p className="input-error">{errors.date}</p>
+            )}
+            <p className="input-help">
+              Select the date when this expense occurred
+            </p>
+          </div>
+
+          {/* Preview */}
+          {isFormValid && selectedCategory && (
+            <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+              <h4 className="text-sm font-medium text-red-800 mb-2">Preview</h4>
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg ${selectedCategory.color} flex items-center justify-center`}>
+                  <selectedCategory.icon size={20} className="text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900">{expense.category}</p>
+                  <p className="text-sm text-gray-500">{selectedCategory.label} • {expense.date}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-red-600">
+                    -${parseFormattedNumber(expense.amount || "0").toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-    );
+      </form>
+
+      {/* Actions */}
+      <div className="card-footer">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="btn-ghost btn-sm"
+            disabled={isLoading}
+          >
+            <X size={16} />
+            Reset
+          </button>
+          
+          <div className="flex items-center gap-3">
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="btn-secondary btn-sm"
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+            )}
+            
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              disabled={!isFormValid || isLoading}
+              className="btn-primary btn-sm"
+            >
+              {isLoading ? (
+                <div className="loading-spinner"></div>
+              ) : (
+                <>
+                  <Plus size={16} />
+                  Add Expense
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AddExpenseForm;

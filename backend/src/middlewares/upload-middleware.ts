@@ -4,7 +4,8 @@ import path from "path";
 import fs from "fs";
 
 // Buat folder 'uploads' jika belum ada
-const uploadsDir = path.join(process.cwd(), "backend/uploads");
+const uploadsDir = path.resolve(process.cwd(), "uploads");
+
 
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });

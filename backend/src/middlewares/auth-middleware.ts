@@ -25,7 +25,6 @@ export async function authentication(
     if (!user) {
       throw { name: "Unauthorized", message: "Invalid token" };
     }
-    console.info(user)
 
     type RequestWithUser = Request & { user: typeof user };
     (req as RequestWithUser).user = user;

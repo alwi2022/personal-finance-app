@@ -17,23 +17,44 @@ const DashboardLayout = ({ children, activeMenu }: DashboardLayoutProps) => {
 
   const { user } = userContext;
 
-  return (
-    <div>
-      <Navbar activeMenu={activeMenu} />
-
-      {user && (
-        <div className="flex">
-          {/* SideMenu hanya tampil di layar besar */}
-          <div className="hidden max-[1000px]:hidden lg:block">
-            <SideMenu activeMenu={activeMenu} />
-          </div>
-
-          <div className="p-4">
-            <h1 className="text-xl font-medium mb-4">Welcome {user.fullName}</h1>
-            {children}
+  // Loading state
+  if (!user) {
+    return (
+      <div className="dashboard-container">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <div className="loading-spinner w-8 h-8 mx-auto"></div>
+            <p className="text-gray-500">Loading...</p>
           </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="dashboard-container">
+      {/* Top Navigation */}
+      <Navbar activeMenu={activeMenu} />
+
+      {/* Layout Container */}
+      <div className="flex">
+        {/* Desktop Sidebar */}
+        <div className="desktop-only">
+          <SideMenu activeMenu={activeMenu} />
+        </div>
+
+        {/* Main Content */}
+        <main className="dashboard-main">
+          
+
+          {/* Page Content */}
+          <div className="dashboard-content">
+            <div className="fade-in">
+              {children}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

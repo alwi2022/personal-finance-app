@@ -95,7 +95,7 @@ export default function Expanse() {
 
     const handleDownloadExpenseDetails = async () => {
         try {
-            const response = await axiosInstance.get(API_PATH.EXPENSE.DOWNLOAD_EXCEL,{
+            const response = await axiosInstance.get(API_PATH.EXPENSE.DOWNLOAD_EXCEL, {
                 responseType: "blob",
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -107,7 +107,7 @@ export default function Expanse() {
             link.parentNode?.removeChild(link);
             window.URL.revokeObjectURL(url);
             toast.success("Expense details downloaded successfully");
-          
+
         } catch (error) {
             console.error("Error downloading expense details:", error);
             toast.error("Error downloading expense details");
@@ -151,16 +151,16 @@ export default function Expanse() {
                 </Modal>
 
                 <Modal
-          isOpen={openDeleteAlert.show}
-          onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-          title="Delete Expense"
-        >
-          <DeleteAlert
-            content="Are you sure you want to delete this expense?"
-            onDelete={() => deleteExpense(openDeleteAlert.data)}
-            onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
-          />
-        </Modal>
+                    isOpen={openDeleteAlert.show}
+                    onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+                    title="Delete Expense"
+                >
+                    <DeleteAlert
+                        content="Are you sure you want to delete this expense?"
+                        onDelete={() => deleteExpense(openDeleteAlert.data)}
+                        onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
+                    />
+                </Modal>
             </div>
         </DashboardLayout>
     )

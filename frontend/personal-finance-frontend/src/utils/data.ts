@@ -1,3 +1,4 @@
+//src/utils/data.ts
 import {
     LuLayoutDashboard,
     LuHandCoins,
@@ -31,11 +32,6 @@ import {
       icon: LuUserCog,
       path: "/dashboard/profile", 
     },
-    {
-      id: 5,
-      label: "Logout",
-      icon: LuLogOut,
-      path: "/logout",
-    },
+   
   ];
   

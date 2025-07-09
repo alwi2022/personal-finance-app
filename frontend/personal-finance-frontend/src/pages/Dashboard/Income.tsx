@@ -16,7 +16,7 @@ type IncomeFormInput = {
   amount: number;
   date: string;
   source: string;
-  icon: string;
+  category: string;
 };
 
 export default function Income() {
@@ -48,18 +48,18 @@ export default function Income() {
   };
 
   const handleAddIncome = async (income: IncomeFormInput) => {
-    const { source, amount, date, icon } = income;
+    const { source, amount, date, category } = income;
     if (!source.trim()) return toast.error("Source is required");
     if (!amount) return toast.error("Amount is required");
     if (!date) return toast.error("Date is required");
-    if (!icon) return toast.error("Icon is required");
+    if (!category) return toast.error("Category is required");
 
     try {
       const response = await axiosInstance.post(API_PATH.INCOME.ADD_INCOME, {
         source,
         amount,
         date,
-        icon,
+        icon: category,
       });
       if (response.status === 201) {
         toast.success("Income added successfully");
@@ -79,7 +79,7 @@ export default function Income() {
     if (!id) return;
     try {
       const url = API_PATH.INCOME.DELETE_INCOME.replace(":id", id);
-      const response = await axiosInstance.delete(url); 
+      const response = await axiosInstance.delete(url);
       if (response.status === 200) {
         toast.success("Income deleted successfully");
         fetchIncomeDetails();
@@ -96,8 +96,8 @@ export default function Income() {
 
   const handleDownloadIncomeDetails = async () => {
     try {
-      const response = await axiosInstance.get(API_PATH.INCOME.DOWNLOAD_EXCEL,{
-          responseType: "blob",
+      const response = await axiosInstance.get(API_PATH.INCOME.DOWNLOAD_EXCEL, {
+        responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
@@ -108,11 +108,11 @@ export default function Income() {
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
       toast.success("Income details downloaded successfully");
-    
-  } catch (error) {
+
+    } catch (error) {
       console.error("Error downloading income details:", error);
       toast.error("Error downloading income details");
-  }
+    }
   };
 
   useEffect(() => {
@@ -137,10 +137,13 @@ export default function Income() {
 
         <Modal
           isOpen={openAddIncomeModal}
-          onClose={() => setOpenAddIncomeModal(false)}
-          title="Add Income"
+          onClose={() => !loading && setOpenAddIncomeModal(false)}
+          title="Add New Income"
         >
-          <AddIncomeForm onAddIncome={handleAddIncome} />
+          <AddIncomeForm
+            onAddIncome={handleAddIncome}
+            isLoading={loading}
+          />
         </Modal>
 
         <Modal

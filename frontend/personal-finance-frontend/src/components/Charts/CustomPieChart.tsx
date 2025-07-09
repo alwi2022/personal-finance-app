@@ -3,11 +3,9 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import CustomTooltip from "./CustomTooltip";
-import CustomLegend from "./CustomLegend";
 
 interface ChartItem {
   name: string;
@@ -48,7 +46,6 @@ const CustomPieChart = ({
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
-          <Legend content={<CustomLegend />} />
         </PieChart>
       </ResponsiveContainer>
 

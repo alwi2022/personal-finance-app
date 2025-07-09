@@ -2,7 +2,6 @@ import { LuDownload } from "react-icons/lu";
 import type { TypeTransaction } from "../../types/type";
 import moment from "moment";
 import TransactionItem from "../Cards/TransactionItem";
-import { useState } from "react";
 interface Props {
   transactions: TypeTransaction[];
   onDelete: (id: string) => void;
@@ -11,26 +10,8 @@ interface Props {
 
 const IncomeList = ({ transactions, onDelete, onDownload }: Props) => {
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [showConfirm, setShowConfirm] = useState(false);
-  
-  const onRequestDelete = (id: string) => {
-    setSelectedId(id);
-    setShowConfirm(true);
-  };
-  
-  const handleConfirmDelete = () => {
-    if (selectedId) {
-      onDelete(selectedId); // ini function asli hapus
-      setShowConfirm(false);
-      setSelectedId(null);
-    }
-  };
-  
-  const handleCancel = () => {
-    setShowConfirm(false);
-    setSelectedId(null);
-  };
+
+
 
 
   return (
@@ -59,33 +40,13 @@ const IncomeList = ({ transactions, onDelete, onDownload }: Props) => {
                 date={moment(item.date).format("DD MMMM YYYY")}
                 amount={item.amount}
                 type="income"
-                  onRequestDelete={() => onRequestDelete(item._id)}
+                onRequestDelete={() => onDelete(item._id)}
               />
             </li>
           ))}
         </ul>
       )}
-      {showConfirm && (
-  <div className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-lg shadow-md w-80">
-      <h3 className="text-lg font-semibold mb-4">Hapus transaksi ini?</h3>
-      <div className="flex justify-end gap-2">
-        <button
-          onClick={handleCancel}
-          className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
-        >
-          Batal
-        </button>
-        <button
-          onClick={handleConfirmDelete}
-          className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
-        >
-          Hapus
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+    
 
     </div>
   );
