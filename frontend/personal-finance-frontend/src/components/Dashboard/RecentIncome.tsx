@@ -1,8 +1,20 @@
-import { ArrowRight, TrendingUp, Plus, AlertCircle } from "lucide-react";
+import { ArrowRight, TrendingUp, Plus, AlertCircle, Briefcase, Building, CreditCard, Award, Gift, Home, CircleHelp } from "lucide-react";
 
 import type { TypeTransaction } from "../../types/type";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
+
+const CATEGORY_MAP: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+    salary: { label: "Salary", icon: <Briefcase size={16} />, color: "bg-blue-500" },
+    freelance: { label: "Freelance", icon: <TrendingUp size={16} />, color: "bg-green-500" },
+    business: { label: "Business", icon: <Building size={16} />, color: "bg-purple-500" },
+    investment: { label: "Investment", icon: <CreditCard size={16} />, color: "bg-orange-500" },
+    bonus: { label: "Bonus", icon: <Award size={16} />, color: "bg-yellow-500" },
+    gift: { label: "Gift", icon: <Gift size={16} />, color: "bg-pink-500" },
+    rental: { label: "Rental", icon: <Home size={16} />, color: "bg-indigo-500" },
+    other: { label: "Other", icon: <CircleHelp size={16} />, color: "bg-gray-500" },
+  };
+
 
 interface RecentIncomeProps {
     transactions: TypeTransaction[];
@@ -120,8 +132,8 @@ const ModernIncomeItem = ({ transaction }: ModernIncomeItemProps) => {
         <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
             {/* Left side - Icon and details */}
             <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-lg text-green-600">
-                    {transaction.icon}
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${CATEGORY_MAP[transaction.category || "other"].color}`}>
+                    <span className="text-white">{CATEGORY_MAP[transaction.category || "other"].icon}</span>
                 </div>
                 <div className="flex-1">
                     <p className="font-medium text-gray-900 text-sm">

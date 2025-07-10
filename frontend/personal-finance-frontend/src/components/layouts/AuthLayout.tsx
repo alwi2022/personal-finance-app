@@ -1,3 +1,4 @@
+import { TrendingUp } from "lucide-react";
 import CARD_2 from "../../assets/chartThum.png"; // Periksa nama file yang benar
 import type { AuthLayoutProps } from "../../types/type";
 import { LuTrendingUpDown } from "react-icons/lu";
@@ -6,7 +7,15 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
     <div className="flex">
       {/* Kiri: Form login */}
       <div className="w-screen h-screen md:w-[60vw] px-12 pt-8 pb-12 bg-white">
-        <h2 className="text-lg font-medium text-black">Expense Tracker</h2>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+            <TrendingUp size={20} className="text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Expense Tracker</h1>
+        </div>
+        <p className="text-gray-600 mt-2">
+          Take control of your financial future
+        </p>
         {children}
       </div>
 

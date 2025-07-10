@@ -59,7 +59,7 @@ export default function Income() {
         source,
         amount,
         date,
-        icon: category,
+        category,
       });
       if (response.status === 201) {
         toast.success("Income added successfully");

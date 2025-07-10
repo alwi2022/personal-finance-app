@@ -32,8 +32,8 @@ const ExpenseList = ({ transactions, onDelete, onDownload }: Props) => {
           {transactions.map((item) => (
             <li key={item._id}>
               <TransactionItem
-                title={item.category}
-                icon={item.icon}
+                title={item.source}
+                category={item.category || "other"}
                 date={moment(item.date).format("DD MMMM YYYY")}
                 amount={item.amount}
                 type="expense"

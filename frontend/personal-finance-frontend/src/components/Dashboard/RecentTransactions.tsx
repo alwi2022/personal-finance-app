@@ -1,7 +1,29 @@
-import { ArrowRight, Clock, TrendingUp, TrendingDown, Search } from "lucide-react";
+import { ArrowRight, Clock, TrendingUp, TrendingDown, Search, Briefcase, Building, CreditCard, Award, Gift, Home, CircleHelp, Utensils, Car, FileText, Heart, GraduationCap, Plane, Gamepad2, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import type { TypeTransaction } from "../../types/type";
 import moment from "moment";
+
+const CATEGORY_MAP: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+    salary: { label: "Salary", icon: <Briefcase size={16} />, color: "bg-blue-500" },
+    freelance: { label: "Freelance", icon: <TrendingUp size={16} />, color: "bg-green-500" },
+    business: { label: "Business", icon: <Building size={16} />, color: "bg-purple-500" },
+    investment: { label: "Investment", icon: <CreditCard size={16} />, color: "bg-orange-500" },
+    bonus: { label: "Bonus", icon: <Award size={16} />, color: "bg-yellow-500" },
+    gift: { label: "Gift", icon: <Gift size={16} />, color: "bg-pink-500" },
+    rental: { label: "Rental", icon: <Home size={16} />, color: "bg-indigo-500" },
+    other: { label: "Other", icon: <CircleHelp size={16} />, color: "bg-gray-500" },
+    food: { label: "Food & Dining", icon: <Utensils size={16} />, color: "bg-orange-500" },
+    transport: { label: "Transportation", icon: <Car size={16} />, color: "bg-blue-500" },
+    shopping: { label: "Shopping", icon: <ShoppingBag size={16} />, color: "bg-purple-500" },
+    entertainment: { label: "Entertainment", icon: <Gamepad2 size={16} />, color: "bg-pink-500" },
+    bills: { label: "Bills & Utilities", icon: <FileText size={16} />, color: "bg-gray-500" },
+    health: { label: "Healthcare", icon: <Heart size={16} />, color: "bg-red-500" },
+    education: { label: "Education", icon: <GraduationCap size={16} />, color: "bg-green-500" },
+    travel: { label: "Travel", icon: <Plane size={16} />, color: "bg-indigo-500" },
+    rent: { label: "Rent & Housing", icon: <Home size={16} />, color: "bg-yellow-500" },
+  };
+
+
 
 interface RecentTransactionsProps {
     transactions: TypeTransaction[];
@@ -134,10 +156,9 @@ const ModernTransactionItem = ({ transaction }: ModernTransactionItemProps) => {
         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             {/* Left side - Icon and details */}
             <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${isIncome ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                    }`}>
-                    {transaction.icon}
-                </div>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${CATEGORY_MAP[transaction.category || "other"].color}`}>
+                    <span className="text-white">{CATEGORY_MAP[transaction.category || "other"].icon}</span>
+                </div>  
                 <div className="flex-1">
                     <p className="font-medium text-gray-900 text-sm">{title}</p>
                     <div className="flex items-center gap-2 text-xs text-gray-500">

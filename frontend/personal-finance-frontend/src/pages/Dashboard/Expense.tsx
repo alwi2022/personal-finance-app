@@ -14,7 +14,7 @@ type ExpenseFormInput = {
     amount: number;
     date: string;
     category: string;
-    icon: string;
+    source: string;
 }
 
 export default function Expanse() {
@@ -46,18 +46,17 @@ export default function Expanse() {
     };
 
     const handleAddExpense = async (expense: ExpenseFormInput) => {
-        const { category, amount, date, icon } = expense;
+        const { category, amount, date, source } = expense;
         if (!category.trim()) return toast.error("Category is required");
         if (!amount) return toast.error("Amount is required");
         if (!date) return toast.error("Date is required");
-        if (!icon) return toast.error("Icon is required");
 
         try {
             const response = await axiosInstance.post(API_PATH.EXPENSE.ADD_EXPENSE, {
                 category,
                 amount,
                 date,
-                icon,
+                source,
             });
             if (response.status === 201) {
                 toast.success("Expense added successfully");

@@ -1,19 +1,19 @@
 import { useState } from "react";
-import { DollarSign, Calendar, Tag, Plus, X, Save, ShoppingBag, Car, Utensils, Home, Gamepad2, Heart, GraduationCap, Plane, FileText, Wallet } from "lucide-react";
+import { DollarSign, Calendar, Tag, Plus, X,  ShoppingBag, Car, Utensils, Home, Gamepad2, Heart, GraduationCap, Plane, FileText, Wallet } from "lucide-react";
 import { parseFormattedNumber } from "../../utils/helper";
 
 type ExpenseFormInput = {
   amount: string;
   date: string;
+  source: string;
   category: string;
-  icon: string; // This will be the category ID
 };
 
 type ExpenseFormPayload = {
   amount: number;
   date: string;
+  source: string;
   category: string;
-  icon: string;
 };
 
 interface AddExpenseFormProps {
@@ -43,8 +43,8 @@ const AddExpenseForm = ({
 }: AddExpenseFormProps) => {
   const [expense, setExpense] = useState<ExpenseFormInput>({
     amount: "",
+    source: "",
     category: "",
-    icon: "", // Will store category ID
     date: new Date().toISOString().split('T')[0], // Default to today
   });
 
@@ -52,7 +52,7 @@ const AddExpenseForm = ({
 
   const handleChange = (key: keyof ExpenseFormInput, value: string) => {
     setExpense({ ...expense, [key]: value });
-    
+
     // Clear error when user starts typing
     if (errors[key]) {
       setErrors({ ...errors, [key]: "" });
@@ -62,13 +62,14 @@ const AddExpenseForm = ({
   const validateForm = (): boolean => {
     const newErrors: Partial<ExpenseFormInput> = {};
 
-    if (!expense.category.trim()) {
-      newErrors.category = "Category description is required";
+    if (!expense.source.trim()) {
+      newErrors.source = "Source is required";
     }
 
-    if (!expense.icon) {
-      newErrors.icon = "Please select a category type";
+    if (!expense.category.trim()) {
+      newErrors.category = "Category is required";
     }
+
 
     if (!expense.amount.trim()) {
       newErrors.amount = "Amount is required";
@@ -86,7 +87,7 @@ const AddExpenseForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     onAddExpense({
@@ -98,15 +99,15 @@ const AddExpenseForm = ({
   const handleReset = () => {
     setExpense({
       amount: "",
+      source: "",
       category: "",
-      icon: "",
       date: new Date().toISOString().split('T')[0],
     });
     setErrors({});
   };
 
-  const selectedCategory = EXPENSE_CATEGORIES.find(cat => cat.id === expense.icon);
-  const isFormValid = expense.category && expense.icon && expense.amount && expense.date;
+  const selectedCategory = EXPENSE_CATEGORIES.find(cat => cat.id === expense.category);
+  const isFormValid = expense.source && expense.category && expense.amount && expense.date ;
 
   return (
     <div className="card">
@@ -130,12 +131,11 @@ const AddExpenseForm = ({
                 <button
                   key={category.id}
                   type="button"
-                  onClick={() => handleChange("icon", category.id)}
-                  className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${
-                    expense.icon === category.id
+                  onClick={() => handleChange("category", category.id)}
+                  className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${expense.category === category.id
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2">
                     <div className={`w-8 h-8 rounded-lg ${category.color} flex items-center justify-center`}>
@@ -146,8 +146,8 @@ const AddExpenseForm = ({
                 </button>
               ))}
             </div>
-            {errors.icon && (
-              <p className="input-error">{errors.icon}</p>
+            {errors.category && (
+              <p className="input-error">{errors.category}</p>
             )}
           </div>
 
@@ -159,14 +159,14 @@ const AddExpenseForm = ({
             </label>
             <input
               type="text"
-              value={expense.category}
-              onChange={(e) => handleChange("category", e.target.value)}
-              placeholder="e.g., Lunch at restaurant, Gas for car, Groceries"
-              className={`input-box ${errors.category ? 'error' : ''}`}
+              value={expense.source}
+              onChange={(e) => handleChange("source", e.target.value)}
+              placeholder="e.g., Lunch at restaurant, Gas for car, Groceries, etc."
+              className={`input-box ${errors.source ? 'error' : ''}`}
               disabled={isLoading}
             />
-            {errors.category && (
-              <p className="input-error">{errors.category}</p>
+            {errors.source && (
+              <p className="input-error">{errors.source}</p>
             )}
             <p className="input-help">
               Enter a specific description for this expense
@@ -231,7 +231,7 @@ const AddExpenseForm = ({
                   <selectedCategory.icon size={20} className="text-white" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{expense.category}</p>
+                  <p className="font-medium text-gray-900">{expense.source}</p>
                   <p className="text-sm text-gray-500">{selectedCategory.label} • {expense.date}</p>
                 </div>
                 <div className="text-right">
@@ -257,7 +257,7 @@ const AddExpenseForm = ({
             <X size={16} />
             Reset
           </button>
-          
+
           <div className="flex items-center gap-3">
             {onCancel && (
               <button
@@ -269,7 +269,7 @@ const AddExpenseForm = ({
                 Cancel
               </button>
             )}
-            
+
             <button
               type="submit"
               onClick={handleSubmit}

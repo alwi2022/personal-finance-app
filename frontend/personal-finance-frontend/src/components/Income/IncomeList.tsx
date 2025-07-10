@@ -10,9 +10,7 @@ interface Props {
 
 const IncomeList = ({ transactions, onDelete, onDownload }: Props) => {
 
-
-
-
+  
 
   return (
     <div className="bg-white shadow-md rounded-md p-4">
@@ -36,7 +34,7 @@ const IncomeList = ({ transactions, onDelete, onDownload }: Props) => {
             <li key={item._id}>
               <TransactionItem
                 title={item.source}
-                icon={item.icon}
+                category={item.category}
                 date={moment(item.date).format("DD MMMM YYYY")}
                 amount={item.amount}
                 type="income"

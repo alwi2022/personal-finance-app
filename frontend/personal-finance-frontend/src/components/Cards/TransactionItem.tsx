@@ -11,14 +11,14 @@ import { isMobile } from "../../utils/isMobile";
 
 interface Props {
   title?: string;
-  icon: React.ReactNode;
+  category?: string;
   date: string;
   amount: number;
   type: string;
   onRequestDelete: () => void
 }
 
-const TransactionItem = ({ title, icon, date, amount, type, onRequestDelete }: Props) => {
+const TransactionItem = ({ title, category, date, amount, type, onRequestDelete }: Props) => {
   const mobile = isMobile();
 
   if (mobile) {
@@ -37,7 +37,7 @@ const TransactionItem = ({ title, icon, date, amount, type, onRequestDelete }: P
         <SwipeableListItem trailingActions={trailingActions()}>
           <TransactionCard
             title={title}
-            icon={icon}
+            category={category || "other"}
             date={date}
             amount={amount}
             type={type}
@@ -51,7 +51,7 @@ const TransactionItem = ({ title, icon, date, amount, type, onRequestDelete }: P
   return (
     <TransactionCard
       title={title}
-      icon={icon}
+      category={category || "other"}
       date={date}
       amount={amount}
       type={type}

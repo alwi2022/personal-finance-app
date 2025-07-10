@@ -41,7 +41,6 @@ imageUrl: string;
 // types/type.ts atau type.ts
 export interface TypeTransaction {
   userId: string; // atau Types.ObjectId jika ini dari backend
-  icon: string;
   category?: string; // ubah dari "string" → "string | undefined"
   source?: string;
   amount: number;

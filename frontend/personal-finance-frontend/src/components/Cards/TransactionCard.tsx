@@ -1,10 +1,46 @@
-import { TrendingUp, TrendingDown, Trash2, Utensils, MoreVertical } from "lucide-react";
+import {
+  TrendingUp, Trash2, Utensils, MoreVertical, Building, CreditCard, Award,
+  Gift, Home, CircleHelp, Briefcase,
+  Plane,
+  GraduationCap,
+  Heart,
+  FileText,
+  Gamepad2,
+  ShoppingBag,
+  Car
+} from "lucide-react";
 import { useState } from "react";
 import { addThousandSeparator } from "../../utils/helper";
 
+
+const CATEGORY_MAP: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+  salary: { label: "Salary", icon: <Briefcase size={16} />, color: "bg-blue-500" },
+  freelance: { label: "Freelance", icon: <TrendingUp size={16} />, color: "bg-green-500" },
+  business: { label: "Business", icon: <Building size={16} />, color: "bg-purple-500" },
+  investment: { label: "Investment", icon: <CreditCard size={16} />, color: "bg-orange-500" },
+  bonus: { label: "Bonus", icon: <Award size={16} />, color: "bg-yellow-500" },
+  gift: { label: "Gift", icon: <Gift size={16} />, color: "bg-pink-500" },
+  rental: { label: "Rental", icon: <Home size={16} />, color: "bg-indigo-500" },
+  other: { label: "Other", icon: <CircleHelp size={16} />, color: "bg-gray-500" },
+  food: { label: "Food & Dining", icon: <Utensils size={16} />, color: "bg-orange-500" },
+  transport: { label: "Transportation", icon: <Car size={16} />, color: "bg-blue-500" },
+  shopping: { label: "Shopping", icon: <ShoppingBag size={16} />, color: "bg-purple-500" },
+  entertainment: { label: "Entertainment", icon: <Gamepad2 size={16} />, color: "bg-pink-500" },
+  bills: { label: "Bills & Utilities", icon: <FileText size={16} />, color: "bg-gray-500" },
+  health: { label: "Healthcare", icon: <Heart size={16} />, color: "bg-red-500" },
+  education: { label: "Education", icon: <GraduationCap size={16} />, color: "bg-green-500" },
+  travel: { label: "Travel", icon: <Plane size={16} />, color: "bg-indigo-500" },
+  rent: { label: "Rent & Housing", icon: <Home size={16} />, color: "bg-yellow-500" },
+
+
+};
+
+
+
+
 interface TransactionCardProps {
   title?: string;
-  icon: React.ReactNode;
+  category?: string;
   date: string;
   amount: number;
   type: string;
@@ -14,7 +50,7 @@ interface TransactionCardProps {
 
 const TransactionCard = ({
   title,
-  icon,
+  category,
   date,
   amount,
   type,
@@ -52,12 +88,16 @@ const TransactionCard = ({
   return (
     <div className={`group relative flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-white ${styles.hoverBg} transition-all duration-200 hover:shadow-md`}>
       {/* Transaction Icon */}
-      <div className={`w-12 h-12 flex items-center justify-center rounded-full ${styles.iconBg} ${styles.iconText}`}>
-        {icon && icon !== "" ? (
-          <span className="text-xl">{icon}</span>
-        ) : (
-          <Utensils size={20} />
-        )}
+      <div className={`w-12 h-12 flex items-center justify-center rounded-full`}>
+      {category && category !== "" ? (
+  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${CATEGORY_MAP[category || "other"].color}`}>
+ <span className="text-white">{CATEGORY_MAP[category || "other"].icon}</span>  
+  </div>
+) : (
+  <Utensils size={20} className="text-gray-500" />
+)}
+
+
       </div>
 
       {/* Transaction Details */}
@@ -78,13 +118,9 @@ const TransactionCard = ({
           <div className="flex items-center gap-3">
             <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${styles.amountBg} ${styles.border}`}>
               <span className={`text-sm font-semibold ${styles.amountText}`}>
-                {isIncome ? "+" : "-"}${addThousandSeparator(amount)}
+                {addThousandSeparator(amount)}
               </span>
-              {isIncome ? (
-                <TrendingUp size={16} className={styles.amountText} />
-              ) : (
-                <TrendingDown size={16} className={styles.amountText} />
-              )}
+
             </div>
 
             {/* Actions Menu */}
@@ -100,8 +136,8 @@ const TransactionCard = ({
                 {/* Actions Dropdown */}
                 {showActions && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-10" 
+                    <div
+                      className="fixed inset-0 z-10"
                       onClick={() => setShowActions(false)}
                     />
                     <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
@@ -124,8 +160,6 @@ const TransactionCard = ({
         </div>
       </div>
 
-      {/* Status Indicator */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${isIncome ? 'bg-green-500' : 'bg-red-500'}`} />
     </div>
   );
 };
