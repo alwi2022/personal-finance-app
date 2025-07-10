@@ -3,11 +3,10 @@ import {
     LuLayoutDashboard,
     LuHandCoins,
     LuWalletMinimal,
-    LuLogOut,
     LuUserCog,
   } from "react-icons/lu";
   
-  export const SIDE_MENU_DATA = [
+export const SIDE_MENU_DATA = [
     {
       id: 1,
       label: "Dashboard",

@@ -123,15 +123,17 @@ export default function Login() {
               Email address
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Mail size={20} />
-              </div>
+              </span>
               <input
                 type="email"
                 placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange("email")}
-                className={`input-box pl-11 ${errors.email ? 'error' : ''}`}
+                className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                }`}
                 autoComplete="email"
                 disabled={isLoading}
               />
@@ -147,15 +149,17 @@ export default function Login() {
               Password
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Lock size={20} />
-              </div>
+              </span>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange("password")}
-                className={`input-box pl-11 pr-11 ${errors.password ? 'error' : ''}`}
+                className={`w-full pl-11 pr-11 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                }`}
                 autoComplete="current-password"
                 disabled={isLoading}
               />

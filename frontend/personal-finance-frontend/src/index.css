@@ -458,15 +458,10 @@ body {
 .dashboard-main {
   flex: 1;
   padding: 1.5rem;
-  margin-left: 0;
   min-height: 100vh;
 }
 
-@media (min-width: 1024px) {
-  .dashboard-main {
-    margin-left: 16rem;
-  }
-}
+
 
 .dashboard-content {
   max-width: 80rem;

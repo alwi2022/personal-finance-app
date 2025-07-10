@@ -1,4 +1,4 @@
-  import { useContext, useState, type ChangeEvent, type FormEvent } from "react";
+import { useContext, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle } from "lucide-react";
 import AuthLayout from "../../components/layouts/AuthLayout";
@@ -28,9 +28,9 @@ export default function SignUp() {
   const navigate = useNavigate();
   const userContext = useContext(UserContext);
 
-  const [form, setForm] = useState<FormData>({ 
-    fullName: "", 
-    email: "", 
+  const [form, setForm] = useState<FormData>({
+    fullName: "",
+    email: "",
     password: "",
     confirmPassword: ""
   });
@@ -45,7 +45,7 @@ export default function SignUp() {
   const handleChange = (field: keyof FormData) => (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setForm({ ...form, [field]: value });
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors({ ...errors, [field]: undefined });
@@ -90,7 +90,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
@@ -125,7 +125,7 @@ export default function SignUp() {
       });
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || "Failed to send OTP";
-      
+
       // Handle specific error types
       if (err?.response?.status === 400) {
         setErrors({ email: errorMessage });
@@ -156,9 +156,9 @@ export default function SignUp() {
               Profile Picture (Optional)
             </label>
             <div className="flex justify-center">
-              <ProfilePictureSelector 
-                image={profilePicture} 
-                setImage={setProfilePicture} 
+              <ProfilePictureSelector
+                image={profilePicture}
+                setImage={setProfilePicture}
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
@@ -172,15 +172,16 @@ export default function SignUp() {
               Full Name
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <User size={20} />
-              </div>
+              </span>
               <input
                 type="text"
                 placeholder="Enter your full name"
                 value={form.fullName}
                 onChange={handleChange("fullName")}
-                className={`input-box pl-11 ${errors.fullName ? 'error' : ''}`}
+                className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.fullName ? "border-red-500" : "border-gray-300"
+                  }`}
                 disabled={loading}
               />
               {form.fullName && !errors.fullName && (
@@ -200,15 +201,16 @@ export default function SignUp() {
               Email Address
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Mail size={20} />
-              </div>
+              </span>
               <input
                 type="email"
                 placeholder="Enter your email address"
                 value={form.email}
                 onChange={handleChange("email")}
-                className={`input-box pl-11 ${errors.email ? 'error' : ''}`}
+                className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                 disabled={loading}
               />
               {form.email && !errors.email && validateEmail(form.email) && (
@@ -228,15 +230,16 @@ export default function SignUp() {
               Password
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Lock size={20} />
-              </div>
+              </span>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Create a strong password"
                 value={form.password}
                 onChange={handleChange("password")}
-                className={`input-box pl-11 pr-11 ${errors.password ? 'error' : ''}`}
+                className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.password ? "border-red-500" : "border-gray-300"
+                  }`}
                 disabled={loading}
               />
               <button
@@ -267,15 +270,16 @@ export default function SignUp() {
               Confirm Password
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Lock size={20} />
-              </div>
+              </span>
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="Confirm your password"
                 value={form.confirmPassword}
                 onChange={handleChange("confirmPassword")}
-                className={`input-box pl-11 pr-11 ${errors.confirmPassword ? 'error' : ''}`}
+                className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                  }`}
                 disabled={loading}
               />
               <button

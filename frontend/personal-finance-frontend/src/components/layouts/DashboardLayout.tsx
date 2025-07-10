@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../../context/userContext";
 import Navbar from "./Navbar";
 import SideMenu from "./SideMenu";
@@ -10,6 +10,7 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children, activeMenu }: DashboardLayoutProps) => {
   const userContext = useContext(UserContext);
+  const [openSideMenu, setOpenSideMenu] = useState(true);
 
   if (!userContext) {
     throw new Error("UserContext must be used inside a UserProvider");
@@ -17,7 +18,6 @@ const DashboardLayout = ({ children, activeMenu }: DashboardLayoutProps) => {
 
   const { user } = userContext;
 
-  // Loading state
   if (!user) {
     return (
       <div className="dashboard-container">
@@ -32,26 +32,27 @@ const DashboardLayout = ({ children, activeMenu }: DashboardLayoutProps) => {
   }
 
   return (
-    <div className="dashboard-container">
-      {/* Top Navigation */}
-      <Navbar activeMenu={activeMenu} />
+    <div className="dashboard-container relative min-h-screen">
+      <Navbar
+        activeMenu={activeMenu}
+        toggleSideMenu={() => setOpenSideMenu(prev => !prev)}
+        isSideMenuOpen={openSideMenu}
+      />
 
-      {/* Layout Container */}
+      <SideMenu
+        activeMenu={activeMenu}
+        isOpen={openSideMenu}
+        onClose={() => setOpenSideMenu(false)}
+      />
+
       <div className="flex">
-        {/* Desktop Sidebar */}
-        <div className="desktop-only">
-          <SideMenu activeMenu={activeMenu} />
-        </div>
-
-        {/* Main Content */}
-        <main className="dashboard-main">
-          
-
-          {/* Page Content */}
+        <main
+          className={`dashboard-main transition-all duration-300 ${
+            openSideMenu ? "ml-64" : "ml-0"
+          } flex-1`}
+        >
           <div className="dashboard-content">
-            <div className="fade-in">
-              {children}
-            </div>
+            <div className="fade-in">{children}</div>
           </div>
         </main>
       </div>
