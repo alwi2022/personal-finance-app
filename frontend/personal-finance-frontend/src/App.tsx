@@ -12,9 +12,12 @@ import Privacy from "./pages/legal/Privacy";
 import Terms from "./pages/legal/Terms";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
+import { SettingsProvider } from "./context/settingsContext";
 
 const App = () => {
   return (
+    <SettingsProvider>
+
     <UserProvider>
       <Router>
         <Routes>
@@ -80,6 +83,7 @@ const App = () => {
         }}
       />
     </UserProvider>
+    </SettingsProvider>
   );
 };
 

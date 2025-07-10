@@ -1,4 +1,4 @@
-import { ArrowRight, TrendingDown, AlertCircle, Filter, Utensils, ShoppingBag, Gamepad2, FileText, GraduationCap, Plane, Heart, Car, Home } from "lucide-react";
+import { ArrowRight, TrendingDown, AlertCircle, Utensils, ShoppingBag, Gamepad2, FileText, GraduationCap, Plane, Heart, Car, Home } from "lucide-react";
 import { useState } from "react";
 import moment from "moment";
 import type { TypeTransaction } from "../../types/type";
@@ -21,7 +21,7 @@ const CATEGORY_MAP: Record<string, { label: string; icon: React.ReactNode; color
 
 const ExpanseTransactionsChart = ({ transactions, onSeeMore }: ExpenseTransactionsChartProps) => {
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
-  
+
   // Sort transactions
   const sortedTransactions = [...(transactions || [])].sort((a, b) => {
     if (sortBy === 'date') {
@@ -34,7 +34,7 @@ const ExpanseTransactionsChart = ({ transactions, onSeeMore }: ExpenseTransactio
   // Calculate expense statistics
   const totalExpenses = transactions?.reduce((sum, expense) => sum + expense.amount, 0) || 0;
   const averageExpense = transactions?.length > 0 ? totalExpenses / transactions.length : 0;
-  const highestExpense = transactions?.reduce((max, expense) => 
+  const highestExpense = transactions?.reduce((max, expense) =>
     expense.amount > max ? expense.amount : max, 0) || 0;
 
   return (
@@ -83,7 +83,7 @@ const ExpanseTransactionsChart = ({ transactions, onSeeMore }: ExpenseTransactio
         </div>
       </div>
 
-  
+
 
       {/* Transactions List */}
       <div className="card-content">
@@ -110,7 +110,7 @@ const ExpanseTransactionsChart = ({ transactions, onSeeMore }: ExpenseTransactio
       {/* Footer */}
       {sortedTransactions.length > 5 && (
         <div className="card-footer">
-          <button 
+          <button
             onClick={onSeeMore}
             className="w-full btn-outline btn-sm"
           >
@@ -130,7 +130,7 @@ interface ModernExpenseItemProps {
 const ModernExpenseItem = ({ expense }: ModernExpenseItemProps) => {
   const formattedDate = moment(expense.date).format("MMM DD, YYYY");
   const timeAgo = moment(expense.date).fromNow();
-  
+
   return (
     <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
       {/* Left side - Icon and details */}
