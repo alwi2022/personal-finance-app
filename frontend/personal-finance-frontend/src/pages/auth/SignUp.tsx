@@ -100,21 +100,17 @@ export default function SignUp() {
     <AuthLayout>
       <div className="w-full max-w-sm mx-auto">
         <div className="text-center  mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">Create Account</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">Sign Up</h1>
+          <p className="text-gray-600">Fill in the form below to create your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-sm">
           {/* Profile Picture */}
-          <div className="text-center">
-            <label className="block text-xs font-medium text-gray-700 mb-2">
-              Profile Picture (Optional)
-            </label>
+          <div className="text-center -mb-2">
+
             <div className="flex justify-center">
               <ProfilePictureSelector image={profilePicture} setImage={setProfilePicture} />
             </div>
-            <p className="text-xs text-gray-400 mt-1">
-              Personalize your account
-            </p>
           </div>
 
           {/* Full Name */}
