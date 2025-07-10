@@ -32,7 +32,7 @@ export interface User extends Document {
   }
   export interface Expanse extends Document {
     userId: Types.ObjectId;
-    icon: string;
+    source: string;
     category: string;
     amount: number;
     date: Date;

@@ -10,14 +10,14 @@ export default class ExpenseController {
         try {
 
             const userId = (req as any).user?._id;
-            const { icon, category, amount, date } = req.body
+            const { source, category, amount, date } = req.body
 
             if (!category || !amount || !date) {
                 res.status(400).json({ message: "All fields are required" })
                 return
             }
 
-            const newExpanse = new ExpanseModel({ userId, icon, category, amount, date: new Date(date) })
+            const newExpanse = new ExpanseModel({ userId, source, category, amount, date: new Date(date) })
             await newExpanse.save()
 
 
@@ -46,6 +46,7 @@ export default class ExpenseController {
             const Expenses = await ExpanseModel.find({ userId }).sort({ date: -1 })
             const data = Expenses.map((Expanse) => ({
                 category: Expanse.category,
+                source: Expanse.source,
                 amount: Expanse.amount,
                 date: Expanse.date
             }))
