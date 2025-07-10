@@ -25,7 +25,7 @@ export default class AuthController {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await OTPModel.findOneAndUpdate(
       { email },
-      { code: otp, expiredAt: Date.now() + 2 * 60 * 1000 },
+      { code: otp, expiredAt: Date.now() + 2 * 60 * 1000, lastSentAt: new Date(),type: "register" },
       { upsert: true }
     );
 
@@ -86,6 +86,91 @@ export default class AuthController {
 
   };
 
+  static ResendOTP: RequestHandler = async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ message: "Email wajib diisi." });
+      return;
+    }
+
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      res.status(400).json({ message: "Email sudah terdaftar. Silakan login." });
+      return;
+    }
+
+    const record = await OTPModel.findOne({ 
+      email,
+      type: "register" 
+    });
+    if (record && record.lastSentAt && Date.now() - record.lastSentAt.getTime() < 60000) {
+      res.status(429).json({ message: "Tunggu 1 menit sebelum mengirim ulang OTP." });
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await OTPModel.findOneAndUpdate(
+      { email, type: "register" },
+      {
+        code: otp,
+        expiredAt: Date.now() + 2 * 60 * 1000,
+        lastSentAt: new Date(),
+        type: "register"
+      },
+      { upsert: true }
+    );
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Expense Tracker App" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Your OTP Code – Expense Tracker App",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0;">
+          <div style="text-align: center;">
+            <img src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" alt="Expense Tracker App Logo"  style="max-width: 160px; width: 100%; height: auto; display: block; margin: 0 auto 16px; border-radius: 8px;"  />
+            <h1>Expense Tracker App</h1>
+            <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
+          </div>
+    
+          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e0e0e0;" />
+    
+          <p style="font-size: 15px; color: #333;">Hi <strong>${req.body.fullName || "there"}</strong>,</p>
+          <p style="font-size: 15px; color: #333;">Here's your <strong>One-Time Password (OTP)</strong> to verify your email and complete your registration:</p>
+    
+          <div style="background-color: #f3f0ff; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+            <p style="margin: 0; font-size: 30px; font-weight: bold; color: #3b0764; letter-spacing: 6px;">${otp}</p>
+          </div>
+    
+          <p style="font-size: 14px; color: #666;">
+            This code will expire in <strong>2 minutes</strong>. If you didn’t request this, you can safely ignore this email.
+          </p>
+    
+          <br/>
+    
+          <p style="font-size: 13px; color: #aaa; text-align: right;">
+            Regards,<br/>
+            Imam Bahri Alwi<br/>
+            <em>Developer, Expense Tracker App</em>
+          </p>
+        </div>
+      `,
+    });
+
+
+
+    res.status(200).json({ success: true, message: "OTP has been sent to your email.", expiredAt: Date.now() + 2 * 60 * 1000 });
+  };
+
   // ✅ Langkah 2 - Verifikasi OTP dan Buat Akun
   static VerifyRegister: RequestHandler = async (req: Request, res: Response) => {
     const { email, otp, fullName, password, profileImageUrl } = req.body;
@@ -95,7 +180,10 @@ export default class AuthController {
       return;
     }
 
-    const record = await OTPModel.findOne({ email });
+    const record = await OTPModel.findOne({ 
+      email, 
+      type: "register" 
+    });
 
     if (
       !record ||
@@ -107,6 +195,8 @@ export default class AuthController {
       res.status(400).json({ message: "OTP tidak valid atau kadaluarsa." });
       return;
     }
+
+    
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
@@ -121,7 +211,7 @@ export default class AuthController {
       profileImageUrl,
     });
 
-    await OTPModel.deleteOne({ email });
+    await OTPModel.deleteMany({ email });
 
     res.status(201).json({
       access_token: signToken({ id: user._id }),
@@ -213,7 +303,12 @@ export default class AuthController {
 
 
 
-  static ResendOTP: RequestHandler = async (req: Request, res: Response) => {
+
+
+
+// ✅ Forgot Password - Kirim OTP Reset
+static ForgotPassword: RequestHandler = async (req: Request, res: Response) => {
+  try {
     const { email } = req.body;
 
     if (!email) {
@@ -221,30 +316,40 @@ export default class AuthController {
       return;
     }
 
-    const existingUser = await UserModel.findOne({ email });
-    if (existingUser) {
-      res.status(400).json({ message: "Email sudah terdaftar. Silakan login." });
+    // Cek apakah user ada
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      res.status(404).json({ message: "No account found with this email address" });
       return;
     }
 
-    const record = await OTPModel.findOne({ email });
-    if (record && record.lastSentAt && Date.now() - record.lastSentAt.getTime() < 60000) {
-      res.status(429).json({ message: "Tunggu 1 menit sebelum mengirim ulang OTP." });
+    // Cek rate limit (1 menit)
+    const existingOTP = await OTPModel.findOne({ 
+      email, 
+      type: "reset_password" 
+    });
+    
+    if (existingOTP && existingOTP.lastSentAt && Date.now() - existingOTP.lastSentAt.getTime() < 60000) {
+      res.status(429).json({ message: "Tunggu 1 menit sebelum mengirim ulang kode reset." });
       return;
     }
 
+    // Generate OTP 6 digit
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
+    // Simpan OTP ke database
     await OTPModel.findOneAndUpdate(
-      { email },
+      { email, type: "reset_password" },
       {
         code: otp,
-        expiredAt: Date.now() + 2 * 60 * 1000,
+        expiredAt: Date.now() + 10 * 60 * 1000, // 10 menit
         lastSentAt: new Date(),
+        type: "reset_password"
       },
       { upsert: true }
     );
 
+    // Kirim email
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -256,26 +361,146 @@ export default class AuthController {
     await transporter.sendMail({
       from: `"Expense Tracker App" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Your OTP Code – Expense Tracker App",
+      subject: "Password Reset Code – Expense Tracker App",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0;">
           <div style="text-align: center;">
-            <img src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" alt="Expense Tracker App Logo"  style="max-width: 160px; width: 100%; height: auto; display: block; margin: 0 auto 16px; border-radius: 8px;"  />
+            <img 
+              src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" 
+              alt="Expense Tracker App Logo" 
+              style="max-width: 160px; width: 100%; height: auto; display: block; margin: 0 auto 16px; border-radius: 8px;"
+            />
             <h1>Expense Tracker App</h1>
             <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
           </div>
     
           <hr style="margin: 24px 0; border: none; border-top: 1px solid #e0e0e0;" />
     
-          <p style="font-size: 15px; color: #333;">Hi <strong>${req.body.fullName || "there"}</strong>,</p>
-          <p style="font-size: 15px; color: #333;">Here's your <strong>One-Time Password (OTP)</strong> to verify your email and complete your registration:</p>
+          <p style="font-size: 15px; color: #333;">Hi <strong>${user.fullName}</strong>,</p>
+          <p style="font-size: 15px; color: #333;">We received a request to reset your password. Here's your <strong>Password Reset Code</strong>:</p>
     
-          <div style="background-color: #f3f0ff; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
-            <p style="margin: 0; font-size: 30px; font-weight: bold; color: #3b0764; letter-spacing: 6px;">${otp}</p>
+          <div style="background-color: #fef3c7; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0; border: 2px solid #f59e0b;">
+            <p style="margin: 0; font-size: 30px; font-weight: bold; color: #92400e; letter-spacing: 6px;">${otp}</p>
           </div>
     
           <p style="font-size: 14px; color: #666;">
-            This code will expire in <strong>2 minutes</strong>. If you didn’t request this, you can safely ignore this email.
+            This code will expire in <strong>10 minutes</strong>. If you didn't request this password reset, you can safely ignore this email.
+          </p>
+
+          <div style="background-color: #fee2e2; padding: 12px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #ef4444;">
+            <p style="margin: 0; font-size: 13px; color: #dc2626;">
+              <strong>Security Notice:</strong> Never share this code with anyone. Our team will never ask for your reset code.
+            </p>
+          </div>
+    
+          <br/>
+    
+          <p style="font-size: 13px; color: #aaa; text-align: right;">
+            Regards,<br/>
+            Imam Bahri Alwi<br/>
+            <em>Developer, Expense Tracker App</em>
+          </p>
+        </div>
+      `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset code has been sent to your email.",
+      expiredAt: Date.now() + 10 * 60 * 1000
+    });
+
+  } catch (error: any) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({ message: "Terjadi kesalahan saat mengirim kode reset." });
+  }
+};
+
+// ✅ Reset Password - Verifikasi OTP dan Update Password
+static ResetPassword: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      res.status(400).json({ message: "Email, kode OTP, dan password baru wajib diisi." });
+      return;
+    }
+
+    // Validasi password minimal 6 karakter
+    if (newPassword.length < 6) {
+      res.status(400).json({ message: "Password minimal 6 karakter." });
+      return;
+    }
+
+    // Cek apakah user ada
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      res.status(404).json({ message: "User tidak ditemukan." });
+      return;
+    }
+
+    // Verifikasi OTP
+    const otpRecord = await OTPModel.findOne({ 
+      email, 
+      type: "reset_password" 
+    });
+
+    if (
+      !otpRecord ||
+      !otpRecord.code ||
+      !otpRecord.expiredAt ||
+      otpRecord.code !== otp ||
+      otpRecord.expiredAt.getTime() < Date.now()
+    ) {
+      res.status(400).json({ message: "Kode OTP tidak valid atau sudah kadaluarsa." });
+      return;
+    }
+
+    // Update password
+    await UserModel.findByIdAndUpdate(user._id, {
+      password: hashPassword(newPassword)
+    });
+
+    // Hapus OTP setelah berhasil
+    await OTPModel.deleteOne({ email, type: "reset_password" });
+
+    // Kirim email konfirmasi
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Expense Tracker App" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Password Successfully Reset – Expense Tracker App",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0;">
+          <div style="text-align: center;">
+            <img 
+              src="https://finance.alwi.tech/assets/image/logo-expanse-tracker.png" 
+              alt="Expense Tracker App Logo" 
+              style="max-width: 160px; width: 100%; height: auto; display: block; margin: 0 auto 16px; border-radius: 8px;"
+            />
+            <h1>Expense Tracker App</h1>
+            <p style="font-size: 14px; color: #555;">Manage your money better, every day.</p>
+          </div>
+    
+          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e0e0e0;" />
+    
+          <p style="font-size: 15px; color: #333;">Hi <strong>${user.fullName}</strong>,</p>
+          <p style="font-size: 15px; color: #333;">Your password has been successfully reset. You can now log in with your new password.</p>
+    
+          <div style="background-color: #d1fae5; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0; border: 2px solid #10b981;">
+            <p style="margin: 0; font-size: 18px; font-weight: bold; color: #065f46;">✅ Password Reset Successful</p>
+            <p style="margin: 8px 0 0 0; font-size: 14px; color: #047857;">Reset completed on ${new Date().toLocaleString('id-ID')}</p>
+          </div>
+    
+          <p style="font-size: 14px; color: #666;">
+            If you didn't reset your password, please contact our support team immediately.
           </p>
     
           <br/>
@@ -289,10 +514,16 @@ export default class AuthController {
       `,
     });
 
+    res.status(200).json({
+      success: true,
+      message: "Password berhasil direset. Silakan login dengan password baru Anda.",
+    });
 
-
-    res.status(200).json({ success: true, message: "OTP has been sent to your email.", expiredAt: Date.now() + 2 * 60 * 1000 });
-  };
+  } catch (error: any) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ message: "Terjadi kesalahan saat reset password." });
+  }
+};
 
 
 }
