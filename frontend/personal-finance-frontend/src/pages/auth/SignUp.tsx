@@ -14,70 +14,41 @@ interface FormData {
   fullName: string;
   email: string;
   password: string;
-  confirmPassword: string;
 }
 
 interface FormErrors {
   fullName?: string;
   email?: string;
   password?: string;
-  confirmPassword?: string;
 }
 
 export default function SignUp() {
   const navigate = useNavigate();
   const userContext = useContext(UserContext);
 
-  const [form, setForm] = useState<FormData>({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: ""
-  });
+  const [form, setForm] = useState<FormData>({ fullName: "", email: "", password: "" });
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   if (!userContext) throw new Error("UserContext must be used within UserProvider");
 
   const handleChange = (field: keyof FormData) => (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setForm({ ...form, [field]: value });
-
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: undefined });
-    }
+    setForm({ ...form, [field]: e.target.value });
+    if (errors[field]) setErrors({ ...errors, [field]: undefined });
   };
 
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
+    if (!form.fullName.trim()) newErrors.fullName = "Full name is required";
+    else if (form.fullName.trim().length < 2) newErrors.fullName = "At least 2 characters";
 
-    if (!form.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    } else if (form.fullName.trim().length < 2) {
-      newErrors.fullName = "Full name must be at least 2 characters";
-    }
+    if (!form.email) newErrors.email = "Email is required";
+    else if (!validateEmail(form.email)) newErrors.email = "Invalid email";
 
-    if (!form.email) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(form.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!form.password) {
-      newErrors.password = "Password is required";
-    } else if (form.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
-
-    if (!form.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (form.password !== form.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
+    if (!form.password) newErrors.password = "Password is required";
+    else if (form.password.length < 8) newErrors.password = "Minimum 8 characters";
 
     return newErrors;
   };
@@ -90,16 +61,10 @@ export default function SignUp() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     const formErrors = validateForm();
-    if (Object.keys(formErrors).length > 0) {
-      setErrors(formErrors);
-      return;
-    }
+    if (Object.keys(formErrors).length > 0) return setErrors(formErrors);
 
     setLoading(true);
-    setErrors({});
-
     try {
       let profileImageUrl = "";
       if (profilePicture) {
@@ -112,26 +77,18 @@ export default function SignUp() {
         fullName: form.fullName,
       });
 
-      const expiredAt = res.data?.expiredAt;
-
-      toast.success("OTP has been sent to your email");
-
+      toast.success("OTP sent to your email");
       navigate("/verify-otp", {
         state: {
           ...form,
           profileImageUrl,
-          expiredAt,
+          expiredAt: res.data?.expiredAt,
         },
       });
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || "Failed to send OTP";
-
-      // Handle specific error types
-      if (err?.response?.status === 400) {
-        setErrors({ email: errorMessage });
-      } else {
-        toast.error(errorMessage);
-      }
+      const message = err?.response?.data?.message || "Failed to send OTP";
+      if (err?.response?.status === 400) setErrors({ email: message });
+      else toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -141,43 +98,35 @@ export default function SignUp() {
 
   return (
     <AuthLayout>
-      <div className="w-full max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600">
-            Join thousands of users managing their finances
-          </p>
+      <div className="w-full max-w-sm mx-auto">
+        <div className="text-center  mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">Create Account</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
           {/* Profile Picture */}
           <div className="text-center">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-xs font-medium text-gray-700 mb-2">
               Profile Picture (Optional)
             </label>
             <div className="flex justify-center">
-              <ProfilePictureSelector
-                image={profilePicture}
-                setImage={setProfilePicture}
-              />
+              <ProfilePictureSelector image={profilePicture} setImage={setProfilePicture} />
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Upload a profile picture to personalize your account
+            <p className="text-xs text-gray-400 mt-1">
+              Personalize your account
             </p>
           </div>
 
           {/* Full Name */}
           <div>
-            <label className="input-label">
-              Full Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <User size={20} />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <User size={18} />
               </span>
               <input
                 type="text"
-                placeholder="Enter your full name"
+                placeholder="Your full name"
                 value={form.fullName}
                 onChange={handleChange("fullName")}
                 className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.fullName ? "border-red-500" : "border-gray-300"
@@ -185,78 +134,69 @@ export default function SignUp() {
                 disabled={loading}
               />
               {form.fullName && !errors.fullName && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
-                  <CheckCircle size={20} />
-                </div>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+                  <CheckCircle size={18} />
+                </span>
               )}
             </div>
-            {errors.fullName && (
-              <p className="input-error">{errors.fullName}</p>
-            )}
+            {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
           </div>
 
           {/* Email */}
           <div>
-            <label className="input-label">
-              Email Address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <Mail size={20} />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Mail size={18} />
               </span>
               <input
                 type="email"
-                placeholder="Enter your email address"
+                placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange("email")}
                 className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? "border-red-500" : "border-gray-300"
                   }`}
+                autoComplete="email"
                 disabled={loading}
               />
               {form.email && !errors.email && validateEmail(form.email) && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
-                  <CheckCircle size={20} />
-                </div>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+                  <CheckCircle size={18} />
+                </span>
               )}
             </div>
-            {errors.email && (
-              <p className="input-error">{errors.email}</p>
-            )}
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
           </div>
 
           {/* Password */}
           <div>
-            <label className="input-label">
-              Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <Lock size={20} />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Lock size={18} />
               </span>
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Create a strong password"
+                placeholder="Create password"
                 value={form.password}
                 onChange={handleChange("password")}
-                className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.password ? "border-red-500" : "border-gray-300"
+                className={`w-full pl-11 pr-11 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.password ? "border-red-500" : "border-gray-300"
                   }`}
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
                 disabled={loading}
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            {errors.password && (
-              <p className="input-error">{errors.password}</p>
-            )}
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
             {form.password && !errors.password && (
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-xs text-gray-500">Password strength:</span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-gray-500">Strength:</span>
                 <span className={`text-xs font-medium ${passwordStrength.color}`}>
                   {passwordStrength.strength}
                 </span>
@@ -264,60 +204,13 @@ export default function SignUp() {
             )}
           </div>
 
-          {/* Confirm Password */}
-          <div>
-            <label className="input-label">
-              Confirm Password
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <Lock size={20} />
-              </span>
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm your password"
-                value={form.confirmPassword}
-                onChange={handleChange("confirmPassword")}
-                className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.confirmPassword ? "border-red-500" : "border-gray-300"
-                  }`}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                disabled={loading}
-              >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-              {form.confirmPassword && form.password === form.confirmPassword && (
-                <div className="absolute right-11 top-1/2 transform -translate-y-1/2 text-green-500">
-                  <CheckCircle size={20} />
-                </div>
-              )}
-            </div>
-            {errors.confirmPassword && (
-              <p className="input-error">{errors.confirmPassword}</p>
-            )}
-          </div>
-
-          {/* Terms and Conditions */}
-          <div className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              id="terms"
-              className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2 mt-1"
-              required
-            />
-            <label htmlFor="terms" className="text-sm text-gray-600">
+          {/* Terms */}
+          <div className="flex items-start gap-2 text-xs text-gray-600">
+            <input type="checkbox" id="terms" className="mt-0.5" required />
+            <label htmlFor="terms">
               I agree to the{" "}
-              <Link to="/terms" className="text-primary hover:underline">
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link to="/privacy" className="text-primary hover:underline">
-                Privacy Policy
-              </Link>
+              <Link to="/terms" className="text-primary underline">Terms</Link> and{" "}
+              <Link to="/privacy" className="text-primary underline">Privacy Policy</Link>
             </label>
           </div>
 
@@ -337,29 +230,14 @@ export default function SignUp() {
             )}
           </button>
 
-          {/* Divider */}
-          <div className="divider"></div>
-
-          {/* Sign In Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="text-primary hover:text-primary-dark font-medium"
-              >
-                Sign in here
-              </Link>
-            </p>
-          </div>
-        </form>
-
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            By creating an account, you're joining a secure platform trusted by thousands
+          {/* Sign In */}
+          <p className="text-center text-sm text-gray-600 mt-2">
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary font-medium hover:underline">
+              Sign in
+            </Link>
           </p>
-        </div>
+        </form>
       </div>
     </AuthLayout>
   );
