@@ -11,6 +11,7 @@ import Profile from "./pages/Dashboard/Profile";
 import Privacy from "./pages/legal/Privacy";
 import Terms from "./pages/legal/Terms";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/verify-otp" element={<OtpVerification />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           {/* Legal Pages */}
           <Route path="/privacy" element={<Privacy />} />

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Mail, RefreshCw, Shield, CheckCircle, ArrowRight, Clock } from "lucide-react";
+import { Mail, RefreshCw, Shield, CheckCircle, ArrowRight, Clock, AlertCircle } from "lucide-react";
 import AuthLayout from "../../components/layouts/AuthLayout";
 import axiosInstance from "../../utils/axios-instance";
 import { API_PATH } from "../../utils/api";
@@ -26,6 +26,7 @@ export default function OtpVerification() {
     const [resendLoading, setResendLoading] = useState(false);
     const [error, setError] = useState("");
     const [isComplete, setIsComplete] = useState(false);
+    const [resendCount, setResendCount] = useState(0); // 👈 TAMBAH: Track resend count
 
     const [timer, setTimer] = useState(() => {
         if (data?.expiredAt) {
@@ -33,6 +34,9 @@ export default function OtpVerification() {
         }
         return 120; // fallback default
     });
+
+    // 👇 TAMBAH: Check if OTP expired
+    const isExpired = timer <= 0;
 
     useEffect(() => {
         if (!data?.email) {
@@ -56,10 +60,11 @@ export default function OtpVerification() {
         const isOtpComplete = otp.every(digit => digit !== "");
         setIsComplete(isOtpComplete);
 
-        if (isOtpComplete) {
+        // 👇 PERBAIKAN: Hanya auto-submit jika tidak expired dan tidak loading
+        if (isOtpComplete && !isExpired && !loading) {
             handleSubmit();
         }
-    }, [otp]);
+    }, [otp, isExpired, loading]);
 
     const handleOtpChange = (index: number, value: string) => {
         if (!/^\d?$/.test(value)) return;
@@ -80,6 +85,10 @@ export default function OtpVerification() {
     const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
         if (e.key === "Backspace" && !otp[index] && index > 0) {
             inputRefs.current[index - 1]?.focus();
+        }
+        // 👇 TAMBAH: Enter key submit
+        if (e.key === "Enter" && isComplete && !isExpired) {
+            handleSubmit();
         }
     };
 
@@ -106,6 +115,12 @@ export default function OtpVerification() {
     const handleSubmit = async () => {
         if (otp.some((digit) => digit.trim() === "")) {
             setError("Please enter the complete OTP code");
+            return;
+        }
+
+        // 👇 TAMBAH: Check expiry before submit
+        if (isExpired) {
+            setError("OTP has expired. Please request a new code.");
             return;
         }
 
@@ -137,6 +152,12 @@ export default function OtpVerification() {
     };
 
     const handleResendOtp = async () => {
+        // 👇 TAMBAH: Limit resend attempts
+        if (resendCount >= 3) {
+            toast.error("Too many resend attempts. Please try again later.");
+            return;
+        }
+
         setResendLoading(true);
 
         try {
@@ -145,6 +166,7 @@ export default function OtpVerification() {
             });
 
             toast.success("New OTP sent to your email");
+            setResendCount(prev => prev + 1); // 👈 TAMBAH: Increment counter
 
             const expiredAt = res.data?.expiredAt;
             if (expiredAt) {
@@ -158,7 +180,8 @@ export default function OtpVerification() {
             setError("");
             inputRefs.current[0]?.focus();
         } catch (err: any) {
-            toast.error("Failed to resend OTP. Please try again.");
+            const errorMessage = err?.response?.data?.message || "Failed to resend OTP. Please try again.";
+            toast.error(errorMessage);
         } finally {
             setResendLoading(false);
         }
@@ -185,6 +208,19 @@ export default function OtpVerification() {
                         <span className="font-medium text-gray-900">{maskedEmail}</span>
                     </p>
                 </div>
+
+                {/* 👇 TAMBAH: Expiry warning */}
+                {isExpired && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                        <div className="flex items-center gap-2 text-red-700">
+                            <AlertCircle size={16} />
+                            <span className="text-sm font-medium">Code Expired</span>
+                        </div>
+                        <p className="text-red-600 text-sm mt-1">
+                            Your verification code has expired. Please request a new one.
+                        </p>
+                    </div>
+                )}
 
                 <div className="space-y-6">
                     {/* OTP Input */}
@@ -214,9 +250,10 @@ export default function OtpVerification() {
                                             : 'border-gray-300 hover:border-gray-400'
                                         } 
                                         ${error ? 'border-red-500' : ''}
+                                        ${isExpired ? 'border-red-300 bg-red-50 text-red-400' : ''}
                                         focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
                                         disabled:opacity-50 disabled:cursor-not-allowed`}
-                                    disabled={loading}
+                                    disabled={loading || isExpired}
                                 />
                             ))}
                         </div>
@@ -227,8 +264,11 @@ export default function OtpVerification() {
                                 {otp.map((digit, index) => (
                                     <div
                                         key={index}
-                                        className={`w-2 h-2 rounded-full transition-all ${digit ? 'bg-primary' : 'bg-gray-300'
-                                            }`}
+                                        className={`w-2 h-2 rounded-full transition-all ${
+                                            digit 
+                                                ? isExpired ? 'bg-red-400' : 'bg-primary' 
+                                                : 'bg-gray-300'
+                                        }`}
                                     />
                                 ))}
                             </div>
@@ -243,7 +283,7 @@ export default function OtpVerification() {
                             </div>
                         )}
 
-                        {isComplete && !error && (
+                        {isComplete && !error && !isExpired && (
                             <div className="flex items-center gap-2 text-green-600 text-sm justify-center">
                                 <CheckCircle size={16} />
                                 <span>Verifying...</span>
@@ -257,31 +297,39 @@ export default function OtpVerification() {
                             <div className="flex items-center justify-center gap-2 text-gray-600">
                                 <Clock size={16} />
                                 <span className="text-sm">
-                                    Resend code in {formatTime(timer)}
+                                    Code expires in {formatTime(timer)}
                                 </span>
                             </div>
                         ) : (
-                            <button
-                                onClick={handleResendOtp}
-                                disabled={resendLoading}
-                                className="btn-outline btn-sm"
-                            >
-                                {resendLoading ? (
-                                    <div className="loading-spinner"></div>
-                                ) : (
-                                    <>
-                                        <RefreshCw size={16} />
-                                        Resend Code
-                                    </>
+                            <div className="space-y-2">
+                                <button
+                                    onClick={handleResendOtp}
+                                    disabled={resendLoading || resendCount >= 3}
+                                    className="btn-outline btn-sm"
+                                >
+                                    {resendLoading ? (
+                                        <div className="loading-spinner"></div>
+                                    ) : (
+                                        <>
+                                            <RefreshCw size={16} />
+                                            Resend Code
+                                        </>
+                                    )}
+                                </button>
+                                {/* 👇 TAMBAH: Show resend count */}
+                                {resendCount > 0 && (
+                                    <p className="text-xs text-gray-500">
+                                        Resent {resendCount}/3 times
+                                    </p>
                                 )}
-                            </button>
+                            </div>
                         )}
                     </div>
 
-                    {/* Manual Submit Button (in case auto-submit fails) */}
+                    {/* Manual Submit Button */}
                     <button
                         onClick={handleSubmit}
-                        disabled={loading || !isComplete}
+                        disabled={loading || !isComplete || isExpired}
                         className="btn-primary group"
                     >
                         {loading ? (

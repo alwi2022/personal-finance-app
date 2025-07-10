@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Mail, ArrowRight, ArrowLeft, CheckCircle, TrendingUp } from "lucide-react";
 import { validateEmail } from "../../utils/helper";
 import axiosInstance from "../../utils/axios-instance";
@@ -19,6 +19,8 @@ export default function ForgotPassword() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  const navigate = useNavigate(); // 👈 TAMBAH INI
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -55,13 +57,12 @@ export default function ForgotPassword() {
     setErrors({});
 
     try {
-      // Replace with your actual forgot password API endpoint
-      await axiosInstance.post(API_PATH.AUTH.FORGOT_PASSWORD || "/auth/forgot-password", {
+      await axiosInstance.post(API_PATH.AUTH.FORGOT_PASSWORD, {
         email: form.email,
       });
 
       setIsSubmitted(true);
-      toast.success("Password reset link sent to your email");
+      toast.success("Password reset code sent to your email");
     } catch (err: any) {
       console.error("Forgot password failed:", err);
       const errorMessage = err?.response?.data?.message || "Failed to send reset email";
@@ -98,20 +99,29 @@ export default function ForgotPassword() {
 
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h1>
             <p className="text-gray-600 mb-6">
-              We've sent a password reset link to <strong>{form.email}</strong>
+              We've sent a password reset code to <strong>{form.email}</strong>
             </p>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
               <h3 className="font-medium text-blue-900 mb-2">Next Steps:</h3>
               <ol className="text-blue-800 text-sm space-y-1">
                 <li>1. Check your email inbox</li>
-                <li>2. Click the reset link</li>
-                <li>3. Create a new password</li>
-                <li>4. Sign in with new password</li>
+                <li>2. Copy the 6-digit reset code</li>
+                <li>3. Enter the code on next page</li>
+                <li>4. Create your new password</li>
               </ol>
             </div>
 
             <div className="space-y-3">
+              {/* 👇 BUTTON UTAMA - NAVIGATE KE RESET PASSWORD */}
+              <button
+                onClick={() => navigate(`/reset-password?email=${encodeURIComponent(form.email)}`)}
+                className="btn-primary w-full"
+              >
+                <ArrowRight size={16} />
+                Enter Reset Code
+              </button>
+              
               <button
                 onClick={() => setIsSubmitted(false)}
                 className="btn-outline btn-sm w-full"
@@ -121,7 +131,7 @@ export default function ForgotPassword() {
               
               <Link
                 to="/login"
-                className="btn-primary btn-sm w-full block"
+                className="btn-outline btn-sm w-full block"
               >
                 <ArrowLeft size={16} />
                 Back to Login
@@ -151,7 +161,7 @@ export default function ForgotPassword() {
           
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Forgot Password?</h1>
           <p className="text-gray-600">
-            No worries! Enter your email and we'll send you reset instructions
+            No worries! Enter your email and we'll send you a reset code
           </p>
         </div>
 
@@ -185,7 +195,7 @@ export default function ForgotPassword() {
                 <p className="input-error">{errors.email}</p>
               )}
               <p className="input-help">
-                We'll send password reset instructions to this email
+                We'll send a 6-digit reset code to this email
               </p>
             </div>
 
@@ -199,7 +209,7 @@ export default function ForgotPassword() {
                 <div className="loading-spinner"></div>
               ) : (
                 <>
-                  Send Reset Link
+                  Send Reset Code
                   <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
@@ -237,7 +247,7 @@ export default function ForgotPassword() {
             <div>
               <h3 className="font-medium text-blue-900 text-sm mb-1">Security Notice</h3>
               <p className="text-blue-800 text-xs">
-                Reset links expire after 1 hour and can only be used once. 
+                Reset codes expire after 10 minutes and can only be used once. 
                 Check your spam folder if you don't receive an email.
               </p>
             </div>
