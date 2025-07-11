@@ -3,8 +3,9 @@ import { useState } from "react";
 import { prepareExpanseLineChartData } from "../../utils/helper";
 import { LuPlus } from "react-icons/lu";
 import CustomLineChart from "../Charts/CustomLineChart";
-
+import { useSettings } from "../../context/settingsContext";
 const ExpenseOverview = ({ transactions, onExpanseIncome }: { transactions: any, onExpanseIncome: () => void }) => {
+    const { t } = useSettings();
     const [chartData, setChartData] = useState<any>([]);
 
     useEffect(() => {
@@ -16,10 +17,10 @@ const ExpenseOverview = ({ transactions, onExpanseIncome }: { transactions: any,
         <div className="card">
             <div className="flex justify-between items-center">
                 <div>
-                    <h5 className="text-lg ">Expense Overview</h5>
-                    <p className="text-sm text-gray-500 mt-0.5">Track your spending trends over time and gain insights into your spending habits.</p>
+                    <h5 className="text-lg ">{t('expense_overview')}</h5>
+                    <p className="text-sm text-gray-500 mt-0.5">{t('expense_overview_description')}</p>
                 </div>
-                <button className="add-btn" onClick={onExpanseIncome}><LuPlus className="text-lg" /> Add Expense</button>
+                <button className="add-btn" onClick={onExpanseIncome}><LuPlus className="text-lg" /> {t('add_expense')}</button>
 
             </div>
             <div className="mt-10">

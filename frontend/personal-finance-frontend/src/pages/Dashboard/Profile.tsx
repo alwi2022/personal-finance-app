@@ -1,7 +1,9 @@
 import { useState, useEffect, useContext } from "react";
-import { User, Camera, Upload, Save, X, Check } from "lucide-react";
+import { User, Camera, Upload, Save, X, Globe, DollarSign } from "lucide-react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import { UserContext } from "../../context/userContext";
+import { useSettings } from "../../context/settingsContext";
+import type { Language, Currency } from "../../context/settingsContext";
 import axiosInstance from "../../utils/axios-instance";
 import { API_PATH } from "../../utils/api";
 import { toast } from "react-hot-toast";
@@ -12,9 +14,12 @@ export default function Profile() {
   // Use authentication hook
   useUserAuth();
   
-  // Get user from context instead of making separate API call
+  // Get user from context
   const userContext = useContext(UserContext);
   const { user } = userContext || {};
+  
+  // Get settings context
+  const { language, currency, setLanguage, setCurrency, t, formatUSDAmount } = useSettings();
   
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -28,8 +33,6 @@ export default function Profile() {
   // Initialize form data when user context is available
   useEffect(() => {
     if (user && !isInitialized) {
-      console.log("🔍 Profile: Initializing with user data:", user);
-      
       setName(user.fullName || "");
       setImageUrl(user.profileImageUrl || "");
       setOriginalName(user.fullName || "");
@@ -55,30 +58,27 @@ export default function Profile() {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
 
-    // Create preview URL
     const preview = URL.createObjectURL(selectedFile);
     setPreviewUrl(preview);
 
-    // Validate file type and size
     const validTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!validTypes.includes(selectedFile.type)) {
-      toast.error("Please select a valid image file (JPG, PNG, or WebP)");
+      toast.error(t('invalid_file_type'));
       return;
     }
 
     if (selectedFile.size > 2 * 1024 * 1024) {
-      toast.error("File size must be less than 2MB");
+      toast.error(t('file_size_limit'));
       return;
     }
 
-    // Upload image
     try {
       const uploadPromise = uploadImage(selectedFile);
       
       toast.promise(uploadPromise, {
-        loading: "Uploading image...",
-        success: "Image uploaded successfully",
-        error: "Failed to upload image",
+        loading: t('uploading_image'),
+        success: t('image_uploaded'),
+        error: t('upload_failed'),
       });
 
       const url = await uploadPromise;
@@ -101,18 +101,16 @@ export default function Profile() {
       });
 
       toast.promise(updatePromise, {
-        loading: "Saving changes...",
-        success: "Profile updated successfully",
-        error: "Failed to save profile",
+        loading: t('saving_changes'),
+        success: t('profile_updated'),
+        error: t('save_failed'),
       });
 
       await updatePromise;
       
-      // Update original values
       setOriginalName(name);
       setOriginalImageUrl(imageUrl);
       
-      // Update user context
       if (userContext?.updateUser) {
         userContext.updateUser({
           ...user,
@@ -134,6 +132,16 @@ export default function Profile() {
     setPreviewUrl(null);
   };
 
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+    toast.success(t('language_updated'));
+  };
+
+  const handleCurrencyChange = (curr: Currency) => {
+    setCurrency(curr);
+    toast.success(t('currency_updated'));
+  };
+
   const isChanged = name !== originalName || imageUrl !== originalImageUrl;
 
   // Show loading until user context is available
@@ -143,7 +151,7 @@ export default function Profile() {
         <div className="flex items-center justify-center min-h-96">
           <div className="text-center space-y-4">
             <div className="loading-spinner w-8 h-8 mx-auto"></div>
-            <p className="text-gray-500">Loading profile...</p>
+            <p className="text-gray-500">{t('loading_profile')}</p>
           </div>
         </div>
       </DashboardLayout>
@@ -155,9 +163,9 @@ export default function Profile() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('profile_settings')}</h1>
           <p className="text-gray-600 mt-2">
-            Manage your account information and preferences
+            {t('manage_account_info')}
           </p>
         </div>
 
@@ -166,7 +174,7 @@ export default function Profile() {
           <div className="lg:col-span-1">
             <div className="card sticky top-6">
               <div className="text-center">
-                <h3 className="card-title mb-4">Profile Picture</h3>
+                <h3 className="card-title mb-4">{t('profile_picture')}</h3>
                 
                 {/* Avatar Display */}
                 <div className="relative inline-block mb-6">
@@ -207,24 +215,10 @@ export default function Profile() {
                   </label>
                 </div>
 
-                {/* File Info */}
-                {file && (
-                  <div className="text-sm text-gray-600 mb-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <Upload size={16} />
-                      <span>{file.name}</span>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                )}
-
                 {/* Upload Guidelines */}
                 <div className="text-xs text-gray-500 space-y-1">
-                  <p>• JPG, PNG, or WebP format</p>
-                  <p>• Maximum size: 2MB</p>
-                  <p>• Recommended: 400x400px</p>
+                  <p>• {t('file_format_guide')}</p>
+                  <p>• {t('max_size_guide')}</p>
                 </div>
               </div>
             </div>
@@ -234,9 +228,9 @@ export default function Profile() {
           <div className="lg:col-span-2">
             <div className="card">
               <div className="card-header">
-                <h3 className="card-title">Personal Information</h3>
+                <h3 className="card-title">{t('personal_information')}</h3>
                 <p className="card-subtitle">
-                  Update your personal details and account information
+                  {t('update_personal_details')}
                 </p>
               </div>
 
@@ -245,20 +239,20 @@ export default function Profile() {
                 <div>
                   <label className="input-label">
                     <User size={16} className="inline mr-2" />
-                    Full Name
+                    {t('full_name')}
                   </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
+                    placeholder={t('enter_full_name')}
                     className="input-box"
                   />
                 </div>
 
                 {/* Email (Read-only) */}
                 <div>
-                  <label className="input-label">Email Address</label>
+                  <label className="input-label">{t('email_address')}</label>
                   <input
                     type="email"
                     value={user.email || ""}
@@ -266,25 +260,27 @@ export default function Profile() {
                     className="input-box bg-gray-50 cursor-not-allowed"
                   />
                   <p className="input-help">
-                    Email address cannot be changed. Contact support if needed.
+                    {t('email_readonly_note')}
                   </p>
                 </div>
 
                 {/* Account Stats */}
                 <div>
-                  <label className="input-label">Account Information</label>
+                  <label className="input-label">{t('account_information')}</label>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-600">Member Since</p>
+                      <p className="text-sm text-gray-600">{t('member_since')}</p>
                       <p className="font-medium">
-                        {new Date(user.createdAt || Date.now()).toLocaleDateString()}
+                        {new Date(user.createdAt || Date.now()).toLocaleDateString(
+                          language === 'id' ? 'id-ID' : 'en-US'
+                        )}
                       </p>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-600">Account Status</p>
+                      <p className="text-sm text-gray-600">{t('account_status')}</p>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <p className="font-medium text-green-600">Active</p>
+                        <p className="font-medium text-green-600">{t('active')}</p>
                       </div>
                     </div>
                   </div>
@@ -298,7 +294,7 @@ export default function Profile() {
                     {isChanged && (
                       <div className="flex items-center gap-1 text-sm text-orange-600">
                         <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>Unsaved changes</span>
+                        <span>{t('unsaved_changes')}</span>
                       </div>
                     )}
                   </div>
@@ -310,7 +306,7 @@ export default function Profile() {
                         className="btn-ghost btn-sm"
                       >
                         <X size={16} />
-                        Cancel
+                        {t('cancel')}
                       </button>
                     )}
                     
@@ -324,7 +320,7 @@ export default function Profile() {
                       ) : (
                         <>
                           <Save size={16} />
-                          Save Changes
+                          {t('save_changes')}
                         </>
                       )}
                     </button>
@@ -333,26 +329,99 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Additional Settings */}
+            {/* Settings */}
             <div className="card mt-6">
               <div className="card-header">
-                <h3 className="card-title">Preferences</h3>
+                <h3 className="card-title">{t('preferences')}</h3>
                 <p className="card-subtitle">
-                  Customize your experience
+                  {t('customize_experience')}
                 </p>
               </div>
 
-              <div className="card-content space-y-4">
-                {/* Coming Soon */}
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User size={24} className="text-gray-400" />
+              <div className="card-content space-y-6">
+                {/* Language Settings */}
+                <div>
+                  <label className="input-label">
+                    <Globe size={16} className="inline mr-2" />
+                    {t('language_settings')}
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleLanguageChange('en')}
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                        language === 'en'
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      English
+                    </button>
+                    <button
+                      onClick={() => handleLanguageChange('id')}
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                        language === 'id'
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      Indonesia
+                    </button>
                   </div>
-                  <p className="text-gray-500">More settings coming soon</p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    We're working on additional customization options
-                  </p>
                 </div>
+
+                {/* Currency Settings */}
+                <div>
+                  <label className="input-label">
+                    <DollarSign size={16} className="inline mr-2" />
+                    {t('currency_settings')}
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleCurrencyChange('USD')}
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                        currency === 'USD'
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      USD ($)
+                    </button>
+                    <button
+                      onClick={() => handleCurrencyChange('IDR')}
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                        currency === 'IDR'
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      IDR (Rp)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Currency Preview */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">
+                        {t('currency_preview')}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatUSDAmount(1500)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-gray-700">
+                        {language === 'en' ? 'Language' : 'Bahasa'}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {language === 'en' ? 'English' : 'Indonesia'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+               
               </div>
             </div>
           </div>

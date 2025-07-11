@@ -1,4 +1,5 @@
 import { AlertTriangle, Trash2, X } from "lucide-react";
+import { useSettings } from "../../context/settingsContext";
 
 interface DeleteAlertProps {
   content: string;
@@ -14,9 +15,10 @@ const DeleteAlert = ({
   onDelete, 
   onCancel, 
   isLoading = false,
-  title = "Confirm Deletion",
+  title = "confirm_deletion",
   itemName
 }: DeleteAlertProps) => {
+  const { t } = useSettings();
   return (
     <div className="text-center space-y-6">
       {/* Warning Icon */}
@@ -29,28 +31,28 @@ const DeleteAlert = ({
       {/* Title */}
       <div className="space-y-2">
         <h3 className="text-lg font-semibold text-gray-900">
-          {title}
+          {t(title)}
         </h3>
         <p className="text-gray-600">
-          {content}
+          {t(content)}
         </p>
         {itemName && (
           <p className="text-sm text-gray-500 bg-gray-50 px-3 py-2 rounded-lg inline-block">
-            <span className="font-medium">Item:</span> {itemName}
+            <span className="font-medium">{t('item')}:</span> {itemName}
           </p>
         )}
       </div>
 
       {/* Warning Message */}
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 text-red-800">
+        <div className="flex items-center justify-center gap-2 text-red-800">
           <AlertTriangle size={16} />
           <span className="text-sm font-medium">
-            This action cannot be undone
+            {t('this_action_cannot_be_undone')}
           </span>
         </div>
         <p className="text-xs text-red-600 mt-1">
-          Please make sure you want to permanently delete this item.
+          {t('please_make_sure_you_want_to_permanently_delete_this_item')}
         </p>
       </div>
 
@@ -62,7 +64,7 @@ const DeleteAlert = ({
           className="btn-secondary btn-sm px-6"
         >
           <X size={16} />
-          Cancel
+          {t('cancel')}
         </button>
         
         <button
@@ -75,7 +77,7 @@ const DeleteAlert = ({
           ) : (
             <>
               <Trash2 size={16} />
-              Delete
+              {t('delete')}
             </>
           )}
         </button>

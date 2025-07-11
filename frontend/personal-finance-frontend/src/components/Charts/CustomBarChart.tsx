@@ -9,6 +9,7 @@ import {
   Cell,
 } from "recharts";
 import { TrendingUp, BarChart3 } from "lucide-react";
+import { useSettings } from "../../context/settingsContext";
 
 interface BarChartData {
   month: string;
@@ -21,6 +22,7 @@ interface CustomBarChartProps {
 }
 
 const CustomBarChart = ({ data }: CustomBarChartProps) => {
+  const { t, formatCurrency } = useSettings();
   
   // Calculate statistics
   const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
@@ -50,11 +52,11 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
           </div>
           <div className="space-y-1">
             <p className="text-xs text-gray-600">
-              Amount: <span className="font-medium">${data.amount.toLocaleString()}</span>
+              {t('amount')}: <span className="font-medium">{formatCurrency(data.amount)}</span>
             </p>
             {data.category && (
               <p className="text-xs text-gray-600">
-                Category: <span className="font-medium">{data.category}</span>
+                {t('category')}: <span className="font-medium">{data.category}</span>
               </p>
             )}
           </div>
@@ -71,37 +73,37 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
         <div className="text-center p-3 bg-blue-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-blue-600 mb-1">
             <BarChart3 size={16} />
-            <span className="text-xs font-medium">Total</span>
+            <span className="text-xs font-medium">{t('total')}</span>
           </div>
           <p className="text-lg font-bold text-blue-900">
-            ${totalAmount.toLocaleString()}
+            {formatCurrency(totalAmount)}
           </p>
         </div>
         <div className="text-center p-3 bg-green-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
             <TrendingUp size={16} />
-            <span className="text-xs font-medium">Average</span>
+            <span className="text-xs font-medium">{t('average')}</span>
           </div>
           <p className="text-lg font-bold text-green-900">
-            ${averageAmount.toFixed(0)}
+            {formatCurrency(averageAmount)}
           </p>
         </div>
         <div className="text-center p-3 bg-red-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-red-600 mb-1">
             <TrendingUp size={16} />
-            <span className="text-xs font-medium">Highest</span>
+            <span className="text-xs font-medium">{t('highest')}</span>
           </div>
           <p className="text-lg font-bold text-red-900">
-            ${maxAmount.toLocaleString()}
+            {formatCurrency(maxAmount)}
           </p>
         </div>
         <div className="text-center p-3 bg-gray-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
             <BarChart3 size={16} />
-            <span className="text-xs font-medium">Lowest</span>
+            <span className="text-xs font-medium">{t('lowest')}</span>
           </div>
           <p className="text-lg font-bold text-gray-900">
-            ${minAmount.toLocaleString()}
+            {formatCurrency(minAmount)}
           </p>
         </div>
       </div>
@@ -122,12 +124,12 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
                 tick={{ fontSize: 12, fill: "#6b7280" }}
                 stroke="#e5e7eb"
                 tickLine={{ stroke: "#e5e7eb" }}
-                tickFormatter={(value) => `$${value.toLocaleString()}`}
+                tickFormatter={(value) => formatCurrency(value)}
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="amount" radius={[10, 10, 0, 0]}>
-                {data.map((index, index2) => (
-                  <Cell key={`${index2}`} fill={getBarColor(index.amount)} />
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={getBarColor(entry.amount)} />
                 ))}
               </Bar>
             </BarChart>
@@ -138,19 +140,19 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
         <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-gray-200">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span className="text-xs text-gray-600">High ($75%+)</span>
+            <span className="text-xs text-gray-600">{t('chart_level_high')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <span className="text-xs text-gray-600">Medium (50-75%)</span>
+            <span className="text-xs text-gray-600">{t('chart_level_medium')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span className="text-xs text-gray-600">Low (25-50%)</span>
+            <span className="text-xs text-gray-600">{t('chart_level_low')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span className="text-xs text-gray-600">Very Low (&lt;25%)</span>
+            <span className="text-xs text-gray-600">{t('chart_level_very_low')}</span>
           </div>
         </div>
       </div>
@@ -159,10 +161,10 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
       <div className="mt-4 p-3 bg-gray-50 rounded-lg">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">
-            Showing {data.length} data points
+            {t('showing_data_points', { count: data.length })}
           </span>
           <span className="text-gray-500">
-            Range: ${minAmount.toLocaleString()} - ${maxAmount.toLocaleString()}
+            {t('range')}: {formatCurrency(minAmount)} - {formatCurrency(maxAmount)}
           </span>
         </div>
       </div>

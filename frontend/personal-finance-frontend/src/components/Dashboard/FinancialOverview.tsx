@@ -1,4 +1,5 @@
 import { PieChart, TrendingUp, TrendingDown, DollarSign, Calculator } from "lucide-react";
+import { useSettings } from "../../context/settingsContext";
 import CustomPieChart from "../Charts/CustomPieChart";
 
 interface FinancialOverviewProps {
@@ -10,6 +11,8 @@ interface FinancialOverviewProps {
 const COLORS = ["#6366f1", "#ef4444", "#22c55e"]; // Primary, Red, Green
 
 const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: FinancialOverviewProps) => {
+    const { t, formatCurrency } = useSettings();
+    
     // Calculate financial ratios
     const expenseRatio = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
     const savingsRatio = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome) * 100 : 0;
@@ -17,28 +20,44 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
 
     const balanceData = [
         {
-            name: "Total Balance",
+            name: t('total_balance'),
             amount: totalBalance,
             color: COLORS[0],
         },
         {
-            name: "Total Expense",
+            name: t('total_expense'),
             amount: totalExpense,
             color: COLORS[1],
         },
         {
-            name: "Total Income",
+            name: t('total_income'),
             amount: totalIncome,
             color: COLORS[2],
         },
     ];
 
-    // Financial health status
+    // Financial health status with translation
     const getHealthStatus = () => {
-        if (expenseRatio < 50) return { status: "Excellent", color: "text-green-600", bg: "bg-green-100" };
-        if (expenseRatio < 70) return { status: "Good", color: "text-blue-600", bg: "bg-blue-100" };
-        if (expenseRatio < 90) return { status: "Moderate", color: "text-yellow-600", bg: "bg-yellow-100" };
-        return { status: "Needs Attention", color: "text-red-600", bg: "bg-red-100" };
+        if (expenseRatio < 50) return { 
+            statusKey: "health_excellent", 
+            color: "text-green-600", 
+            bg: "bg-green-100" 
+        };
+        if (expenseRatio < 70) return { 
+            statusKey: "health_good", 
+            color: "text-blue-600", 
+            bg: "bg-blue-100" 
+        };
+        if (expenseRatio < 90) return { 
+            statusKey: "health_moderate", 
+            color: "text-yellow-600", 
+            bg: "bg-yellow-100" 
+        };
+        return { 
+            statusKey: "health_needs_attention", 
+            color: "text-red-600", 
+            bg: "bg-red-100" 
+        };
     };
 
     const healthStatus = getHealthStatus();
@@ -52,9 +71,9 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
                         <PieChart size={18} className="text-primary" />
                     </div>
                     <div>
-                        <h2 className="card-title">Financial Overview</h2>
+                        <h2 className="card-title">{t('financial_overview')}</h2>
                         <p className="card-subtitle">
-                            Your financial health summary
+                            {t('financial_health_summary')}
                         </p>
                     </div>
                 </div>
@@ -67,7 +86,7 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
                     <div className="flex-1">
                         <CustomPieChart
                             data={balanceData}
-                            label="Total Balance"
+                            label={t('total_balance')}
                             colors={COLORS}
                             showTextAnchors
                             totalAmount={totalBalance}
@@ -81,11 +100,11 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
                             <div className="flex items-center gap-2 mb-1">
                                 <Calculator size={16} className={healthStatus.color} />
                                 <span className={`text-sm font-medium ${healthStatus.color}`}>
-                                    Financial Health
+                                    {t('financial_health')}
                                 </span>
                             </div>
                             <span className={`text-lg font-bold ${healthStatus.color}`}>
-                                {healthStatus.status}
+                                {t(healthStatus.statusKey)}
                             </span>
                         </div>
 
@@ -93,22 +112,22 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
                         <div className="grid grid-cols-1 gap-3">
                             <MetricCard
                                 icon={<TrendingUp size={16} />}
-                                label="Savings Rate"
+                                label={t('savings_rate')}
                                 value={`${savingsRatio.toFixed(1)}%`}
                                 color={savingsRatio > 20 ? "text-green-600" : "text-yellow-600"}
                                 bg={savingsRatio > 20 ? "bg-green-50" : "bg-yellow-50"}
                             />
                             <MetricCard
                                 icon={<TrendingDown size={16} />}
-                                label="Expense Ratio"
+                                label={t('expense_ratio')}
                                 value={`${expenseRatio.toFixed(1)}%`}
                                 color={expenseRatio < 70 ? "text-green-600" : "text-red-600"}
                                 bg={expenseRatio < 70 ? "bg-green-50" : "bg-red-50"}
                             />
                             <MetricCard
                                 icon={<DollarSign size={16} />}
-                                label="Net Flow"
-                                value={`$${Math.abs(netFlow).toLocaleString()}`}
+                                label={t('net_flow')}
+                                value={formatCurrency(Math.abs(netFlow))}
                                 color={netFlow > 0 ? "text-green-600" : "text-red-600"}
                                 bg={netFlow > 0 ? "bg-green-50" : "bg-red-50"}
                                 prefix={netFlow > 0 ? "+" : "-"}

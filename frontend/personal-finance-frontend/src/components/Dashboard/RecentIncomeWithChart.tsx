@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { PieChart, TrendingUp, DollarSign, Target } from "lucide-react";
+import { useSettings } from "../../context/settingsContext";
 import CustomPieChart from "../Charts/CustomPieChart";
 
 interface Transaction { 
@@ -23,6 +24,7 @@ const RecentIncomeWithChart = ({
   transactions,
   totalIncome,
 }: RecentIncomeWithChartProps) => {
+  const { t, formatCurrency } = useSettings();
   const [chartData, setChartData] = useState<Transaction[]>([]);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ const RecentIncomeWithChart = ({
   const highestIncome = transactions.reduce((max, item) => 
     item.amount > max ? item.amount : max, 0);
   const topSource = transactions.reduce((max, item) => 
-    item.amount > max.amount ? item : max, { source: "N/A", amount: 0 });
+    item.amount > max.amount ? item : max, { source: t('not_available'), amount: 0 });
 
   return (
     <div className="card">
@@ -54,9 +56,9 @@ const RecentIncomeWithChart = ({
             <PieChart size={18} className="text-green-600" />
           </div>
           <div>
-            <h2 className="card-title">Last 60 Days Income</h2>
+            <h2 className="card-title">{t('last_60_days_income')}</h2>
             <p className="card-subtitle">
-              Income breakdown by source
+              {t('income_breakdown_by_source')}
             </p>
           </div>
         </div>
@@ -67,28 +69,28 @@ const RecentIncomeWithChart = ({
         <div className="text-center p-3 bg-green-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
             <TrendingUp size={16} />
-            <span className="text-xs font-medium">Total</span>
+            <span className="text-xs font-medium">{t('total')}</span>
           </div>
           <p className="text-lg font-bold text-green-900">
-            ${totalIncome.toLocaleString()}
+            {formatCurrency(totalIncome)}
           </p>
         </div>
         <div className="text-center p-3 bg-blue-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-blue-600 mb-1">
             <DollarSign size={16} />
-            <span className="text-xs font-medium">Average</span>
+            <span className="text-xs font-medium">{t('average')}</span>
           </div>
           <p className="text-lg font-bold text-blue-900">
-            ${averageIncome.toFixed(0)}
+            {formatCurrency(averageIncome)}
           </p>
         </div>
         <div className="text-center p-3 bg-purple-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-purple-600 mb-1">
             <Target size={16} />
-            <span className="text-xs font-medium">Highest</span>
+            <span className="text-xs font-medium">{t('highest')}</span>
           </div>
           <p className="text-lg font-bold text-purple-900">
-            ${highestIncome.toLocaleString()}
+            {formatCurrency(highestIncome)}
           </p>
         </div>
       </div>
@@ -101,7 +103,7 @@ const RecentIncomeWithChart = ({
             <div className="flex-1">
               <CustomPieChart
                 data={chartData}
-                label="Total Income"
+                label={t('total_income')}
                 totalAmount={totalIncome}
                 showTextAnchors={true}
                 colors={COLORS}
@@ -110,7 +112,7 @@ const RecentIncomeWithChart = ({
 
             {/* Income Sources */}
             <div className="flex-1 space-y-3">
-              <h3 className="font-semibold text-gray-900 mb-3">Income Sources</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">{t('income_sources')}</h3>
               {chartData.map((item, index) => (
                 <IncomeSourceItem
                   key={item._id}
@@ -127,8 +129,8 @@ const RecentIncomeWithChart = ({
             <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
               <PieChart size={20} className="text-gray-400" />
             </div>
-            <p className="text-gray-500 text-sm">No income data</p>
-            <p className="text-gray-400 text-xs mt-1">Add income sources to see breakdown</p>
+            <p className="text-gray-500 text-sm">{t('no_income_data')}</p>
+            <p className="text-gray-400 text-xs mt-1">{t('add_income_sources_to_see_breakdown')}</p>
           </div>
         )}
       </div>
@@ -138,10 +140,10 @@ const RecentIncomeWithChart = ({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2 text-gray-600">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>Top Source: {topSource.source}</span>
+            <span>{t('top_source')}: {topSource.source}</span>
           </div>
           <div className="text-gray-500">
-            {transactions.length} income streams
+            {t('income_streams_count', { count: transactions.length })}
           </div>
         </div>
       </div>
@@ -158,8 +160,10 @@ interface IncomeSourceItemProps {
 }
 
 const IncomeSourceItem = ({ source, amount, percentage, color }: IncomeSourceItemProps) => {
+  const { t, formatCurrency } = useSettings();
+  
   return (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
       <div className="flex items-center gap-3">
         <div 
           className="w-3 h-3 rounded-full"
@@ -167,12 +171,14 @@ const IncomeSourceItem = ({ source, amount, percentage, color }: IncomeSourceIte
         ></div>
         <div>
           <p className="font-medium text-gray-900 text-sm">{source}</p>
-          <p className="text-xs text-gray-500">{percentage.toFixed(1)}% of total</p>
+          <p className="text-xs text-gray-500">
+            {percentage.toFixed(1)}% {t('of_total')}
+          </p>
         </div>
       </div>
       <div className="text-right">
         <p className="font-semibold text-green-600">
-          ${amount.toLocaleString()}
+          {formatCurrency(amount)}
         </p>
       </div>
     </div>

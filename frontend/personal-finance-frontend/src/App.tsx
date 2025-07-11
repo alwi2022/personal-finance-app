@@ -14,75 +14,84 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import { SettingsProvider } from "./context/settingsContext";
 
+// Alternative dengan Day.js di App.tsx
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/id';
+
+// Setup dayjs
+dayjs.extend(relativeTime);
+dayjs.locale('en'); // default
+
 const App = () => {
   return (
     <SettingsProvider>
 
-    <UserProvider>
-      <Router>
-        <Routes>
-          {/* Root Route */}
-          <Route path="/" element={<Root />} />
-          
-          {/* Authentication Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/verify-otp" element={<OtpVerification />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          
-          {/* Legal Pages */}
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          
-          {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<Home />} />
-          <Route path="/dashboard/income" element={<Income />} />
-          <Route path="/dashboard/expense" element={<Expense />} />
-          <Route path="/dashboard/profile" element={<Profile />} />
-          
-          {/* 404 Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+      <UserProvider>
+        <Router>
+          <Routes>
+            {/* Root Route */}
+            <Route path="/" element={<Root />} />
 
-      {/* Toast Notifications */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          success: {
-            style: { 
-              fontSize: "14px",
-              background: "#10b981",
-              color: "white",
+            {/* Authentication Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/verify-otp" element={<OtpVerification />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+
+            {/* Legal Pages */}
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+
+            {/* Dashboard Routes */}
+            <Route path="/dashboard" element={<Home />} />
+            <Route path="/dashboard/income" element={<Income />} />
+            <Route path="/dashboard/expense" element={<Expense />} />
+            <Route path="/dashboard/profile" element={<Profile />} />
+
+            {/* 404 Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+
+        {/* Toast Notifications */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            success: {
+              style: {
+                fontSize: "14px",
+                background: "#10b981",
+                color: "white",
+              },
+              iconTheme: {
+                primary: "white",
+                secondary: "#10b981",
+              },
             },
-            iconTheme: {
-              primary: "white",
-              secondary: "#10b981",
+            error: {
+              style: {
+                fontSize: "14px",
+                background: "#ef4444",
+                color: "white",
+              },
+              iconTheme: {
+                primary: "white",
+                secondary: "#ef4444",
+              },
             },
-          },
-          error: {
-            style: { 
-              fontSize: "14px",
-              background: "#ef4444",
-              color: "white",
+            loading: {
+              style: {
+                fontSize: "14px",
+                background: "#6366f1",
+                color: "white",
+              },
             },
-            iconTheme: {
-              primary: "white",
-              secondary: "#ef4444",
-            },
-          },
-          loading: {
-            style: { 
-              fontSize: "14px",
-              background: "#6366f1",
-              color: "white",
-            },
-          },
-        }}
-      />
-    </UserProvider>
+          }}
+        />
+      </UserProvider>
     </SettingsProvider>
   );
 };

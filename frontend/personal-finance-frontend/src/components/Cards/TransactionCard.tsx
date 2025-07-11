@@ -9,10 +9,11 @@ import {
   ShoppingBag,
   Car
 } from "lucide-react";
-import { useState } from "react";
-import { addThousandSeparator } from "../../utils/helper";
+import { useEffect, useState } from "react";
 
-
+import { useSettings } from "../../context/settingsContext";
+import dayjs from "dayjs";
+import 'dayjs/locale/id';
 const CATEGORY_MAP: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   salary: { label: "Salary", icon: <Briefcase size={16} />, color: "bg-blue-500" },
   freelance: { label: "Freelance", icon: <TrendingUp size={16} />, color: "bg-green-500" },
@@ -59,7 +60,10 @@ const TransactionCard = ({
 }: TransactionCardProps) => {
   const [showActions, setShowActions] = useState(false);
   const isIncome = type === "income";
-
+  const { t, formatCurrency, language } = useSettings();
+  useEffect(() => {
+    dayjs.locale(language === 'id' ? 'id' : 'en');
+  }, [language]);
   // Get styles based on transaction type
   const getStyles = () => {
     if (isIncome) {
@@ -89,13 +93,13 @@ const TransactionCard = ({
     <div className={`group relative flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-white ${styles.hoverBg} transition-all duration-200 hover:shadow-md`}>
       {/* Transaction Icon */}
       <div className={`w-12 h-12 flex items-center justify-center rounded-full`}>
-      {category && category !== "" ? (
-  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${CATEGORY_MAP[category || "other"].color}`}>
- <span className="text-white">{CATEGORY_MAP[category || "other"].icon}</span>  
-  </div>
-) : (
-  <Utensils size={20} className="text-gray-500" />
-)}
+        {category && category !== "" ? (
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${CATEGORY_MAP[category || "other"].color}`}>
+            <span className="text-white">{CATEGORY_MAP[category || "other"].icon}</span>
+          </div>
+        ) : (
+          <Utensils size={20} className="text-gray-500" />
+        )}
 
 
       </div>
@@ -105,12 +109,12 @@ const TransactionCard = ({
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <h4 className="font-medium text-gray-900 text-sm leading-tight">
-              {title || "Unknown Transaction"}
+              {title || t('unknown_transaction')}
             </h4>
             <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-              <span>{date}</span>
+              <span>{dayjs(date).format("DD MMMM YYYY")}</span>
               <span className="inline-block w-1 h-1 bg-gray-400 rounded-full"></span>
-              <span className="capitalize">{type}</span>
+              <span className="capitalize">{t(type)}</span>
             </p>
           </div>
 
@@ -118,7 +122,7 @@ const TransactionCard = ({
           <div className="flex items-center gap-3">
             <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${styles.amountBg} ${styles.border}`}>
               <span className={`text-sm font-semibold ${styles.amountText}`}>
-                {addThousandSeparator(amount)}
+                {formatCurrency(amount)}
               </span>
 
             </div>
@@ -149,7 +153,7 @@ const TransactionCard = ({
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <Trash2 size={14} />
-                        Delete
+                        {t('delete_transaction')}
                       </button>
                     </div>
                   </>

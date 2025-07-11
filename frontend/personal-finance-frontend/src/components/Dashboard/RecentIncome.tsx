@@ -1,20 +1,16 @@
 import { ArrowRight, TrendingUp, Plus, AlertCircle, Briefcase, Building, CreditCard, Award, Gift, Home, CircleHelp } from "lucide-react";
 
-import type { TypeTransaction } from "../../types/type";
-import moment from "moment";
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/id';
 import { useNavigate } from "react-router-dom";
+import { useSettings, type Currency } from "../../context/settingsContext";
+import { useEffect } from "react";
+import type { TypeTransaction } from "../../types/type";
 
-const CATEGORY_MAP: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-    salary: { label: "Salary", icon: <Briefcase size={16} />, color: "bg-blue-500" },
-    freelance: { label: "Freelance", icon: <TrendingUp size={16} />, color: "bg-green-500" },
-    business: { label: "Business", icon: <Building size={16} />, color: "bg-purple-500" },
-    investment: { label: "Investment", icon: <CreditCard size={16} />, color: "bg-orange-500" },
-    bonus: { label: "Bonus", icon: <Award size={16} />, color: "bg-yellow-500" },
-    gift: { label: "Gift", icon: <Gift size={16} />, color: "bg-pink-500" },
-    rental: { label: "Rental", icon: <Home size={16} />, color: "bg-indigo-500" },
-    other: { label: "Other", icon: <CircleHelp size={16} />, color: "bg-gray-500" },
-  };
 
+// Setup dayjs plugins
+dayjs.extend(relativeTime);
 
 interface RecentIncomeProps {
     transactions: TypeTransaction[];
@@ -23,12 +19,57 @@ interface RecentIncomeProps {
 
 const RecentIncome = ({ transactions, onSeeMore }: RecentIncomeProps) => {
     const navigate = useNavigate();
+    const { formatCurrency, t, language } = useSettings();
+    
+    useEffect(() => {
+        dayjs.locale(language === 'id' ? 'id' : 'en');
+    }, [language]);
 
-    // Calculate income statistics
-    const totalIncome = transactions?.reduce((sum, income) => sum + income.amount, 0) || 0;
-    const averageIncome = transactions?.length > 0 ? totalIncome / transactions.length : 0;
-    const highestIncome = transactions?.reduce((max, income) =>
-        income.amount > max ? income.amount : max, 0) || 0;
+    // Category mapping with translation keys
+    const getCategoryData = (category: string) => {
+        const categoryKey = `category_${category}` as const;
+        const categoryMap: Record<string, { icon: React.ReactNode; color: string }> = {
+            salary: { icon: <Briefcase size={16} />, color: "bg-blue-500" },
+            freelance: { icon: <TrendingUp size={16} />, color: "bg-green-500" },
+            business: { icon: <Building size={16} />, color: "bg-purple-500" },
+            investment: { icon: <CreditCard size={16} />, color: "bg-orange-500" },
+            bonus: { icon: <Award size={16} />, color: "bg-yellow-500" },
+            gift: { icon: <Gift size={16} />, color: "bg-pink-500" },
+            rental: { icon: <Home size={16} />, color: "bg-indigo-500" },
+            other: { icon: <CircleHelp size={16} />, color: "bg-gray-500" },
+        };
+
+        return {
+            label: t(categoryKey),
+            icon: categoryMap[category]?.icon || categoryMap.other.icon,
+            color: categoryMap[category]?.color || categoryMap.other.color,
+        };
+    };
+
+    // Helper function to get display amount (with currency support)
+    const getDisplayAmount = (transaction: TypeTransaction): number => {
+        // If transaction has amountUSD (new format), use it
+        if (transaction.amountUSD !== undefined) {
+            return transaction.amountUSD;
+        }
+        
+        // For legacy data, check if it has currency info
+        if (transaction.currency) {
+            // Always return USD amount for consistent calculation
+            return transaction.currency === 'IDR' 
+                ? transaction.amount / 16245  // Convert IDR to USD
+                : transaction.amount;
+        }
+        
+        // Fallback: assume it's in USD
+        return transaction.amount;
+    };
+
+    // Calculate income statistics using display amounts
+    const displayAmounts = transactions?.map(getDisplayAmount) || [];
+    const totalIncome = displayAmounts.reduce((sum, amount) => sum + amount, 0);
+    const averageIncome = displayAmounts.length > 0 ? totalIncome / displayAmounts.length : 0;
+    const highestIncome = displayAmounts.reduce((max, amount) => amount > max ? amount : max, 0);
 
     return (
         <div className="card">
@@ -40,15 +81,15 @@ const RecentIncome = ({ transactions, onSeeMore }: RecentIncomeProps) => {
                             <TrendingUp size={18} className="text-green-600" />
                         </div>
                         <div>
-                            <h2 className="card-title">Recent Income</h2>
+                            <h2 className="card-title">{t('recent_income')}</h2>
                             <p className="card-subtitle">
-                                {transactions?.length || 0} income sources
+                                {t('income_streams_count', { count: transactions?.length || 0 })}
                             </p>
                         </div>
                     </div>
 
                     <button onClick={onSeeMore} className="btn-ghost btn-sm group">
-                        View All
+                        {t('view_all')}
                         <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
@@ -57,26 +98,24 @@ const RecentIncome = ({ transactions, onSeeMore }: RecentIncomeProps) => {
             {/* Summary Stats */}
             <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center p-3 bg-green-50 rounded-lg">
-                    <p className="text-xs font-medium text-green-600 mb-1">Total</p>
+                    <p className="text-xs font-medium text-green-600 mb-1">{t('total')}</p>
                     <p className="text-lg font-bold text-green-900">
-                        ${totalIncome.toLocaleString()}
+                        {formatCurrency(totalIncome, 'USD')}
                     </p>
                 </div>
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <p className="text-xs font-medium text-blue-600 mb-1">Average</p>
+                    <p className="text-xs font-medium text-blue-600 mb-1">{t('average')}</p>
                     <p className="text-lg font-bold text-blue-900">
-                        ${averageIncome.toFixed(0)}
+                        {formatCurrency(Math.round(averageIncome), 'USD')}
                     </p>
                 </div>
                 <div className="text-center p-3 bg-purple-50 rounded-lg">
-                    <p className="text-xs font-medium text-purple-600 mb-1">Highest</p>
+                    <p className="text-xs font-medium text-purple-600 mb-1">{t('highest')}</p>
                     <p className="text-lg font-bold text-purple-900">
-                        ${highestIncome.toLocaleString()}
+                        {formatCurrency(highestIncome, 'USD')}
                     </p>
                 </div>
             </div>
-
-
 
             {/* Income List */}
             <div className="card-content">
@@ -85,11 +124,11 @@ const RecentIncome = ({ transactions, onSeeMore }: RecentIncomeProps) => {
                         <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                             <AlertCircle size={20} className="text-gray-400" />
                         </div>
-                        <p className="text-gray-500 text-sm mb-2">No income records found</p>
-                        <p className="text-gray-400 text-xs mb-4">Add your first income source to get started</p>
+                        <p className="text-gray-500 text-sm mb-2">{t('no_income_data')}</p>
+                        <p className="text-gray-400 text-xs mb-4">{t('add_income_sources_to_see_breakdown')}</p>
                         <button onClick={() => navigate("/dashboard/income")} className="btn-primary btn-sm">
                             <Plus size={16} />
-                            Add Income
+                            {t('add_income')}
                         </button>
                     </div>
                 ) : (
@@ -98,6 +137,10 @@ const RecentIncome = ({ transactions, onSeeMore }: RecentIncomeProps) => {
                             <ModernIncomeItem
                                 key={transaction._id}
                                 transaction={transaction}
+                                getCategoryData={getCategoryData}
+                                getDisplayAmount={getDisplayAmount}
+                                formatCurrency={formatCurrency}
+                                t={t}
                             />
                         ))}
                     </div>
@@ -111,7 +154,7 @@ const RecentIncome = ({ transactions, onSeeMore }: RecentIncomeProps) => {
                         onClick={onSeeMore}
                         className="w-full btn-outline btn-sm"
                     >
-                        View {transactions.length - 5} More Income Sources
+                        {t('view_more_transactions', { count: transactions.length - 5 })} {t('income')}
                     </button>
                 </div>
             )}
@@ -122,22 +165,30 @@ const RecentIncome = ({ transactions, onSeeMore }: RecentIncomeProps) => {
 // Modern Income Item Component
 interface ModernIncomeItemProps {
     transaction: TypeTransaction;
+    getCategoryData: (category: string) => { label: string; icon: React.ReactNode; color: string };
+    getDisplayAmount: (transaction: TypeTransaction) => number;
+    formatCurrency: (amount: number, sourceCurrency?: Currency) => string;
+    t: (key: string, params?: { [key: string]: string | number }) => string;
 }
 
-const ModernIncomeItem = ({ transaction }: ModernIncomeItemProps) => {
-    const formattedDate = moment(transaction.date).format("MMM DD, YYYY");
-    const timeAgo = moment(transaction.date).fromNow();
+const ModernIncomeItem = ({ transaction, getCategoryData, getDisplayAmount, formatCurrency, t }: ModernIncomeItemProps) => {
+    const formattedDate = dayjs(transaction.date).format("MMM DD, YYYY");
+    const timeAgo = dayjs(transaction.date).fromNow();
+    const categoryData = getCategoryData(transaction.category || "other");
+    
+    // Get display amount for current user currency preference
+    const displayAmount = getDisplayAmount(transaction);
 
     return (
         <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
             {/* Left side - Icon and details */}
             <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${CATEGORY_MAP[transaction.category || "other"].color}`}>
-                    <span className="text-white">{CATEGORY_MAP[transaction.category || "other"].icon}</span>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${categoryData.color}`}>
+                    <span className="text-white">{categoryData.icon}</span>
                 </div>
                 <div className="flex-1">
                     <p className="font-medium text-gray-900 text-sm">
-                        {transaction.source || "Unknown"}
+                        {transaction.source || t('not_available')}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                         <span>{formattedDate}</span>
@@ -150,11 +201,19 @@ const ModernIncomeItem = ({ transaction }: ModernIncomeItemProps) => {
             {/* Right side - Amount */}
             <div className="text-right">
                 <p className="font-semibold text-green-600">
-                    +${transaction.amount.toLocaleString()}
+                    +{formatCurrency(displayAmount, 'USD')}
                 </p>
+                
+                {/* Show original amount if different currency */}
+                {transaction.currency && transaction.currency !== 'USD' && transaction.amountUSD && (
+                    <p className="text-xs text-gray-500">
+                        {t('originally')}: {transaction.currency} {transaction.amount.toLocaleString()}
+                    </p>
+                )}
+                
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
                     <TrendingUp size={10} />
-                    income
+                    {t('income')}
                 </div>
             </div>
         </div>

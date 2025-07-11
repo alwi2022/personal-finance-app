@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { DollarSign, Calendar, Tag, Plus, X,  ShoppingBag, Car, Utensils, Home, Gamepad2, Heart, GraduationCap, Plane, FileText, Wallet } from "lucide-react";
 import { parseFormattedNumber } from "../../utils/helper";
-
+import { useSettings } from "../../context/settingsContext";
 type ExpenseFormInput = {
   amount: string;
   date: string;
@@ -41,6 +41,7 @@ const AddExpenseForm = ({
   onCancel,
   isLoading = false,
 }: AddExpenseFormProps) => {
+  const { t } = useSettings();
   const [expense, setExpense] = useState<ExpenseFormInput>({
     amount: "",
     source: "",

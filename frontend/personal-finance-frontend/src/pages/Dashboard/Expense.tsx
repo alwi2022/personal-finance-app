@@ -10,6 +10,7 @@ import Modal from "../../components/layouts/Modal";
 import AddExpenseForm from "../../components/Expense/ExpenseForm";
 import ExpenseList from "../../components/Expense/ExpenseList";
 import DeleteAlert from "../../components/layouts/DeleteAlert";
+import { useSettings } from "../../context/settingsContext";
 type ExpenseFormInput = {
     amount: number;
     date: string;
@@ -19,6 +20,7 @@ type ExpenseFormInput = {
 
 export default function Expanse() {
     useUserAuth();
+    const { t } = useSettings();
     const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
     const [expenseData, setExpenseData] = useState<TypeTransaction[]>([]);
     const [loading, setLoading] = useState(false);
@@ -142,7 +144,7 @@ export default function Expanse() {
                 <Modal
                     isOpen={openAddExpenseModal}
                     onClose={() => setOpenAddExpenseModal(false)}
-                    title="Add Expense"
+                    title="add_expense"
                 >
                     <AddExpenseForm
                         onAddExpense={handleAddExpense}
@@ -152,10 +154,10 @@ export default function Expanse() {
                 <Modal
                     isOpen={openDeleteAlert.show}
                     onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-                    title="Delete Expense"
+                    title="delete_expense"
                 >
                     <DeleteAlert
-                        content="Are you sure you want to delete this expense?"
+                        content="confirm_deletion"
                         onDelete={() => deleteExpense(openDeleteAlert.data)}
                         onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
                     />

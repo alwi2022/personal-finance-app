@@ -1,4 +1,6 @@
-import moment from "moment";
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/id';
 import type { TypeTransaction } from "../types/type";
 
 
@@ -31,14 +33,14 @@ export const prepareBarExpenseChartData = (
   transactions: TypeTransaction[] = []
 ) => {
   const groupedByMonth: { [month: string]: number } = {};
-  const last30Days = moment().subtract(30, "days");
+  const last30Days = dayjs().subtract(30, "days");
 
   transactions = transactions.filter((transaction) =>
-    moment(transaction.date).isAfter(last30Days)
+    dayjs(transaction.date).isAfter(last30Days)
   );
 
   transactions.forEach((transaction) => {
-    const month = moment(transaction.date).format("MMM"); // "May", "Apr"
+    const month = dayjs(transaction.date).format("MMM"); // "May", "Apr"
     if (!groupedByMonth[month]) {
       groupedByMonth[month] = 0;
     }
@@ -58,7 +60,7 @@ export const prepareIncomeBarChartData = (transactions: TypeTransaction[]) => {
   const sortedData = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const chartData = sortedData.map((item) => (
     {
-      month: moment(item.date).format("DD MMM"),
+      month: dayjs(item.date).format("DD MMM"),
       amount: item.amount,
       source: item.source
     }
@@ -74,7 +76,7 @@ export const prepareExpanseLineChartData = (transactions: TypeTransaction[]) => 
   const sortedData = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const chartData = sortedData.map((item) => (
     {
-      month: moment(item.date).format("DD MMM"),
+      month: dayjs(item.date).format("DD MMM"),
       amount: item.amount,
       category: item.category
     }

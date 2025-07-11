@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  Plus, 
+import {
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Plus,
   RefreshCw,
   ArrowUpRight,
   ArrowDownRight,
@@ -14,11 +14,11 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import { useUserAuth } from "../../hooks/userAuth";
+import { useSettings } from "../../context/settingsContext";
 import axiosInstance from "../../utils/axios-instance";
 import { API_PATH } from "../../utils/api";
-import { addThousandSeparator } from "../../utils/helper";
 
-// Import dashboard components (you'll need to share these for full modernization)
+// Import dashboard components
 import RecentTransactions from "../../components/Dashboard/RecentTransactions";
 import FinancialOverview from "../../components/Dashboard/FinancialOverview";
 import Last30DaysExpenseChart from "../../components/Dashboard/Last30DaysExpenseChart";
@@ -42,16 +42,18 @@ interface DashboardData {
 export default function Home() {
   useUserAuth();
   const navigate = useNavigate();
+  const { t, formatCurrency } = useSettings();
+  
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = async () => {
     if (isLoading && dashboardData) return; // Prevent multiple calls
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await axiosInstance.get(API_PATH.DASHBOARD.GET_DASHBOARD_DATA);
       if (response.data) {
@@ -59,7 +61,7 @@ export default function Home() {
       }
     } catch (err) {
       console.error("Failed to fetch dashboard data:", err);
-      setError("Failed to load dashboard data. Please try again.");
+      setError(t('failed_to_load_dashboard'));
     } finally {
       setIsLoading(false);
     }
@@ -72,11 +74,11 @@ export default function Home() {
   // Calculate financial metrics
   const calculateMetrics = () => {
     if (!dashboardData) return null;
-    
+
     const { totalBalance, totalIncome, totalExpense } = dashboardData;
     const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome) * 100 : 0;
     const netWorth = totalBalance;
-    
+
     return {
       savingsRate: savingsRate.toFixed(1),
       netWorth,
@@ -91,7 +93,7 @@ export default function Home() {
       {/* Quick Actions Bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Financial Overview</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('financial_overview')}</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={fetchDashboardData}
@@ -99,7 +101,7 @@ export default function Home() {
               className="btn-ghost btn-sm"
             >
               <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-              Refresh
+              {t('refresh')}
             </button>
           </div>
         </div>
@@ -139,24 +141,24 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <ModernInfoCard
               icon={<Wallet size={24} />}
-              label="Total Balance"
-              value={`$${addThousandSeparator(dashboardData.totalBalance || 0)}`}
+              label={t('total_balance')}
+              value={formatCurrency(dashboardData.totalBalance || 0)}
               change={metrics?.netWorth && metrics.netWorth > 0 ? "+2.5%" : "0%"}
               changeType="positive"
               color="bg-blue-500"
             />
             <ModernInfoCard
               icon={<TrendingUp size={24} />}
-              label="Total Income"
-              value={`$${addThousandSeparator(dashboardData.totalIncome || 0)}`}
+              label={t('total_income')}
+              value={formatCurrency(dashboardData.totalIncome || 0)}
               change="+12.3%"
               changeType="positive"
               color="bg-green-500"
             />
             <ModernInfoCard
               icon={<TrendingDown size={24} />}
-              label="Total Expenses"
-              value={`$${addThousandSeparator(dashboardData.totalExpense || 0)}`}
+              label={t('total_expense')}
+              value={formatCurrency(dashboardData.totalExpense || 0)}
               change="-8.2%"
               changeType="negative"
               color="bg-red-500"
@@ -167,23 +169,23 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <QuickMetricCard
               icon={<PiggyBank size={20} />}
-              label="Savings Rate"
+              label={t('savings_rate')}
               value={`${metrics?.savingsRate || 0}%`}
-              subtext="of total income"
+              subtext={t('of_total_income')}
               color="bg-purple-500"
             />
             <QuickMetricCard
               icon={<CreditCard size={20} />}
-              label="Monthly Flow"
-              value={`$${addThousandSeparator(Math.abs(metrics?.monthlyFlow || 0))}`}
-              subtext={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? "surplus" : "deficit"}
+              label={t('monthly_flow')}
+              value={formatCurrency(Math.abs(metrics?.monthlyFlow || 0))}
+              subtext={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? t('surplus') : t('deficit')}
               color={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? "bg-green-500" : "bg-red-500"}
             />
             <QuickMetricCard
               icon={<DollarSign size={20} />}
-              label="Net Worth"
-              value={`$${addThousandSeparator(dashboardData.totalBalance || 0)}`}
-              subtext="total assets"
+              label={t('net_worth')}
+              value={formatCurrency(dashboardData.totalBalance || 0)}
+              subtext={t('total_assets')}
               color="bg-indigo-500"
             />
           </div>
@@ -213,7 +215,7 @@ export default function Home() {
             />
             <RecentIncome
               transactions={dashboardData.incomeLast60Days?.transactions || []}
-                onSeeMore={() => navigate("/dashboard/income")}
+              onSeeMore={() => navigate("/dashboard/income")}
             />
           </div>
         </>
@@ -237,17 +239,16 @@ const ModernInfoCard = ({ icon, label, value, change, changeType, color }: Moder
     <div className="card hover:shadow-lg transition-all duration-200 relative overflow-hidden">
       {/* Background gradient */}
       <div className={`absolute top-0 right-0 w-20 h-20 ${color} opacity-5 rounded-full -mr-10 -mt-10`}></div>
-      
+
       <div className="flex items-center justify-between mb-4">
         <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
           {icon}
         </div>
         {change && (
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-            changeType === "positive" 
-              ? "bg-green-100 text-green-800" 
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${changeType === "positive"
+              ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
-          }`}>
+            }`}>
             {changeType === "positive" ? (
               <ArrowUpRight size={12} />
             ) : (
@@ -257,7 +258,7 @@ const ModernInfoCard = ({ icon, label, value, change, changeType, color }: Moder
           </div>
         )}
       </div>
-      
+
       <div className="space-y-1">
         <p className="text-sm font-medium text-gray-500">{label}</p>
         <p className="text-2xl font-bold text-gray-900">{value}</p>

@@ -7,8 +7,10 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
 }
+import { useSettings } from "../../context/settingsContext";
 
 const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+  const { t } = useSettings();
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -38,23 +40,23 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div 
+      <div
         className="relative w-full max-w-2xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
           <h3 className="text-xl font-semibold text-gray-900">
-            {title}
+            {t(title)}
           </h3>
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
-            aria-label="Close modal"
+            aria-label={t('close_modal')}
           >
             <X size={20} />
           </button>

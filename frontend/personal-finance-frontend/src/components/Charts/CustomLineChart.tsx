@@ -1,13 +1,14 @@
 import { CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
-
+import { useSettings } from "../../context/settingsContext";
 const CustomLineChart = ({ data }: { data: any }) => {
+    const { t, formatCurrency } = useSettings();
     const CustomTooltip = ({ active, payload }: any) => {
         if (active && payload && payload.length) {
             return (
                 <div className="bg-white p-2 rounded-md shadow-md border border-gray-200">
-                    <p className="text-sm font-medium">{payload[0].payload.category}</p>
+                    <p className="text-sm font-medium">{t(payload[0].payload.category)}</p>
                     <p className="text-xs text-gray-500">
-                        Amount: <span className="text-sm text-gray-700 font-medium">{payload[0].payload.amount}</span>
+                        {t('amount')}: <span className="text-sm text-gray-700 font-medium">{formatCurrency(payload[0].payload.amount)}</span>
                     </p>
                 </div>
             )
