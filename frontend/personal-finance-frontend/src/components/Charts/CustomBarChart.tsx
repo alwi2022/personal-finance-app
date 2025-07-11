@@ -8,7 +8,7 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
-import { TrendingUp, BarChart3 } from "lucide-react";
+import { TrendingUp, BarChart3, TrendingDown } from "lucide-react";
 import { useSettings } from "../../context/settingsContext";
 
 interface BarChartData {
@@ -22,7 +22,7 @@ interface CustomBarChartProps {
 }
 
 const CustomBarChart = ({ data }: CustomBarChartProps) => {
-  const { t, formatCurrency } = useSettings();
+  const { t, formatCurrency, currency } = useSettings();
   
   // Calculate statistics
   const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
@@ -30,15 +30,17 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
   const maxAmount = Math.max(...data.map(item => item.amount));
   const minAmount = Math.min(...data.map(item => item.amount));
 
-  // Dynamic bar colors based on amount
+  // Dynamic bar colors based on amount (for expenses - higher is more concerning)
   const getBarColor = (amount: number) => {
+    if (maxAmount === 0) return "#ef4444"; // Fallback color
+    
     const percentage = (amount / maxAmount) * 100;
-    if (percentage >= 75) return "#ef4444"; // High spending - red
-    if (percentage >= 50) return "#f59e0b"; // Medium spending - orange  
-    if (percentage >= 25) return "#3b82f6"; // Low spending - blue
-    return "#10b981"; // Very low spending - green
+    if (percentage >= 75) return "#ef4444"; // High expense - red (concerning)
+    if (percentage >= 50) return "#f59e0b"; // Medium expense - orange  
+    if (percentage >= 25) return "#3b82f6"; // Low expense - blue
+    return "#10b981"; // Very low expense - green (good)
   };
-
+  
   // Custom Tooltip Component
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -52,11 +54,11 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
           </div>
           <div className="space-y-1">
             <p className="text-xs text-gray-600">
-              {t('amount')}: <span className="font-medium">{formatCurrency(data.amount)}</span>
+              {t('amount') || 'Jumlah'}: <span className="font-medium">{formatCurrency(data.amount, currency)}</span>
             </p>
             {data.category && (
               <p className="text-xs text-gray-600">
-                {t('category')}: <span className="font-medium">{data.category}</span>
+                {t('category') || 'Kategori'}: <span className="font-medium">{data.category}</span>
               </p>
             )}
           </div>
@@ -66,6 +68,11 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
     return null;
   };
 
+  // Format Y-axis values
+  const formatYAxisValue = (value: number) => {
+    return formatCurrency(value, currency);
+  };
+
   return (
     <div className="w-full">
       {/* Header Stats */}
@@ -73,37 +80,37 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
         <div className="text-center p-3 bg-blue-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-blue-600 mb-1">
             <BarChart3 size={16} />
-            <span className="text-xs font-medium">{t('total')}</span>
+            <span className="text-xs font-medium">{t('total') || 'Total'}</span>
           </div>
           <p className="text-lg font-bold text-blue-900">
-            {formatCurrency(totalAmount)}
+            {formatCurrency(totalAmount, currency)}
           </p>
         </div>
         <div className="text-center p-3 bg-green-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
             <TrendingUp size={16} />
-            <span className="text-xs font-medium">{t('average')}</span>
+            <span className="text-xs font-medium">{t('average') || 'Rata-rata'}</span>
           </div>
           <p className="text-lg font-bold text-green-900">
-            {formatCurrency(averageAmount)}
+            {formatCurrency(averageAmount, currency)}
           </p>
         </div>
         <div className="text-center p-3 bg-red-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-red-600 mb-1">
             <TrendingUp size={16} />
-            <span className="text-xs font-medium">{t('highest')}</span>
+            <span className="text-xs font-medium">{t('highest') || 'Tertinggi'}</span>
           </div>
           <p className="text-lg font-bold text-red-900">
-            {formatCurrency(maxAmount)}
+            {formatCurrency(maxAmount, currency)}
           </p>
         </div>
         <div className="text-center p-3 bg-gray-50 rounded-lg">
           <div className="flex items-center justify-center gap-1 text-gray-600 mb-1">
-            <BarChart3 size={16} />
-            <span className="text-xs font-medium">{t('lowest')}</span>
+            <TrendingDown size={16} />
+            <span className="text-xs font-medium">{t('lowest') || 'Terendah'}</span>
           </div>
           <p className="text-lg font-bold text-gray-900">
-            {formatCurrency(minAmount)}
+            {formatCurrency(minAmount, currency)}
           </p>
         </div>
       </div>
@@ -124,7 +131,7 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
                 tick={{ fontSize: 12, fill: "#6b7280" }}
                 stroke="#e5e7eb"
                 tickLine={{ stroke: "#e5e7eb" }}
-                tickFormatter={(value) => formatCurrency(value)}
+                tickFormatter={formatYAxisValue}
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="amount" radius={[10, 10, 0, 0]}>
@@ -140,19 +147,19 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
         <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-gray-200">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span className="text-xs text-gray-600">{t('chart_level_high')}</span>
+            <span className="text-xs text-gray-600">{t('chart_level_high') || 'Tinggi'}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <span className="text-xs text-gray-600">{t('chart_level_medium')}</span>
+            <span className="text-xs text-gray-600">{t('chart_level_medium') || 'Sedang'}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span className="text-xs text-gray-600">{t('chart_level_low')}</span>
+            <span className="text-xs text-gray-600">{t('chart_level_low') || 'Rendah'}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span className="text-xs text-gray-600">{t('chart_level_very_low')}</span>
+            <span className="text-xs text-gray-600">{t('chart_level_very_low') || 'Sangat Rendah'}</span>
           </div>
         </div>
       </div>
@@ -161,10 +168,10 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
       <div className="mt-4 p-3 bg-gray-50 rounded-lg">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">
-            {t('showing_data_points', { count: data.length })}
+            {t('showing_data_points')} {data.length} 
           </span>
           <span className="text-gray-500">
-            {t('range')}: {formatCurrency(minAmount)} - {formatCurrency(maxAmount)}
+            {t('range')}: {formatCurrency(minAmount, currency)} - {formatCurrency(maxAmount, currency)}
           </span>
         </div>
       </div>

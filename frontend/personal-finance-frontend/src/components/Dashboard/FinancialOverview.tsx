@@ -11,7 +11,7 @@ interface FinancialOverviewProps {
 const COLORS = ["#6366f1", "#ef4444", "#22c55e"]; // Primary, Red, Green
 
 const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: FinancialOverviewProps) => {
-    const { t, formatCurrency } = useSettings();
+    const { t, formatCurrency, currency } = useSettings();
     
     // Calculate financial ratios
     const expenseRatio = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
@@ -20,17 +20,17 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
 
     const balanceData = [
         {
-            name: t('total_balance'),
+            name: t('total_balance') || 'Total Saldo',
             amount: totalBalance,
             color: COLORS[0],
         },
         {
-            name: t('total_expense'),
+            name: t('total_expense') || 'Total Pengeluaran',
             amount: totalExpense,
             color: COLORS[1],
         },
         {
-            name: t('total_income'),
+            name: t('total_income') || 'Total Pemasukan',
             amount: totalIncome,
             color: COLORS[2],
         },
@@ -40,21 +40,25 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
     const getHealthStatus = () => {
         if (expenseRatio < 50) return { 
             statusKey: "health_excellent", 
+            fallback: "Sangat Baik",
             color: "text-green-600", 
             bg: "bg-green-100" 
         };
         if (expenseRatio < 70) return { 
             statusKey: "health_good", 
+            fallback: "Baik",
             color: "text-blue-600", 
             bg: "bg-blue-100" 
         };
         if (expenseRatio < 90) return { 
             statusKey: "health_moderate", 
+            fallback: "Sedang",
             color: "text-yellow-600", 
             bg: "bg-yellow-100" 
         };
         return { 
             statusKey: "health_needs_attention", 
+            fallback: "Perlu Perhatian",
             color: "text-red-600", 
             bg: "bg-red-100" 
         };
@@ -71,9 +75,11 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
                         <PieChart size={18} className="text-primary" />
                     </div>
                     <div>
-                        <h2 className="card-title">{t('financial_overview')}</h2>
+                        <h2 className="card-title">
+                            {t('financial_overview') || 'Ringkasan Keuangan'}
+                        </h2>
                         <p className="card-subtitle">
-                            {t('financial_health_summary')}
+                            {t('financial_health_summary') || 'Ringkasan kesehatan keuangan Anda'}
                         </p>
                     </div>
                 </div>
@@ -86,7 +92,7 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
                     <div className="flex-1">
                         <CustomPieChart
                             data={balanceData}
-                            label={t('total_balance')}
+                            label={t('total_balance') || 'Total Saldo'}
                             colors={COLORS}
                             showTextAnchors
                             totalAmount={totalBalance}
@@ -100,11 +106,11 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
                             <div className="flex items-center gap-2 mb-1">
                                 <Calculator size={16} className={healthStatus.color} />
                                 <span className={`text-sm font-medium ${healthStatus.color}`}>
-                                    {t('financial_health')}
+                                    {t('financial_health') || 'Kesehatan Keuangan'}
                                 </span>
                             </div>
                             <span className={`text-lg font-bold ${healthStatus.color}`}>
-                                {t(healthStatus.statusKey)}
+                                {t(healthStatus.statusKey) || healthStatus.fallback}
                             </span>
                         </div>
 
@@ -112,22 +118,22 @@ const FinancialOverview = ({ totalBalance, totalIncome, totalExpense }: Financia
                         <div className="grid grid-cols-1 gap-3">
                             <MetricCard
                                 icon={<TrendingUp size={16} />}
-                                label={t('savings_rate')}
+                                label={t('savings_rate') || 'Tingkat Tabungan'}
                                 value={`${savingsRatio.toFixed(1)}%`}
                                 color={savingsRatio > 20 ? "text-green-600" : "text-yellow-600"}
                                 bg={savingsRatio > 20 ? "bg-green-50" : "bg-yellow-50"}
                             />
                             <MetricCard
                                 icon={<TrendingDown size={16} />}
-                                label={t('expense_ratio')}
+                                label={t('expense_ratio') || 'Rasio Pengeluaran'}
                                 value={`${expenseRatio.toFixed(1)}%`}
                                 color={expenseRatio < 70 ? "text-green-600" : "text-red-600"}
                                 bg={expenseRatio < 70 ? "bg-green-50" : "bg-red-50"}
                             />
                             <MetricCard
                                 icon={<DollarSign size={16} />}
-                                label={t('net_flow')}
-                                value={formatCurrency(Math.abs(netFlow))}
+                                label={t('net_flow') || 'Arus Bersih'}
+                                value={formatCurrency(Math.abs(netFlow), currency)}
                                 color={netFlow > 0 ? "text-green-600" : "text-red-600"}
                                 bg={netFlow > 0 ? "bg-green-50" : "bg-red-50"}
                                 prefix={netFlow > 0 ? "+" : "-"}

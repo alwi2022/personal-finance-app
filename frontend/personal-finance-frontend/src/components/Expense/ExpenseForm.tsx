@@ -1,7 +1,9 @@
+//src/components/Expense/ExpenseForm.tsx
 import { useState } from "react";
-import { DollarSign, Calendar, Tag, Plus, X,  ShoppingBag, Car, Utensils, Home, Gamepad2, Heart, GraduationCap, Plane, FileText, Wallet } from "lucide-react";
-import { parseFormattedNumber } from "../../utils/helper";
+import { DollarSign, Calendar, Tag, Plus, X, ShoppingBag, Car, Utensils, Home, Gamepad2, Heart, GraduationCap, Plane, FileText, Wallet } from "lucide-react";
 import { useSettings } from "../../context/settingsContext";
+import { useTransactionForm } from "../../hooks/useTransactionForm";
+
 type ExpenseFormInput = {
   amount: string;
   date: string;
@@ -9,15 +11,8 @@ type ExpenseFormInput = {
   category: string;
 };
 
-type ExpenseFormPayload = {
-  amount: number;
-  date: string;
-  source: string;
-  category: string;
-};
-
 interface AddExpenseFormProps {
-  onAddExpense: (expense: ExpenseFormPayload) => void;
+  onAddExpense?: () => void;
   onCancel?: () => void;
   isLoading?: boolean;
 }
@@ -39,9 +34,27 @@ const EXPENSE_CATEGORIES = [
 const AddExpenseForm = ({
   onAddExpense,
   onCancel,
-  isLoading = false,
+  isLoading: propIsLoading = false,
 }: AddExpenseFormProps) => {
-  const { t } = useSettings();
+  const { t, currency, formatCurrency } = useSettings();
+  
+  // Use the transaction form hook
+  const {
+    isLoading: hookIsLoading,
+    submitTransaction,
+    getCurrencySymbol,
+    getAmountPlaceholder,
+    currentCurrency
+  } = useTransactionForm({
+    type: 'expense',
+    onSuccess: () => {
+      handleReset();
+      if (onAddExpense) {
+        onAddExpense();
+      }
+    }
+  });
+
   const [expense, setExpense] = useState<ExpenseFormInput>({
     amount: "",
     source: "",
@@ -50,6 +63,8 @@ const AddExpenseForm = ({
   });
 
   const [errors, setErrors] = useState<Partial<ExpenseFormInput>>({});
+
+  const isLoading = propIsLoading || hookIsLoading;
 
   const handleChange = (key: keyof ExpenseFormInput, value: string) => {
     setExpense({ ...expense, [key]: value });
@@ -60,41 +75,50 @@ const AddExpenseForm = ({
     }
   };
 
+  const handleAmountChange = (value: string) => {
+    // Allow only numbers, dots, and commas
+    const cleanValue = value.replace(/[^\d.,]/g, '');
+    handleChange('amount', cleanValue);
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Partial<ExpenseFormInput> = {};
 
     if (!expense.source.trim()) {
-      newErrors.source = "Source is required";
+      newErrors.source = t('source_required') || "Source is required";
     }
 
     if (!expense.category.trim()) {
-      newErrors.category = "Category is required";
+      newErrors.category = t('category_required') || "Category is required";
     }
 
-
     if (!expense.amount.trim()) {
-      newErrors.amount = "Amount is required";
-    } else if (parseFormattedNumber(expense.amount) <= 0) {
-      newErrors.amount = "Amount must be greater than 0";
+      newErrors.amount = t('amount_required') || "Amount is required";
+    } else {
+      const numAmount = parseFloat(expense.amount.replace(/[,\s]/g, ''));
+      if (isNaN(numAmount) || numAmount <= 0) {
+        newErrors.amount = t('amount_must_be_positive') || "Amount must be greater than 0";
+      }
     }
 
     if (!expense.date) {
-      newErrors.date = "Date is required";
+      newErrors.date = t('date_required') || "Date is required";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    onAddExpense({
-      ...expense,
-      amount: parseFormattedNumber(expense.amount),
-    });
+    try {
+      await submitTransaction(expense);
+    } catch (error) {
+      // Error handling is done in the hook
+    }
   };
 
   const handleReset = () => {
@@ -108,24 +132,41 @@ const AddExpenseForm = ({
   };
 
   const selectedCategory = EXPENSE_CATEGORIES.find(cat => cat.id === expense.category);
-  const isFormValid = expense.source && expense.category && expense.amount && expense.date ;
+  const isFormValid = expense.source && expense.category && expense.amount && expense.date;
+
+  // Parse amount for preview
+  const getPreviewAmount = (): number => {
+    const cleanAmount = expense.amount.replace(/[,\s]/g, '');
+    const numAmount = parseFloat(cleanAmount);
+    return isNaN(numAmount) ? 0 : numAmount;
+  };
 
   return (
     <div className="card">
       <div className="card-header">
-        <h3 className="card-title">Add New Expense</h3>
+        <h3 className="card-title">{t('add_new_expense') || 'Add New Expense'}</h3>
         <p className="card-subtitle">
-          Track your spending with professional categorization
+          {t('track_spending_professional') || 'Track your spending with professional categorization'}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="card-content">
         <div className="space-y-6">
+          {/* Currency Display */}
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="flex items-center gap-2">
+              <DollarSign size={16} className="text-red-600" />
+              <span className="text-sm font-medium text-red-800">
+                {t('current_currency') || 'Current Currency'}: {currentCurrency} ({getCurrencySymbol()})
+              </span>
+            </div>
+          </div>
+
           {/* Category Type Selection */}
           <div>
             <label className="input-label">
               <Tag size={16} className="inline mr-2" />
-              Expense Category
+              {t('expense_category') || 'Expense Category'}
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
               {EXPENSE_CATEGORIES.map((category) => (
@@ -156,13 +197,13 @@ const AddExpenseForm = ({
           <div>
             <label className="input-label">
               <Tag size={16} className="inline mr-2" />
-              Description
+              {t('description') || 'Description'}
             </label>
             <input
               type="text"
               value={expense.source}
               onChange={(e) => handleChange("source", e.target.value)}
-              placeholder="e.g., Lunch at restaurant, Gas for car, Groceries, etc."
+              placeholder={t('expense_description_placeholder') || "e.g., Lunch at restaurant, Gas for car, Groceries, etc."}
               className={`input-box ${errors.source ? 'error' : ''}`}
               disabled={isLoading}
             />
@@ -170,7 +211,7 @@ const AddExpenseForm = ({
               <p className="input-error">{errors.source}</p>
             )}
             <p className="input-help">
-              Enter a specific description for this expense
+              {t('expense_description_help') || 'Enter a specific description for this expense'}
             </p>
           </div>
 
@@ -178,17 +219,17 @@ const AddExpenseForm = ({
           <div>
             <label className="input-label">
               <DollarSign size={16} className="inline mr-2" />
-              Amount
+              {t('amount') || 'Amount'} ({currentCurrency})
             </label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                $
+                {getCurrencySymbol()}
               </div>
               <input
                 type="text"
                 value={expense.amount}
-                onChange={(e) => handleChange("amount", e.target.value)}
-                placeholder="0.00"
+                onChange={(e) => handleAmountChange(e.target.value)}
+                placeholder={getAmountPlaceholder()}
                 className={`input-box pl-8 ${errors.amount ? 'error' : ''}`}
                 disabled={isLoading}
               />
@@ -197,7 +238,7 @@ const AddExpenseForm = ({
               <p className="input-error">{errors.amount}</p>
             )}
             <p className="input-help">
-              Enter the expense amount (numbers only)
+              {t('amount_help') || `Enter the expense amount in ${currentCurrency}`}
             </p>
           </div>
 
@@ -205,7 +246,7 @@ const AddExpenseForm = ({
           <div>
             <label className="input-label">
               <Calendar size={16} className="inline mr-2" />
-              Date
+              {t('date') || 'Date'}
             </label>
             <input
               type="date"
@@ -219,14 +260,16 @@ const AddExpenseForm = ({
               <p className="input-error">{errors.date}</p>
             )}
             <p className="input-help">
-              Select the date when this expense occurred
+              {t('expense_date_help') || 'Select the date when this expense occurred'}
             </p>
           </div>
 
           {/* Preview */}
           {isFormValid && selectedCategory && (
             <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-              <h4 className="text-sm font-medium text-red-800 mb-2">Preview</h4>
+              <h4 className="text-sm font-medium text-red-800 mb-2">
+                {t('preview') || 'Preview'}
+              </h4>
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg ${selectedCategory.color} flex items-center justify-center`}>
                   <selectedCategory.icon size={20} className="text-white" />
@@ -237,7 +280,7 @@ const AddExpenseForm = ({
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-red-600">
-                    -${parseFormattedNumber(expense.amount || "0").toLocaleString()}
+                    -{formatCurrency(getPreviewAmount(), currentCurrency)}
                   </p>
                 </div>
               </div>
@@ -256,7 +299,7 @@ const AddExpenseForm = ({
             disabled={isLoading}
           >
             <X size={16} />
-            Reset
+            {t('reset') || 'Reset'}
           </button>
 
           <div className="flex items-center gap-3">
@@ -267,7 +310,7 @@ const AddExpenseForm = ({
                 className="btn-secondary btn-sm"
                 disabled={isLoading}
               >
-                Cancel
+                {t('cancel') || 'Cancel'}
               </button>
             )}
 
@@ -282,7 +325,7 @@ const AddExpenseForm = ({
               ) : (
                 <>
                   <Plus size={16} />
-                  Add Expense
+                  {t('add_expense') || 'Add Expense'}
                 </>
               )}
             </button>

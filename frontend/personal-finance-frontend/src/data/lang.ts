@@ -1,23 +1,77 @@
 export const translations = {
     en: {
+        // Currency related
+        current_currency: "Current Currency",
+        currency_settings: "Currency Settings",
+        currency_updated: "Currency updated successfully",
+        currency_preview: "Currency Preview",
+        currency: "Currency",
 
-        financial_overview: 'Financial Overview',
-        refresh: 'Refresh',
+        // Form labels
+        amount: "Amount",
+        amount_required: "Amount is required",
+        amount_must_be_positive: "Amount must be greater than 0",
+        amount_help: "Enter the amount in {currency}",
+        invalid_amount: "Please enter a valid amount",
+        category_required: "Please select a category",
+        date_required: "Date is required",
+        source_required: "Source is required",
+
+        // Income form
+        add_new_income: "Add New Income",
+        record_income_professional: "Record your income with professional categorization",
+        income_category: "Income Category",
+        income_source: "Income Source",
+        income_source_required: "Income source is required",
+        income_source_placeholder: "e.g., Google Inc, Client ABC, Rental Property",
+        income_source_help: "Enter the specific source of this income",
+        date_received: "Date Received",
+        date_received_help: "Select the date when you received this income",
+        add_income: "Add Income",
+        preview: "Preview",
+        reset: "Reset",
+        cancel: "Cancel",
+
+        // Expense form
+        add_new_expense: "Add New Expense",
+        track_spending_professional: "Track your spending with professional categorization",
+        expense_category: "Expense Category",
+        description: "Description",
+        expense_description_placeholder: "e.g., Lunch at restaurant, Gas for car, Groceries, etc.",
+        expense_description_help: "Enter a specific description for this expense",
+        expense_date_help: "Select the date when this expense occurred",
+        add_expense: "Add Expense",
+        date: "Date",
+
+        // Dashboard
+        financial_overview: "Financial Overview",
+        total_balance: "Total Balance",
+        total_income: "Total Income",
+        total_expenses: "Total Expenses",
+        savings_rate: "Savings Rate",
+        monthly_flow: "Monthly Flow",
+        net_worth: "Net Worth",
+        of_total_income: "of total income",
+        surplus: "surplus",
+        deficit: "deficit",
+        total_assets: "total assets",
+        refresh: "Refresh",
+        failed_load_dashboard: "Failed to load dashboard data. Please try again.",
+        app_tagline: 'Take control of your financial future',
+        // Success/Error messages
+        income_added_success: "Income of {amount} added successfully!",
+        expense_added_success: "Expense of {amount} added successfully!",
+        failed_add_income: "Failed to add income. Please try again.",
+        failed_add_expense: "Failed to add expense. Please try again.",
+
         failed_to_load_dashboard: 'Failed to load dashboard data. Please try again.',
 
         // Main Metrics (already exist but confirming)
-        total_balance: 'Total Balance',
-        total_income: 'Total Income',
+
         total_expense: 'Total Expense',
 
         // Additional Metrics
-        savings_rate: 'Savings Rate',
-        of_total_income: 'of total income',
-        monthly_flow: 'Monthly Flow',
-        surplus: 'surplus',
-        deficit: 'deficit',
-        net_worth: 'Net Worth',
-        total_assets: 'total assets',
+
 
         // Status and Actions
         loading_dashboard: 'Loading dashboard...',
@@ -53,8 +107,7 @@ export const translations = {
         category_analysis: 'Category Analysis',
 
         // Quick Actions
-        add_income: 'Add Income',
-        add_expense: 'Add Expense',
+
         quick_add: 'Quick Add',
         transfer_money: 'Transfer Money',
 
@@ -99,29 +152,25 @@ export const translations = {
         minimum: 'Minimum',
 
         // Chart
-        amount: 'Amount',
         category: 'Category',
         month: 'Month',
-        showing_data_points: 'Showing {count} data points',
+        showing_data_points: `Showing data points`,
         range: 'Range',
 
         // Profile & Settings
         language_settings: 'Language Settings',
-        currency_settings: 'Currency Settings',
         save_changes: 'Save Changes',
         profile_updated: 'Profile updated successfully',
+        total_transactions: 'Total Transactions',
 
         // Common
         loading: 'Loading...',
         save: 'Save',
-        cancel: 'Cancel',
         edit: 'Edit',
         delete: 'Delete',
         add: 'Add',
         search: 'Search',
         filter: 'Filter',
-        date: 'Date',
-        description: 'Description',
 
         // Months
         january: 'January',
@@ -169,7 +218,6 @@ export const translations = {
         // Settings & Preferences
         preferences: 'Preferences',
         customize_experience: 'Customize your experience',
-        currency_preview: 'Currency Preview',
         small_amount: 'Small',
         medium_amount: 'Medium',
         large_amount: 'Large',
@@ -189,7 +237,6 @@ export const translations = {
         save_failed: 'Failed to save profile',
         loading_profile: 'Loading profile...',
         language_updated: 'Language updated successfully',
-        currency_updated: 'Currency updated successfully',
 
         // Navigation
         close_navigation: 'Close navigation',
@@ -362,7 +409,19 @@ export const translations = {
         of_total: 'of total',
         not_available: 'N/A',
 
-
+        transactions_this_month: 'Transactions this month',
+        transactions_last_month: 'Transactions last month',
+        transactions_this_year: 'Transactions this year',
+        transactions_last_year: 'Transactions last year',
+        transactions_this_week: 'Transactions this week',
+        transactions_last_week: 'Transactions last week',
+        transactions_this_day: 'Transactions this day',
+        transactions_last_day: 'Transactions last day',
+        transactions_this_hour: 'Transactions this hour',
+        transactions_last_hour: 'Transactions last hour',
+        transactions_this_minute: 'Transactions this minute',
+        transactions_last_minute: 'Transactions last minute',
+        transactions_this_second: 'Transactions this second',
 
         // Additional income terms
         revenue_breakdown: 'Revenue Breakdown',
@@ -426,26 +485,119 @@ export const translations = {
         delete_expense: 'Hapus Pengeluaran',
         exchange_rate: 'Nilai Tukar',
         current_display_currency: 'Mata Uang Saat Ini',
-        income_deleted_successfully:"Income deleted successfully",
-        failed_to_delete_income:"Failed to delete income",
-        error_deleting_income:"Error deleting income",
-        failed_to_load_income_data: 'Failed to load income data',
-        error_fetching_income_details: 'Error fetching income details',
-        income_details_downloaded: 'Income details downloaded successfully',
-        error_downloading_income: 'Error downloading income details',
-        delete_income: 'Delete Income',
-        confirm_delete_income: 'Are you sure you want to delete this income?',
+        income_deleted_successfully: "Income deleted successfully",
+        failed_to_delete_income: "Failed to delete income",
+        error_deleting_income: "Error deleting income",
+        data_points: 'Data Points',
+        sign_in_to_your_account_to_continue: 'Sign in to your account to continue',
+        enter_your_email: 'Enter your email',
+        enter_your_password: 'Enter your password',
+        sign_up_for_free: 'Sign up for free',
+        terms_of_service: 'Terms of Service',
+        privacy_policy: 'Privacy Policy',
+        dont_have_an_account: 'Don\'t have an account?',
+        app_name: 'Personal Finance',
+        track_income_expenses: 'Track your income and expenses',
+
+
     },
     id: {
-        failed_to_load_income_data: 'Gagal memuat data pemasukan',
-        error_fetching_income_details: 'Error mengambil detail pemasukan',
-        income_deleted_successfully: 'Pemasukan berhasil dihapus',
-        failed_to_delete_income: 'Gagal menghapus pemasukan',
-        error_deleting_income: 'Error menghapus pemasukan',
-        income_details_downloaded: 'Detail pemasukan berhasil diunduh',
-        error_downloading_income: 'Error mengunduh detail pemasukan',
-        delete_income: 'Hapus Pemasukan',
-        confirm_delete_income: 'Apakah Anda yakin ingin menghapus pemasukan ini?',
+        current_currency: "Mata Uang Saat Ini",
+        currency_settings: "Pengaturan Mata Uang",
+        currency_updated: "Mata uang berhasil diperbarui",
+        currency_preview: "Pratinjau Mata Uang",
+        currency: "Mata Uang",
+        app_tagline: 'Kendalikan masa depan keuangan Anda',
+        sign_in_to_your_account_to_continue: 'Masuk ke akun Anda untuk melanjutkan',
+        enter_your_email: 'Masukkan email Anda',
+        enter_your_password: 'Masukkan password Anda',
+        sign_up_for_free: 'Daftar gratis',
+        terms_of_service: 'Ketentuan Layanan',
+        privacy_policy: 'Kebijakan Privasi',
+        dont_have_an_account: 'Tidak punya akun?',
+        app_name: 'Personal Finance',
+        sign_in: 'Masuk',
+        remember_me: 'Ingat saya',
+        forgot_password: 'Lupa password?',
+        password: 'Password',
+        email_address: 'Email Address',
+        sign_up: 'Daftar',
+        fill_in_the_form_below_to_create_your_account: 'Isi formulir di bawah untuk membuat akun Anda',
+        full_name: 'Nama Lengkap',
+        your_full_name: 'Nama lengkap Anda',
+        create_password: 'Buat password',
+        strength: 'Kekuatan',
+        i_agree_to_the: 'Saya setuju dengan',   
+        already_have_an_account: 'Sudah punya akun?',
+        terms: 'Ketentuan',
+        and: 'dan',
+        track_income_expenses: 'Lacak pemasukan dan pengeluaran Anda',
+
+        
+        // Form labels
+        amount: "Jumlah",
+        amount_required: "Jumlah wajib diisi",
+        amount_must_be_positive: "Jumlah harus lebih dari 0",
+        amount_help: "Masukkan jumlah dalam {currency}",
+        invalid_amount: "Mohon masukkan jumlah yang valid",
+        category_required: "Mohon pilih kategori",
+        date_required: "Tanggal wajib diisi",
+        source_required: "Sumber wajib diisi",
+
+        // Income form
+        add_new_income: "Tambah Pemasukan Baru",
+        record_income_professional: "Catat pemasukan Anda dengan kategorisasi profesional",
+        income_category: "Kategori Pemasukan",
+        income_source: "Sumber Pemasukan",
+        income_source_required: "Sumber pemasukan wajib diisi",
+        income_source_placeholder: "mis., Google Inc, Klien ABC, Properti Sewa",
+        income_source_help: "Masukkan sumber spesifik pemasukan ini",
+        date_received: "Tanggal Diterima",
+        date_received_help: "Pilih tanggal ketika Anda menerima pemasukan ini",
+        add_income: "Tambah Pemasukan",
+        preview: "Pratinjau",
+        reset: "Reset",
+        cancel: "Batal",
+        total_transactions: 'Total Transaksi',
+        showing_data_points: 'Menampilkan titik data',
+        range: 'Rentang',
+        data_points: 'Data Points',
+
+
+        // Expense form
+        add_new_expense: "Tambah Pengeluaran Baru",
+        track_spending_professional: "Lacak pengeluaran Anda dengan kategorisasi profesional",
+        expense_category: "Kategori Pengeluaran",
+        description: "Deskripsi",
+        expense_description_placeholder: "mis., Makan siang di restoran, Bensin mobil, Belanja, dll.",
+        expense_description_help: "Masukkan deskripsi spesifik untuk pengeluaran ini",
+        expense_date_help: "Pilih tanggal ketika pengeluaran ini terjadi",
+        add_expense: "Tambah Pengeluaran",
+        date: "Tanggal",
+
+        // Dashboard
+        financial_overview: "Ringkasan Keuangan",
+        total_balance: "Total Saldo",
+        total_income: "Total Pemasukan",
+        total_expenses: "Total Pengeluaran",
+        savings_rate: "Tingkat Tabungan",
+        monthly_flow: "Aliran Bulanan",
+        net_worth: "Kekayaan Bersih",
+        of_total_income: "dari total pemasukan",
+        surplus: "surplus",
+        deficit: "defisit",
+        total_assets: "total aset",
+        refresh: "Segarkan",
+        failed_load_dashboard: "Gagal memuat data dashboard. Silakan coba lagi.",
+
+        // Success/Error messages
+        income_added_success: "Pemasukan sebesar {amount} berhasil ditambahkan!",
+        expense_added_success: "Pengeluaran sebesar {amount} berhasil ditambahkan!",
+        failed_add_income: "Gagal menambah pemasukan. Silakan coba lagi.",
+        failed_add_expense: "Gagal menambah pengeluaran. Silakan coba lagi.",
+        income_deleted_successfully: "Pemasukan berhasil dihapus",
+        failed_to_delete_income: "Gagal menghapus pemasukan",
+        error_deleting_income: "Terjadi kesalahan saat menghapus pemasukan",
         exchange_rate_updated: 'Nilai tukar diperbarui',
         failed_to_update_rate: 'Gagal memperbarui nilai tukar',
         last_updated: 'Terakhir diperbarui',
@@ -456,7 +608,6 @@ export const translations = {
 
         recent_income: 'Pemasukan Terkini',
         // CustomBarChart component
-        amount: 'Jumlah',
         category: 'Kategori',
         total: 'Total',
         average: 'Rata-rata',
@@ -470,8 +621,6 @@ export const translations = {
         chart_level_very_low: 'Sangat Rendah (<25%)',
 
         // Chart summary
-        showing_data_points: 'Menampilkan {count} titik data',
-        range: 'Rentang',
 
         // Last30DaysExpenseChart component
         last_30_days_expense: 'Pengeluaran 30 Hari Terakhir',
@@ -519,7 +668,6 @@ export const translations = {
 
         // Sorting
         sort_by: 'Urutkan berdasarkan',
-        date: 'Tanggal',
 
 
         // Navigation
@@ -557,17 +705,13 @@ export const translations = {
         under_budget: 'Di Bawah Anggaran',
 
         // Main component
-        financial_overview: 'Ringkasan Keuangan',
         financial_health_summary: 'Ringkasan kesehatan keuangan Anda',
         financial_health: 'Kesehatan Keuangan',
 
         // Already exist but confirming
-        total_balance: 'Total Saldo',
-        total_income: 'Total Pemasukan',
         total_expense: 'Total Pengeluaran',
 
         // Financial metrics
-        savings_rate: 'Tingkat Tabungan',
         expense_ratio: 'Rasio Pengeluaran',
         net_flow: 'Arus Bersih',
 
@@ -641,18 +785,25 @@ export const translations = {
         completed: 'Selesai',
         pending: 'Menunggu',
         failed: 'Gagal',
-        refresh: 'Muat Ulang',
         failed_to_load_dashboard: 'Gagal memuat data dashboard. Silakan coba lagi.',
 
+        transactions_this_month: 'Transaksi Bulan Ini',
+        transactions_last_month: 'Transaksi Bulan Lalu',
+        transactions_this_year: 'Transaksi Tahun Ini',
+        transactions_last_year: 'Transaksi Tahun Lalu',
+        transactions_this_week: 'Transaksi Minggu Ini',
+        transactions_last_week: 'Transaksi Minggu Lalu',
+        transactions_this_day: 'Transaksi Hari Ini',
+        transactions_last_day: 'Transaksi Hari Lalu',
+        transactions_this_hour: 'Transaksi Jam Ini',
+        transactions_last_hour: 'Transaksi Jam Lalu',
+        transactions_this_minute: 'Transaksi Menit Ini',
+        transactions_last_minute: 'Transaksi Menit Lalu',
+        transactions_this_second: 'Transaksi Detik Ini',
 
 
-        // Additional Metrics
-        of_total_income: 'dari total pemasukan',
-        monthly_flow: 'Arus Bulanan',
-        surplus: 'surplus',
-        deficit: 'defisit',
-        net_worth: 'Kekayaan Bersih',
-        total_assets: 'total aset',
+
+
 
         // Status and Actions
         loading_dashboard: 'Memuat dashboard...',
@@ -676,8 +827,7 @@ export const translations = {
         category_analysis: 'Analisis Kategori',
 
         // Quick Actions
-        add_income: 'Tambah Pemasukan',
-        add_expense: 'Tambah Pengeluaran',
+
         quick_add: 'Tambah Cepat',
         transfer_money: 'Transfer Uang',
 
@@ -699,13 +849,9 @@ export const translations = {
         welcome_back: 'Selamat datang kembali',
         create_account: 'Buat Akun',
         email: 'Email',
-        password: 'Kata Sandi',
         confirm_password: 'Konfirmasi Kata Sandi',
-        full_name: 'Nama Lengkap',
-        remember_me: 'Ingat saya',
-        forgot_password: 'Lupa kata sandi?',
-        sign_in: 'Masuk',
-        sign_up: 'Daftar',
+
+
 
         // Dashboard
         monthly_income: 'Pemasukan Bulanan',
@@ -721,20 +867,17 @@ export const translations = {
 
         // Profile & Settings
         language_settings: 'Pengaturan Bahasa',
-        currency_settings: 'Pengaturan Mata Uang',
         save_changes: 'Simpan Perubahan',
         profile_updated: 'Profil berhasil diperbarui',
 
         // Common
         loading: 'Memuat...',
         save: 'Simpan',
-        cancel: 'Batal',
         edit: 'Edit',
         delete: 'Hapus',
         add: 'Tambah',
         search: 'Cari',
         filter: 'Filter',
-        description: 'Deskripsi',
 
         // Months
         january: 'Januari',
@@ -770,7 +913,6 @@ export const translations = {
         personal_information: 'Informasi Pribadi',
         update_personal_details: 'Perbarui detail pribadi dan informasi akun Anda',
         enter_full_name: 'Masukkan nama lengkap Anda',
-        email_address: 'Alamat Email',
         email_readonly_note: 'Alamat email tidak dapat diubah. Hubungi dukungan jika diperlukan.',
         account_information: 'Informasi Akun',
         member_since: 'Bergabung Sejak',
@@ -781,7 +923,6 @@ export const translations = {
         // Settings & Preferences
         preferences: 'Preferensi',
         customize_experience: 'Sesuaikan pengalaman Anda',
-        currency_preview: 'Pratinjau Mata Uang',
         small_amount: 'Kecil',
         medium_amount: 'Sedang',
         large_amount: 'Besar',
@@ -801,7 +942,6 @@ export const translations = {
         save_failed: 'Gagal menyimpan profil',
         loading_profile: 'Memuat profil...',
         language_updated: 'Bahasa berhasil diperbarui',
-        currency_updated: 'Mata uang berhasil diperbarui',
 
         // Navigation  
         close_navigation: 'Tutup navigasi',

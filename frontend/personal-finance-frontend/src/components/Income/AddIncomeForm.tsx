@@ -1,6 +1,6 @@
+//src/components/Income/AddIncomeForm.tsx
 import { useState } from "react";
 import { DollarSign, Calendar, Building, Plus, X, Briefcase, CreditCard, TrendingUp, Award, Gift, Home, CircleHelp } from "lucide-react";
-import { parseFormattedNumber } from "../../utils/helper";
 import { useSettings } from "../../context/settingsContext";
 import { useTransactionForm } from "../../hooks/useTransactionForm";
 
@@ -12,31 +12,47 @@ type IncomeFormInput = {
 };
 
 interface AddIncomeFormProps {
-  onAddIncome?: (success: boolean) => void; // Changed to just success callback
+  onAddIncome?: () => void;
   onCancel?: () => void;
   isLoading?: boolean;
 }
 
-// Professional predefined categories with icons - using translation keys
+// Professional predefined categories with icons
 const INCOME_CATEGORIES = [
-  { id: 'salary', labelKey: 'category_salary', icon: Briefcase, color: 'bg-blue-500' },
-  { id: 'freelance', labelKey: 'category_freelance', icon: TrendingUp, color: 'bg-green-500' },
-  { id: 'business', labelKey: 'category_business', icon: Building, color: 'bg-purple-500' },
-  { id: 'investment', labelKey: 'category_investment', icon: CreditCard, color: 'bg-orange-500' },
-  { id: 'bonus', labelKey: 'category_bonus', icon: Award, color: 'bg-yellow-500' },
-  { id: 'gift', labelKey: 'category_gift', icon: Gift, color: 'bg-pink-500' },
-  { id: 'rental', labelKey: 'category_rental', icon: Home, color: 'bg-indigo-500' },
-  { id: 'other', labelKey: 'category_other', icon: CircleHelp, color: 'bg-gray-500' },
+  { id: 'salary', label: 'Salary', icon: Briefcase, color: 'bg-blue-500' },
+  { id: 'freelance', label: 'Freelance', icon: TrendingUp, color: 'bg-green-500' },
+  { id: 'business', label: 'Business', icon: Building, color: 'bg-purple-500' },
+  { id: 'investment', label: 'Investment', icon: CreditCard, color: 'bg-orange-500' },
+  { id: 'bonus', label: 'Bonus', icon: Award, color: 'bg-yellow-500' },
+  { id: 'gift', label: 'Gift', icon: Gift, color: 'bg-pink-500' },
+  { id: 'rental', label: 'Rental', icon: Home, color: 'bg-indigo-500' },
+  { id: 'other', label: 'Other', icon: CircleHelp, color: 'bg-gray-500' },
 ];
 
 const AddIncomeForm = ({
   onAddIncome,
   onCancel,
-  isLoading: externalLoading = false,
+  isLoading: propIsLoading = false,
 }: AddIncomeFormProps) => {
-  const { t, currency } = useSettings();
-  const { submitIncome, previewInOtherCurrency, isSubmitting } = useTransactionForm();
+  const { t, currency, formatCurrency } = useSettings();
   
+  // Use the transaction form hook
+  const {
+    isLoading: hookIsLoading,
+    submitTransaction,
+    getCurrencySymbol,
+    getAmountPlaceholder,
+    currentCurrency
+  } = useTransactionForm({
+    type: 'income',
+    onSuccess: () => {
+      handleReset();
+      if (onAddIncome) {
+        onAddIncome();
+      }
+    }
+  });
+
   const [income, setIncome] = useState<IncomeFormInput>({
     amount: "",
     source: "",
@@ -45,7 +61,8 @@ const AddIncomeForm = ({
   });
 
   const [errors, setErrors] = useState<Partial<IncomeFormInput>>({});
-  const isLoading = externalLoading || isSubmitting;
+
+  const isLoading = propIsLoading || hookIsLoading;
 
   const handleChange = (key: keyof IncomeFormInput, value: string) => {
     setIncome({ ...income, [key]: value });
@@ -56,6 +73,12 @@ const AddIncomeForm = ({
     }
   };
 
+  const handleAmountChange = (value: string) => {
+    // Allow only numbers, dots, and commas
+    const cleanValue = value.replace(/[^\d.,]/g, '');
+    handleChange('amount', cleanValue);
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Partial<IncomeFormInput> = {};
 
@@ -64,13 +87,16 @@ const AddIncomeForm = ({
     }
 
     if (!income.category) {
-      newErrors.category = t('please_select_category') || "Please select a category";
+      newErrors.category = t('category_required') || "Please select a category";
     }
 
     if (!income.amount.trim()) {
       newErrors.amount = t('amount_required') || "Amount is required";
-    } else if (parseFormattedNumber(income.amount) <= 0) {
-      newErrors.amount = t('amount_must_be_positive') || "Amount must be greater than 0";
+    } else {
+      const numAmount = parseFloat(income.amount.replace(/[,\s]/g, ''));
+      if (isNaN(numAmount) || numAmount <= 0) {
+        newErrors.amount = t('amount_must_be_positive') || "Amount must be greater than 0";
+      }
     }
 
     if (!income.date) {
@@ -86,25 +112,10 @@ const AddIncomeForm = ({
     
     if (!validateForm()) return;
 
-    const success = await submitIncome({
-      amount: parseFormattedNumber(income.amount),
-      source: income.source,
-      category: income.category,
-      date: income.date,
-    });
-
-    if (success) {
-      // Reset form
-      setIncome({
-        amount: "",
-        source: "",
-        category: "",
-        date: new Date().toISOString().split('T')[0],
-      });
-      setErrors({});
-      
-      // Notify parent
-      onAddIncome?.(true);
+    try {
+      await submitTransaction(income);
+    } catch (error) {
+      // Error handling is done in the hook
     }
   };
 
@@ -120,20 +131,35 @@ const AddIncomeForm = ({
 
   const selectedCategory = INCOME_CATEGORIES.find(cat => cat.id === income.category);
   const isFormValid = income.source && income.category && income.amount && income.date;
-  const currencySymbol = currency === 'USD' ? '$' : 'Rp';
-  const placeholderAmount = currency === 'USD' ? '1000.00' : '1000000';
+
+  // Parse amount for preview
+  const getPreviewAmount = (): number => {
+    const cleanAmount = income.amount.replace(/[,\s]/g, '');
+    const numAmount = parseFloat(cleanAmount);
+    return isNaN(numAmount) ? 0 : numAmount;
+  };
 
   return (
     <div className="card">
       <div className="card-header">
         <h3 className="card-title">{t('add_new_income') || 'Add New Income'}</h3>
         <p className="card-subtitle">
-          {t('record_income_with_categorization') || 'Record your income with professional categorization'}
+          {t('record_income_professional') || 'Record your income with professional categorization'}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="card-content">
         <div className="space-y-6">
+          {/* Currency Display */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-center gap-2">
+              <DollarSign size={16} className="text-blue-600" />
+              <span className="text-sm font-medium text-blue-800">
+                {t('current_currency') || 'Current Currency'}: {currentCurrency} ({getCurrencySymbol()})
+              </span>
+            </div>
+          </div>
+
           {/* Category Selection */}
           <div>
             <label className="input-label">
@@ -156,7 +182,7 @@ const AddIncomeForm = ({
                     <div className={`w-8 h-8 rounded-lg ${category.color} flex items-center justify-center`}>
                       <category.icon size={16} className="text-white" />
                     </div>
-                    <span className="text-sm font-medium">{t(category.labelKey)}</span>
+                    <span className="text-sm font-medium">{category.label}</span>
                   </div>
                 </button>
               ))}
@@ -184,7 +210,7 @@ const AddIncomeForm = ({
               <p className="input-error">{errors.source}</p>
             )}
             <p className="input-help">
-              {t('enter_income_source_help') || 'Enter the specific source of this income'}
+              {t('income_source_help') || 'Enter the specific source of this income'}
             </p>
           </div>
 
@@ -192,17 +218,17 @@ const AddIncomeForm = ({
           <div>
             <label className="input-label">
               <DollarSign size={16} className="inline mr-2" />
-              {t('amount')} ({currency})
+              {t('amount') || 'Amount'} ({currentCurrency})
             </label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                {currencySymbol}
+                {getCurrencySymbol()}
               </div>
               <input
                 type="text"
                 value={income.amount}
-                onChange={(e) => handleChange("amount", e.target.value)}
-                placeholder={placeholderAmount}
+                onChange={(e) => handleAmountChange(e.target.value)}
+                placeholder={getAmountPlaceholder()}
                 className={`input-box pl-8 ${errors.amount ? 'error' : ''}`}
                 disabled={isLoading}
               />
@@ -210,16 +236,8 @@ const AddIncomeForm = ({
             {errors.amount && (
               <p className="input-error">{errors.amount}</p>
             )}
-            
-            {/* Currency conversion preview */}
-            {income.amount && parseFormattedNumber(income.amount) > 0 && (
-              <p className="input-help text-blue-600 font-medium">
-                {previewInOtherCurrency(parseFormattedNumber(income.amount))}
-              </p>
-            )}
-            
             <p className="input-help">
-              {t('enter_amount_help') || 'Enter the income amount (numbers only)'}
+              {t('amount_help') || `Enter the income amount in ${currentCurrency}`}
             </p>
           </div>
 
@@ -241,25 +259,27 @@ const AddIncomeForm = ({
               <p className="input-error">{errors.date}</p>
             )}
             <p className="input-help">
-              {t('select_income_date_help') || 'Select the date when you received this income'}
+              {t('date_received_help') || 'Select the date when you received this income'}
             </p>
           </div>
 
           {/* Preview */}
           {isFormValid && selectedCategory && (
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-              <h4 className="text-sm font-medium text-green-800 mb-2">{t('preview') || 'Preview'}</h4>
+              <h4 className="text-sm font-medium text-green-800 mb-2">
+                {t('preview') || 'Preview'}
+              </h4>
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg ${selectedCategory.color} flex items-center justify-center`}>
                   <selectedCategory.icon size={20} className="text-white" />
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-gray-900">{income.source}</p>
-                  <p className="text-sm text-gray-500">{t(selectedCategory.labelKey)} • {income.date}</p>
+                  <p className="text-sm text-gray-500">{selectedCategory.label} • {income.date}</p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-green-600">
-                    +{currencySymbol}{parseFormattedNumber(income.amount || "0").toLocaleString()}
+                    +{formatCurrency(getPreviewAmount(), currentCurrency)}
                   </p>
                 </div>
               </div>

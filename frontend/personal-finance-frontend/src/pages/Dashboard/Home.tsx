@@ -26,30 +26,95 @@ import ExpanseTransactionsChart from "../../components/Dashboard/ExpanseTransact
 import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithChart";
 import RecentIncome from "../../components/Dashboard/RecentIncome";
 
+// Unified transaction interface that matches backend and component expectations
+interface DashboardTransaction {
+  _id: string;
+  userId: string;
+  category: string;
+  source: string;
+  amount: number;
+  currency?: 'USD' | 'IDR';
+  amountUSD?: number;
+  exchangeRate?: number;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+  type?: 'income' | 'expense';
+  displayAmount?: number; // Calculated display amount
+  name?: string; // For chart compatibility
+}
+
 interface DashboardData {
   totalBalance: number;
   totalIncome: number;
   totalExpense: number;
-  recentTransactions: any[];
+  recentTransactions: DashboardTransaction[];
   expenseLast30Days: {
-    transactions: any[];
+    total: number;
+    transactions: DashboardTransaction[];
   };
   incomeLast60Days: {
-    transactions: any[];
+    total: number;
+    transactions: DashboardTransaction[];
   };
 }
 
 export default function Home() {
   useUserAuth();
   const navigate = useNavigate();
-  const { t, formatCurrency } = useSettings();
+  const { formatCurrency, currency, exchangeRate, convertCurrency, t } = useSettings();
   
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to determine transaction display amount
+  const getTransactionDisplayAmount = (transaction: any): number => {
+    // If transaction has currency info, use it properly
+    if (transaction.currency && transaction.amountUSD !== undefined) {
+      if (currency === 'USD') {
+        return transaction.amountUSD;
+      } else {
+        return transaction.amountUSD * exchangeRate;
+      }
+    }
+    
+    // For legacy or new transactions without currency field
+    // Assume backend sends amounts in the currency that was used for input
+    if (currency === 'IDR') {
+      return transaction.amount; // Backend should already be sending IDR amounts
+    } else {
+      // If user wants USD but backend has IDR amounts
+      return transaction.amount / exchangeRate;
+    }
+  };
+
+  // Helper function to calculate totals
+  const calculateDisplayTotal = (amount: number): number => {
+    // Backend sends totals based on stored amounts
+    // Since we fixed the input to store in correct currency,
+    // backend totals should already be in the right currency
+    if (currency === 'IDR') {
+      return amount; // Backend calculated in IDR
+    } else {
+      // Convert to USD if user preference is USD
+      return amount / exchangeRate;
+    }
+  };
+
+  // Process transaction for component compatibility
+  const processTransaction = (transaction: any): DashboardTransaction => {
+    const displayAmount = getTransactionDisplayAmount(transaction);
+    return {
+      ...transaction,
+      displayAmount,
+      name: transaction.source, // For chart compatibility
+      type: transaction.type || 'income'
+    };
+  };
+
   const fetchDashboardData = async () => {
-    if (isLoading && dashboardData) return; // Prevent multiple calls
+    if (isLoading && dashboardData) return;
 
     setIsLoading(true);
     setError(null);
@@ -57,11 +122,34 @@ export default function Home() {
     try {
       const response = await axiosInstance.get(API_PATH.DASHBOARD.GET_DASHBOARD_DATA);
       if (response.data) {
-        setDashboardData(response.data);
+        console.log('Raw backend data:', response.data);
+        
+        // Process the data with proper currency handling
+        const processedData: DashboardData = {
+          ...response.data,
+          // Calculate display totals
+          totalBalance: calculateDisplayTotal(response.data.totalBalance),
+          totalIncome: calculateDisplayTotal(response.data.totalIncome),
+          totalExpense: calculateDisplayTotal(response.data.totalExpense),
+          
+          // Process transactions
+          recentTransactions: response.data.recentTransactions.map(processTransaction),
+          expenseLast30Days: {
+            ...response.data.expenseLast30Days,
+            transactions: response.data.expenseLast30Days.transactions.map(processTransaction)
+          },
+          incomeLast60Days: {
+            ...response.data.incomeLast60Days,
+            transactions: response.data.incomeLast60Days.transactions.map(processTransaction)
+          }
+        };
+        
+        console.log('Processed dashboard data:', processedData);
+        setDashboardData(processedData);
       }
     } catch (err) {
       console.error("Failed to fetch dashboard data:", err);
-      setError(t('failed_to_load_dashboard'));
+      setError(t('failed_load_dashboard') || "Failed to load dashboard data. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +157,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [currency]); // Refetch when currency changes
 
   // Calculate financial metrics
   const calculateMetrics = () => {
@@ -93,15 +181,20 @@ export default function Home() {
       {/* Quick Actions Bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t('financial_overview')}</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            {t('financial_overview') || 'Financial Overview'}
+          </h2>
           <div className="flex items-center gap-2">
+            <div className="text-sm text-gray-500">
+              {t('currency') || 'Currency'}: <span className="font-medium">{currency}</span>
+            </div>
             <button
               onClick={fetchDashboardData}
               disabled={isLoading}
               className="btn-ghost btn-sm"
             >
               <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-              {t('refresh')}
+              {t('refresh') || 'Refresh'}
             </button>
           </div>
         </div>
@@ -137,28 +230,30 @@ export default function Home() {
       {/* Main Content */}
       {!isLoading && dashboardData && (
         <>
+        
+
           {/* Financial Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <ModernInfoCard
               icon={<Wallet size={24} />}
-              label={t('total_balance')}
-              value={formatCurrency(dashboardData.totalBalance || 0)}
+              label={t('total_balance') || 'Total Balance'}
+              value={formatCurrency(dashboardData.totalBalance || 0, currency)}
               change={metrics?.netWorth && metrics.netWorth > 0 ? "+2.5%" : "0%"}
               changeType="positive"
               color="bg-blue-500"
             />
             <ModernInfoCard
               icon={<TrendingUp size={24} />}
-              label={t('total_income')}
-              value={formatCurrency(dashboardData.totalIncome || 0)}
+              label={t('total_income') || 'Total Income'}
+              value={formatCurrency(dashboardData.totalIncome || 0, currency)}
               change="+12.3%"
               changeType="positive"
               color="bg-green-500"
             />
             <ModernInfoCard
               icon={<TrendingDown size={24} />}
-              label={t('total_expense')}
-              value={formatCurrency(dashboardData.totalExpense || 0)}
+              label={t('total_expenses') || 'Total Expenses'}
+              value={formatCurrency(dashboardData.totalExpense || 0, currency)}
               change="-8.2%"
               changeType="negative"
               color="bg-red-500"
@@ -169,23 +264,26 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <QuickMetricCard
               icon={<PiggyBank size={20} />}
-              label={t('savings_rate')}
+              label={t('savings_rate') || 'Savings Rate'}
               value={`${metrics?.savingsRate || 0}%`}
-              subtext={t('of_total_income')}
+              subtext={t('of_total_income') || 'of total income'}
               color="bg-purple-500"
             />
             <QuickMetricCard
               icon={<CreditCard size={20} />}
-              label={t('monthly_flow')}
-              value={formatCurrency(Math.abs(metrics?.monthlyFlow || 0))}
-              subtext={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? t('surplus') : t('deficit')}
+              label={t('monthly_flow') || 'Monthly Flow'}
+              value={formatCurrency(Math.abs(metrics?.monthlyFlow || 0), currency)}
+              subtext={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? 
+                (t('surplus') || 'surplus') : 
+                (t('deficit') || 'deficit')
+              }
               color={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? "bg-green-500" : "bg-red-500"}
             />
             <QuickMetricCard
               icon={<DollarSign size={20} />}
-              label={t('net_worth')}
-              value={formatCurrency(dashboardData.totalBalance || 0)}
-              subtext={t('total_assets')}
+              label={t('net_worth') || 'Net Worth'}
+              value={formatCurrency(dashboardData.totalBalance || 0, currency)}
+              subtext={t('total_assets') || 'total assets'}
               color="bg-indigo-500"
             />
           </div>

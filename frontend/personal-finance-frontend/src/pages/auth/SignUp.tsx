@@ -9,6 +9,7 @@ import { API_PATH } from "../../utils/api";
 import { UserContext } from "../../context/userContext";
 import uploadImage from "../../utils/uploadImage";
 import { toast } from "react-hot-toast";
+import { useSettings } from "../../context/settingsContext";
 
 interface FormData {
   fullName: string;
@@ -25,6 +26,7 @@ interface FormErrors {
 export default function SignUp() {
   const navigate = useNavigate();
   const userContext = useContext(UserContext);
+  const { t } = useSettings();
 
   const [form, setForm] = useState<FormData>({ fullName: "", email: "", password: "" });
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
@@ -97,11 +99,11 @@ export default function SignUp() {
   const passwordStrength = getPasswordStrength(form.password);
 
   return (
-    <AuthLayout>
+    <AuthLayout variant="split" showLanguageToggle={true}>
       <div className="w-full max-w-sm mx-auto">
         <div className="text-center  mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">Sign Up</h1>
-          <p className="text-gray-600">Fill in the form below to create your account</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">{t('sign_up')}</h1>
+          <p className="text-gray-600">{t('fill_in_the_form_below_to_create_your_account')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-sm">
@@ -115,14 +117,14 @@ export default function SignUp() {
 
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('full_name')}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <User size={18} />
               </span>
               <input
                 type="text"
-                placeholder="Your full name"
+                placeholder={t('your_full_name')}
                 value={form.fullName}
                 onChange={handleChange("fullName")}
                 className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.fullName ? "border-red-500" : "border-gray-300"
@@ -140,14 +142,14 @@ export default function SignUp() {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <Mail size={18} />
               </span>
               <input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t('enter_your_email')}
                 value={form.email}
                 onChange={handleChange("email")}
                 className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? "border-red-500" : "border-gray-300"
@@ -166,14 +168,14 @@ export default function SignUp() {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('password')}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <Lock size={18} />
               </span>
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Create password"
+                placeholder={t('create_password')}
                 value={form.password}
                 onChange={handleChange("password")}
                 className={`w-full pl-11 pr-11 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.password ? "border-red-500" : "border-gray-300"
@@ -192,7 +194,7 @@ export default function SignUp() {
             {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
             {form.password && !errors.password && (
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-gray-500">Strength:</span>
+                <span className="text-xs text-gray-500">{t('strength')}:</span>
                 <span className={`text-xs font-medium ${passwordStrength.color}`}>
                   {passwordStrength.strength}
                 </span>
@@ -204,9 +206,9 @@ export default function SignUp() {
           <div className="flex items-start gap-2 text-xs text-gray-600">
             <input type="checkbox" id="terms" className="mt-0.5" required />
             <label htmlFor="terms">
-              I agree to the{" "}
-              <Link to="/terms" className="text-primary underline">Terms</Link> and{" "}
-              <Link to="/privacy" className="text-primary underline">Privacy Policy</Link>
+              {t('i_agree_to_the')}
+              <Link to="/terms" className="text-primary underline">{t('terms')}</Link> {t('and')}
+              <Link to="/privacy" className="text-primary underline">{t('privacy_policy')}</Link>
             </label>
           </div>
 
@@ -220,7 +222,7 @@ export default function SignUp() {
               <div className="loading-spinner"></div>
             ) : (
               <>
-                Create Account
+                {t('create_account')}
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </>
             )}
@@ -228,9 +230,9 @@ export default function SignUp() {
 
           {/* Sign In */}
           <p className="text-center text-sm text-gray-600 mt-2">
-            Already have an account?{" "}
+            {t('already_have_an_account')}?{" "}
             <Link to="/login" className="text-primary font-medium hover:underline">
-              Sign in
+              {t('sign_in')}
             </Link>
           </p>
         </form>

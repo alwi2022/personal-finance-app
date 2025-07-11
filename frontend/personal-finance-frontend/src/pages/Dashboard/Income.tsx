@@ -4,14 +4,13 @@ import IncomeOverview from "../../components/Income/IncomeOverview";
 import type { TypeTransaction } from "../../types/type";
 import axiosInstance from "../../utils/axios-instance";
 import { API_PATH } from "../../utils/api";
-import { useSettings } from "../../context/settingsContext";
-
 import Modal from "../../components/layouts/Modal";
 import AddIncomeForm from "../../components/Income/AddIncomeForm";
 import { toast } from "react-hot-toast";
 import IncomeList from "../../components/Income/IncomeList";
 import DeleteAlert from "../../components/layouts/DeleteAlert";
 import { useUserAuth } from "../../hooks/userAuth";
+import { useSettings } from "../../context/settingsContext";
 
 export default function Income() {
   useUserAuth();
@@ -33,23 +32,20 @@ export default function Income() {
       if (response.status === 200) {
         setIncomeData(response.data);
       } else {
-        toast.error(t('failed_to_load_income_data') || "Failed to load income data");
+        toast.error(t('failed_load_income') || "Failed to load income data");
       }
     } catch (error) {
       console.error("Error fetching income details:", error);
-      toast.error(t('error_fetching_income_details') || "Error fetching income details");
+      toast.error(t('error_fetching_income') || "Error fetching income details");
     } finally {
       setLoading(false);
     }
   };
 
-  // Updated handler to match new AddIncomeForm interface
-  const handleAddIncome = (success: boolean) => {
-    if (success) {
-      // Refresh data when income is successfully added
-      fetchIncomeDetails();
-      setOpenAddIncomeModal(false);
-    }
+  // Function untuk handle success callback dari form
+  const handleIncomeAdded = () => {
+    fetchIncomeDetails();
+    setOpenAddIncomeModal(false);
   };
 
   const deleteIncome = async (id: string | null) => {
@@ -58,10 +54,10 @@ export default function Income() {
       const url = API_PATH.INCOME.DELETE_INCOME.replace(":id", id);
       const response = await axiosInstance.delete(url);
       if (response.status === 200) {
-        toast.success(t('income_deleted_successfully') || "Income deleted successfully");
+        toast.success(t('income_deleted_success') || "Income deleted successfully");
         fetchIncomeDetails();
       } else {
-        toast.error(t('failed_to_delete_income') || "Failed to delete income");
+        toast.error(t('failed_delete_income') || "Failed to delete income");
       }
     } catch (error) {
       console.error("Error deleting income:", error);
@@ -84,8 +80,7 @@ export default function Income() {
       link.click();
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success(t('income_details_downloaded') || "Income details downloaded successfully");
-
+      toast.success(t('income_downloaded_success') || "Income details downloaded successfully");
     } catch (error) {
       console.error("Error downloading income details:", error);
       toast.error(t('error_downloading_income') || "Error downloading income details");
@@ -118,7 +113,7 @@ export default function Income() {
           title={t('add_new_income') || "Add New Income"}
         >
           <AddIncomeForm
-            onAddIncome={handleAddIncome}
+            onAddIncome={handleIncomeAdded}
             onCancel={() => setOpenAddIncomeModal(false)}
             isLoading={loading}
           />

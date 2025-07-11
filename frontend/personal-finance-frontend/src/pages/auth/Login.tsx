@@ -7,6 +7,7 @@ import { API_PATH } from "../../utils/api";
 import { validateEmail } from "../../utils/helper";
 import { UserContext } from "../../context/userContext";
 import type { LoginResponse } from "../../types/type";
+import { useSettings } from "../../context/settingsContext";
 
 interface FormData {
   email: string;
@@ -19,6 +20,7 @@ interface FormErrors {
 }
 
 export default function Login() {
+  const { t } = useSettings();
   const navigate = useNavigate();
   const userContext = useContext(UserContext);
 
@@ -107,12 +109,12 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout>
+    <AuthLayout variant="split" showLanguageToggle={true}>
       <div className="w-full max-w-md mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Sign In</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('sign_in')}</h1>
           <p className="text-gray-600">
-            Sign in to your account to continue
+            {t('sign_in_to_your_account_to_continue')}
           </p>
         </div>
 
@@ -120,7 +122,7 @@ export default function Login() {
           {/* Email Field */}
           <div>
             <label className="input-label">
-              Email address
+              {t('email_address')}
             </label>
             <div className="relative">
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -128,7 +130,7 @@ export default function Login() {
               </span>
               <input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t('enter_your_email')}
                 value={form.email}
                 onChange={handleChange("email")}
                 className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
@@ -146,7 +148,7 @@ export default function Login() {
           {/* Password Field */}
           <div>
             <label className="input-label">
-              Password
+              {t('password')}
             </label>
             <div className="relative">
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -154,7 +156,7 @@ export default function Login() {
               </span>
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder={t('enter_your_password')}
                 value={form.password}
                 onChange={handleChange("password")}
                 className={`w-full pl-11 pr-11 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
@@ -184,13 +186,13 @@ export default function Login() {
                 type="checkbox"
                 className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
               />
-              <span className="ml-2 text-sm text-gray-600">Remember me</span>
+              <span className="ml-2 text-sm text-gray-600">{t('remember_me')}</span>
             </label>
             <Link
               to="/forgot-password"
               className="text-sm text-primary hover:text-primary-dark font-medium"
             >
-              Forgot password?
+              {t('forgot_password')}
             </Link>
           </div>
 
@@ -204,7 +206,7 @@ export default function Login() {
               <div className="loading-spinner"></div>
             ) : (
               <>
-                Sign in
+                {t('sign_in')}
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </>
             )}
@@ -216,12 +218,12 @@ export default function Login() {
           {/* Sign Up Link */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
+              {t('dont_have_an_account')}
               <Link
                 to="/signup"
                 className="text-primary hover:text-primary-dark font-medium"
               >
-                Sign up for free
+                {t('sign_up_for_free')}
               </Link>
             </p>
           </div>
@@ -232,11 +234,11 @@ export default function Login() {
           <p className="text-xs text-gray-500">
             By signing in, you agree to our{" "}
             <Link to="/terms" className="text-primary hover:underline">
-              Terms of Service
+                {t('terms_of_service')}
             </Link>{" "}
             and{" "}
             <Link to="/privacy" className="text-primary hover:underline">
-              Privacy Policy
+              {t('privacy_policy')}
             </Link>
           </p>
         </div>
