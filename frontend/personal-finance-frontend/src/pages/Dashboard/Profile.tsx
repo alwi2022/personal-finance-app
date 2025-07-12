@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { User, Camera, Upload, Save, X, Globe, DollarSign } from "lucide-react";
+import { User, Camera, Save, X, Globe, DollarSign } from "lucide-react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import { UserContext } from "../../context/userContext";
 import { useSettings } from "../../context/settingsContext";

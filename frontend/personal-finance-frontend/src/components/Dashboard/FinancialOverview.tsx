@@ -1,3 +1,4 @@
+//contoh integrasi formatcurrency
 import { PieChart, TrendingUp, TrendingDown, DollarSign, Calculator } from "lucide-react";
 import { useSettings } from "../../context/settingsContext";
 import CustomPieChart from "../Charts/CustomPieChart";

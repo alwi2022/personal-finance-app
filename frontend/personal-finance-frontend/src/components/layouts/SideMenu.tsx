@@ -15,7 +15,7 @@ interface SideMenuProps {
 
 const SideMenu = ({ activeMenu, isOpen, onClose }: SideMenuProps) => {
   const userContext = useContext(UserContext);
-  const { t, formatCurrency } = useSettings();
+  const { t, formatCurrency, currency } = useSettings();
   const { data: dashboardData, loading: dashboardLoading } = useDashboard();
   
   if (!userContext) {
@@ -128,7 +128,7 @@ const SideMenu = ({ activeMenu, isOpen, onClose }: SideMenuProps) => {
                   <p className={`text-sm font-semibold ${
                     monthlyData.balance >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {formatCurrency(monthlyData.balance)}
+                    {formatCurrency(monthlyData.balance, currency)}
                   </p>
                 )}
               </div>
@@ -140,7 +140,7 @@ const SideMenu = ({ activeMenu, isOpen, onClose }: SideMenuProps) => {
                   <p className={`text-sm font-semibold ${
                     monthlyData.isPositive ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {monthlyData.isPositive ? '+' : ''}{formatCurrency(monthlyData.change)}
+                 {formatCurrency(monthlyData.balance, currency)}
                   </p>
                 )}
               </div>

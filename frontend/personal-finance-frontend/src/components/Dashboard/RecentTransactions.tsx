@@ -257,7 +257,7 @@ const TransactionItem = ({ transaction, formatTime, getDisplayAmount }: Transact
             {/* Right side - Amount */}
             <div className="text-right">
                 <p className={`font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                    {isIncome ? '+' : '-'}{formatCurrency(displayAmount, currency)}
+                   {formatCurrency(displayAmount, currency)}
                 </p>
                 
                 {/* Show original amount info if available and different */}

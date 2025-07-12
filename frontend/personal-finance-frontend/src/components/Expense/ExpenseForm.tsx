@@ -36,7 +36,7 @@ const AddExpenseForm = ({
   onCancel,
   isLoading: propIsLoading = false,
 }: AddExpenseFormProps) => {
-  const { t, currency, formatCurrency } = useSettings();
+  const { t,  formatCurrency } = useSettings();
   
   // Use the transaction form hook
   const {

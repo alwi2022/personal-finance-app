@@ -34,7 +34,7 @@ const AddIncomeForm = ({
   onCancel,
   isLoading: propIsLoading = false,
 }: AddIncomeFormProps) => {
-  const { t, currency, formatCurrency } = useSettings();
+  const { t,  formatCurrency } = useSettings();
 
   // Use the transaction form hook
   const {
