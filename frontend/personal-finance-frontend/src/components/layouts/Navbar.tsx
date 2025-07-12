@@ -1,8 +1,7 @@
 import { Menu, X, TrendingUp, Bell, Search, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSettings } from "../../context/settingsContext";
-import { UserContext } from "../../context/userContext";
 interface NavbarProps {
   activeMenu: string;
   toggleSideMenu: () => void;
@@ -13,25 +12,6 @@ const Navbar = ({ toggleSideMenu, isSideMenuOpen }: NavbarProps) => {
   const navigate = useNavigate();
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const { t } = useSettings();
-
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error("UserContext must be used inside a UserProvider");
-  }
-
-  const { user } = userContext;
-  const handleNotificationClick = () => {
-    if (user?.email?.includes("bunga@")) {
-      alert("🎉 Fitur khusus tersedia untuk pengguna 'bunga@'");
-
-    }
-  };
-
-
-
-
-
-
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Click outside handler to close dropdown
@@ -86,7 +66,7 @@ const Navbar = ({ toggleSideMenu, isSideMenuOpen }: NavbarProps) => {
         </button>
 
         <button className="btn-icon relative"
-          onClick={handleNotificationClick}
+
           aria-label="Notifications">
           <Bell size={18} />
           <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
