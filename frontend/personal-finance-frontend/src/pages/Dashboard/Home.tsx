@@ -4,7 +4,6 @@ import {
   Wallet,
   TrendingUp,
   TrendingDown,
-  Plus,
   RefreshCw,
   ArrowUpRight,
   ArrowDownRight,

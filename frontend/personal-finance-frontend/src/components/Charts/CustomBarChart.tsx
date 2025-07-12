@@ -26,9 +26,13 @@ const CustomBarChart = ({ data }: CustomBarChartProps) => {
   
   // Calculate statistics
   const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
+
   const averageAmount = data.length > 0 ? totalAmount / data.length : 0;
-  const maxAmount = Math.max(...data.map(item => item.amount));
-  const minAmount = Math.min(...data.map(item => item.amount));
+  
+  const maxAmount = data.length > 0 ? Math.max(...data.map(item => item.amount)) : 0;
+  
+  const minAmount = data.length > 0 ? Math.min(...data.map(item => item.amount)) : 0;
+  
 
   // Dynamic bar colors based on amount (for expenses - higher is more concerning)
   const getBarColor = (amount: number) => {

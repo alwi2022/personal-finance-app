@@ -46,7 +46,7 @@ interface RecentTransactionsProps {
 }
 
 const RecentTransactions = ({ transactions, onSeeMore }: RecentTransactionsProps) => {
-    const { t, formatCurrency, language, currency, exchangeRate } = useSettings();
+    const { t,  language, currency, exchangeRate } = useSettings();
     const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
 
     // Set dayjs locale when language changes

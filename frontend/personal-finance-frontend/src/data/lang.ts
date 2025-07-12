@@ -640,7 +640,6 @@ export const translations = {
         export_anytime: "Export data anytime",
         delete_account: "Delete account and data",
         no_data_selling: "We don't sell your data",
-        create_password: "Create password",
         our_usage: "Our Usage",
         anonymized_analytics: "Anonymized data for analytics",
         service_improvement: "Service improvement",
@@ -671,6 +670,7 @@ export const translations = {
         privacy_intro: "At FinanceTracker, we are committed to protecting your privacy...",
         fill_in_the_form_below_to_create_your_account: "Fill in the form below to create your account",
         your_full_name: "Your full name",
+        create_password: "Create password",
         strength: "Strength",
         i_agree_to_the: "I agree to the",
         already_have_an_account: "Already have an account",
@@ -758,14 +758,8 @@ export const translations = {
         reset_link_sent_to_this_email_and_can_only_be_used_once_and_expires_after_10_minutes: "Tautan reset telah dikirim ke email ini dan hanya dapat digunakan sekali dan berakhir setelah 10 menit.",
         reset_link_sent_to_this_email_and_can_only_be_used_once_and_expires_after_10_minutes_and_can_only_be_used_once: "Tautan reset telah dikirim ke email ini dan hanya dapat digunakan sekali dan berakhir setelah 10 menit dan hanya dapat digunakan sekali.",
         feature_under_development: "Fitur masih dalam tahap pengembangan",
-        feature_under_development_text: "Fitur ini masih dalam tahap pengembangan. Silakan periksa kembali nanti.",
-        create_password: "Buat Password",
-        enter_email: "Masukkan Email",
-        enter_password: "Masukkan Password",
-        enter_confirm_password: "Masukkan Konfirmasi Password",
-        enter_full_name: "Masukkan Nama Lengkap",
-        enter_profile_picture: "Masukkan Foto Profil",
-        
+        feature_under_development_text: "Fitur ini masih dalam pengembangan. Silakan periksa kembali nanti.",
+
         // OTP Verification keys - Indonesian
         verify_your_email: "Verifikasi Email Anda",
         otp_sent_to: "Kami telah mengirim kode 6 digit ke",
@@ -788,6 +782,7 @@ export const translations = {
         wrong_email: "Alamat email salah?",
         go_back_signup: "Kembali ke pendaftaran",
         check_spam_folder: "Periksa folder spam jika Anda tidak melihat emailnya",
+        reset_password: "Reset Password",
 
         // Reset Password keys - Indonesian
         reset_code_required: "Kode reset diperlukan",
@@ -958,6 +953,7 @@ export const translations = {
         fill_in_the_form_below_to_create_your_account: 'Isi formulir di bawah untuk membuat akun Anda',
         full_name: 'Nama Lengkap',
         your_full_name: 'Nama lengkap Anda',
+        create_password: 'Buat password',
         strength: 'Kekuatan',
         i_agree_to_the: 'Saya setuju dengan',
         already_have_an_account: 'Sudah punya akun',
@@ -1347,6 +1343,7 @@ export const translations = {
         manage_account_info: 'Kelola informasi akun dan preferensi Anda',
         profile_picture: 'Foto Profil',
         update_personal_details: 'Perbarui detail pribadi dan informasi akun Anda',
+        enter_full_name: 'Masukkan nama lengkap Anda',
         email_readonly_note: 'Alamat email tidak dapat diubah. Hubungi dukungan jika diperlukan.',
         account_information: 'Informasi Akun',
         member_since: 'Bergabung Sejak',

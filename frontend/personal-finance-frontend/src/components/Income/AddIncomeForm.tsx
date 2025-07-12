@@ -35,7 +35,7 @@ const AddIncomeForm = ({
   isLoading: propIsLoading = false,
 }: AddIncomeFormProps) => {
   const { t, currency, formatCurrency } = useSettings();
-  
+
   // Use the transaction form hook
   const {
     isLoading: hookIsLoading,
@@ -66,7 +66,7 @@ const AddIncomeForm = ({
 
   const handleChange = (key: keyof IncomeFormInput, value: string) => {
     setIncome({ ...income, [key]: value });
-    
+
     // Clear error when user starts typing
     if (errors[key]) {
       setErrors({ ...errors, [key]: "" });
@@ -109,7 +109,7 @@ const AddIncomeForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
@@ -172,11 +172,10 @@ const AddIncomeForm = ({
                   key={category.id}
                   type="button"
                   onClick={() => handleChange("category", category.id)}
-                  className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${
-                    income.category === category.id
+                  className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${income.category === category.id
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2">
                     <div className={`w-8 h-8 rounded-lg ${category.color} flex items-center justify-center`}>
@@ -221,15 +220,16 @@ const AddIncomeForm = ({
               {t('amount') || 'Amount'} ({currentCurrency})
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 {getCurrencySymbol()}
-              </div>
+              </span>
               <input
                 type="text"
                 value={income.amount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder={getAmountPlaceholder()}
-                className={`input-box pl-8 ${errors.amount ? 'error' : ''}`}
+                className={`input-box${errors.amount ? 'error' : ''}`}
+                style={{paddingLeft:"2.3rem"}}
                 disabled={isLoading}
               />
             </div>
@@ -279,7 +279,7 @@ const AddIncomeForm = ({
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-green-600">
-                    +{formatCurrency(getPreviewAmount(), currentCurrency)}
+                    {formatCurrency(getPreviewAmount(), currentCurrency)}
                   </p>
                 </div>
               </div>
@@ -300,7 +300,7 @@ const AddIncomeForm = ({
             <X size={16} />
             {t('reset') || 'Reset'}
           </button>
-          
+
           <div className="flex items-center gap-3">
             {onCancel && (
               <button
@@ -312,7 +312,7 @@ const AddIncomeForm = ({
                 {t('cancel') || 'Cancel'}
               </button>
             )}
-            
+
             <button
               type="submit"
               onClick={handleSubmit}

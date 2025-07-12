@@ -230,7 +230,8 @@ const AddExpenseForm = ({
                 value={expense.amount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder={getAmountPlaceholder()}
-                className={`input-box pl-8 ${errors.amount ? 'error' : ''}`}
+                className={`input-box ${errors.amount ? 'error' : ''}`}
+                style={{paddingLeft:"2.3rem"}}
                 disabled={isLoading}
               />
             </div>
@@ -280,7 +281,7 @@ const AddExpenseForm = ({
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-red-600">
-                    -{formatCurrency(getPreviewAmount(), currentCurrency)}
+                    {formatCurrency(getPreviewAmount(), currentCurrency)}
                   </p>
                 </div>
               </div>
