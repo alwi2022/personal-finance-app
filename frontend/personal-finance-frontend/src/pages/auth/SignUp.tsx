@@ -207,8 +207,8 @@ export default function SignUp() {
             <input type="checkbox" id="terms" className="mt-0.5" required />
             <label htmlFor="terms">
               {t('i_agree_to_the')}
-              <Link to="/terms" className="text-primary underline">{t('terms')}</Link> {t('and')}
-              <Link to="/privacy" className="text-primary underline">{t('privacy_policy')}</Link>
+              <Link to="/terms" className="text-primary ml-1 underline">{t('terms')}</Link> {t('and')}
+              <Link to="/privacy" className="text-primary ml-1 underline">{t('privacy_policy')}</Link>
             </label>
           </div>
 

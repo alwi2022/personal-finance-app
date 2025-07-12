@@ -33,7 +33,7 @@ app.use("/uploads", express.static(uploadsDir));
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.info(`🚀 Server is running on port ${PORT}`);
+    console.info(`http://localhost:${PORT}`);
   });
 };
 
