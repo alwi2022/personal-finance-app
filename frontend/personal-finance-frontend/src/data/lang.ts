@@ -728,16 +728,24 @@ export const translations = {
         language: "Language",
         reset_password: "Reset Password",
 
-
+        otp_sent_to_your_email: "OTP sent to your email",
 
         check_email_inbox: "Check your email",
         copy_reset_code: "Copy reset code",
         enter_code_next_page: "Enter code on next page",
         reset_code_sent_to: "Reset code sent to your email",
         didnt_receive_email: "Didn't receive the email?",
+        otp_sent_to_your_email_and_can_only_be_used_once: "OTP sent to your email and can only be used once.",
+        otp_sent_to_your_email_and_can_only_be_used_once_and_expires_after_10_minutes: "OTP sent to your email and can only be used once and expires after 10 minutes.",
+        otp_sent_to_your_email_and_can_only_be_used_once_and_expires_after_10_minutes_and_can_only_be_used_once: "OTP sent to your email and can only be used once and expires after 10 minutes and can only be used once.",
+        feature_under_development: "Feature under development",
+        feature_under_development_text: "This feature is still under development. Please check back later.",
     },
     id: {
-
+        otp_sent_to_your_email: "OTP telah dikirim ke email Anda",
+        otp_sent_to_your_email_and_can_only_be_used_once: "OTP telah dikirim ke email Anda dan hanya dapat digunakan sekali.",
+        otp_sent_to_your_email_and_can_only_be_used_once_and_expires_after_10_minutes: "OTP telah dikirim ke email Anda dan hanya dapat digunakan sekali dan berakhir setelah 10 menit.",
+        otp_sent_to_your_email_and_can_only_be_used_once_and_expires_after_10_minutes_and_can_only_be_used_once: "OTP telah dikirim ke email Anda dan hanya dapat digunakan sekali dan berakhir setelah 10 menit dan hanya dapat digunakan sekali.",
         check_email_inbox: "Periksa email Anda",
         copy_reset_code: "Salin kode reset",
         enter_code_next_page: "Masukkan kode pada halaman berikutnya",
@@ -749,6 +757,8 @@ export const translations = {
         reset_link_sent_to_this_email_and_can_only_be_used_once: "Tautan reset telah dikirim ke email ini dan hanya dapat digunakan sekali.",
         reset_link_sent_to_this_email_and_can_only_be_used_once_and_expires_after_10_minutes: "Tautan reset telah dikirim ke email ini dan hanya dapat digunakan sekali dan berakhir setelah 10 menit.",
         reset_link_sent_to_this_email_and_can_only_be_used_once_and_expires_after_10_minutes_and_can_only_be_used_once: "Tautan reset telah dikirim ke email ini dan hanya dapat digunakan sekali dan berakhir setelah 10 menit dan hanya dapat digunakan sekali.",
+        feature_under_development: "Fitur masih dalam tahap pengembangan",
+        feature_under_development_text: "Fitur ini masih dalam tahap pengembangan. Silakan periksa kembali nanti.",
 
         // OTP Verification keys - Indonesian
         verify_your_email: "Verifikasi Email Anda",
@@ -945,7 +955,7 @@ export const translations = {
         create_password: 'Buat password',
         strength: 'Kekuatan',
         i_agree_to_the: 'Saya setuju dengan',
-        already_have_an_account: 'Sudah punya akun?',
+        already_have_an_account: 'Sudah punya akun',
         terms: 'Ketentuan',
         reset_password_instructions: "Masukkan email Anda dan kami akan mengirimkan kode reset",
         and: 'dan',

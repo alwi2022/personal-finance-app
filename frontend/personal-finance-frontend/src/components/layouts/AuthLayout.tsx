@@ -64,7 +64,7 @@ const AuthLayout = ({
           <div className="w-48 h-48 bg-violet-500 rounded-[40px] absolute -bottom-7 -right-5" />
           
           {/* Stats Card */}
-          <div className="grid grid-cols-1 mt-8 z-10 relative">
+          <div className="grid grid-cols-1 mt-12 z-10 relative">
             <StatsInfoCard
               icons={<LuTrendingUpDown />}
               label={t('track_income_expenses') || "Track Your income and expenses"}

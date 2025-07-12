@@ -98,6 +98,7 @@ export default function Profile() {
       const updatePromise = axiosInstance.put(API_PATH.AUTH.UPDATE_PROFILE, {
         fullName: name,
         profileImageUrl: imageUrl,
+        email: user.email,
       });
 
       toast.promise(updatePromise, {
@@ -257,7 +258,7 @@ export default function Profile() {
                     type="email"
                     value={user.email || ""}
                     readOnly
-                    className="input-box bg-gray-50 cursor-not-allowed"
+                    className="input-box bg-gray-50  cursor-not-allowed"
                   />
                   <p className="input-help">
                     {t('email_readonly_note')}

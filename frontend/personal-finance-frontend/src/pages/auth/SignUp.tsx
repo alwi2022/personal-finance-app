@@ -79,7 +79,8 @@ export default function SignUp() {
         fullName: form.fullName,
       });
 
-      toast.success("OTP sent to your email");
+      toast.success(t("otp_sent_to_your_email"));
+
       navigate("/verify-otp", {
         state: {
           ...form,
