@@ -1,88 +1,90 @@
 import { LuDownload } from "react-icons/lu";
 import type { TypeTransaction } from "../../types/type";
-import moment from "moment";
+import dayjs from 'dayjs';
+import 'dayjs/locale/id';
 import TransactionItem from "../Cards/TransactionItem";
-import { useState } from "react";
+import { useSettings } from "../../context/settingsContext";
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+// Extended interface to match what comes from pages
+interface ExtendedTransaction extends TypeTransaction {
+  displayAmount?: number;
+  name?: string;
+  type?: 'income' | 'expense';
+}
 
 interface Props {
-  transactions: TypeTransaction[];
+  transactions: ExtendedTransaction[];
   onDelete: (id: string) => void;
   onDownload: () => void;
 }
 
 const ExpenseList = ({ transactions, onDelete, onDownload }: Props) => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const { t, language, currency, exchangeRate } = useSettings();
+  
+  // Setup dayjs locale
+  dayjs.extend(relativeTime);
+  dayjs.locale(language === 'id' ? 'id' : 'en');
 
-  const onRequestDelete = (id: string) => {
-    setSelectedId(id);
-    setShowConfirm(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (selectedId) {
-      onDelete(selectedId);
-      setShowConfirm(false);
-      setSelectedId(null);
+  // Helper function to get display amount (same logic as other components)
+  const getDisplayAmount = (transaction: ExtendedTransaction): number => {
+    // Use pre-calculated displayAmount if available
+    if (transaction.displayAmount !== undefined) {
+      return transaction.displayAmount;
     }
-  };
-
-  const handleCancel = () => {
-    setShowConfirm(false);
-    setSelectedId(null);
+    
+    if (transaction.currency && transaction.amountUSD !== undefined) {
+      if (currency === 'USD') {
+        return transaction.amountUSD;
+      } else {
+        return transaction.amountUSD * exchangeRate;
+      }
+    }
+    
+    return transaction.amount;
   };
 
   return (
     <div className="bg-white shadow-md rounded-md p-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Expense List</h2>
+        <h2 className="text-lg font-semibold">
+          {t('expense_list') || 'Daftar Pengeluaran'}
+        </h2>
         <button
           className="text-sm flex items-center gap-1 text-blue-600 hover:underline"
           onClick={onDownload}
         >
           <LuDownload className="w-4 h-4" />
-          Download
+          {t('download') || 'Unduh'}
         </button>
       </div>
 
       {transactions.length === 0 ? (
-        <p className="text-sm text-gray-500">No expense data available.</p>
+        <div className="text-center py-8">
+          <p className="text-sm text-gray-500 mb-2">
+            {t('no_expense_data_available') || 'Tidak ada data pengeluaran tersedia'}
+          </p>
+          <p className="text-xs text-gray-400">
+            {t('add_first_expense_to_see_list') || 'Tambahkan pengeluaran pertama untuk melihat daftar'}
+          </p>
+        </div>
       ) : (
-        <ul className="divide-y divide-gray-200">
+        <div className="space-y-3">
           {transactions.map((item) => (
-            <li key={item._id}>
-              <TransactionItem
-                title={item.category}
-                icon={item.icon}
-                date={moment(item.date).format("DD MMMM YYYY")}
-                amount={item.amount}
-                type="expense"
-                onRequestDelete={() => onRequestDelete(item._id)}
-              />
-            </li>
+            <TransactionItem
+              key={item._id}
+              title={item.source}
+              category={item.category || "other"}
+              date={dayjs(item.date).format("DD MMMM YYYY")}
+              amount={getDisplayAmount(item)}
+              type="expense"
+              onRequestDelete={() => onDelete(item._id)}
+              currency={item.currency}
+              amountUSD={item.amountUSD}
+              originalAmount={item.amount}
+              displayAmount={item.displayAmount}
+            />
           ))}
-        </ul>
-      )}
-
-      {showConfirm && (
-        <div className="fixed inset-0  bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-md w-80">
-            <h3 className="text-lg font-semibold mb-4">Hapus transaksi ini?</h3>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
-              >
-                Hapus
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

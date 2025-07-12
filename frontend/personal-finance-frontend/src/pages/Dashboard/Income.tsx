@@ -4,23 +4,18 @@ import IncomeOverview from "../../components/Income/IncomeOverview";
 import type { TypeTransaction } from "../../types/type";
 import axiosInstance from "../../utils/axios-instance";
 import { API_PATH } from "../../utils/api";
-
 import Modal from "../../components/layouts/Modal";
 import AddIncomeForm from "../../components/Income/AddIncomeForm";
 import { toast } from "react-hot-toast";
 import IncomeList from "../../components/Income/IncomeList";
 import DeleteAlert from "../../components/layouts/DeleteAlert";
 import { useUserAuth } from "../../hooks/userAuth";
-
-type IncomeFormInput = {
-  amount: number;
-  date: string;
-  source: string;
-  icon: string;
-};
+import { useSettings } from "../../context/settingsContext";
 
 export default function Income() {
   useUserAuth();
+  const { t } = useSettings();
+  
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
   const [incomeData, setIncomeData] = useState<TypeTransaction[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,58 +32,36 @@ export default function Income() {
       if (response.status === 200) {
         setIncomeData(response.data);
       } else {
-        toast.error("Failed to load income data");
+        toast.error(t('failed_load_income') || "Failed to load income data");
       }
     } catch (error) {
       console.error("Error fetching income details:", error);
-      toast.error("Error fetching income details");
+      toast.error(t('error_fetching_income') || "Error fetching income details");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddIncome = async (income: IncomeFormInput) => {
-    const { source, amount, date, icon } = income;
-    if (!source.trim()) return toast.error("Source is required");
-    if (!amount) return toast.error("Amount is required");
-    if (!date) return toast.error("Date is required");
-    if (!icon) return toast.error("Icon is required");
-
-    try {
-      const response = await axiosInstance.post(API_PATH.INCOME.ADD_INCOME, {
-        source,
-        amount,
-        date,
-        icon,
-      });
-      if (response.status === 201) {
-        toast.success("Income added successfully");
-        fetchIncomeDetails();
-        setOpenAddIncomeModal(false);
-      } else {
-        toast.error("Failed to add income");
-        console.log(response.data.message?.errors, "response");
-      }
-    } catch (error) {
-      console.error("Error adding income:", error);
-      toast.error("Error adding income");
-    }
+  // Function untuk handle success callback dari form
+  const handleIncomeAdded = () => {
+    fetchIncomeDetails();
+    setOpenAddIncomeModal(false);
   };
 
   const deleteIncome = async (id: string | null) => {
     if (!id) return;
     try {
       const url = API_PATH.INCOME.DELETE_INCOME.replace(":id", id);
-      const response = await axiosInstance.delete(url); 
+      const response = await axiosInstance.delete(url);
       if (response.status === 200) {
-        toast.success("Income deleted successfully");
+        toast.success(t('income_deleted_success') || "Income deleted successfully");
         fetchIncomeDetails();
       } else {
-        toast.error("Failed to delete income");
+        toast.error(t('failed_delete_income') || "Failed to delete income");
       }
     } catch (error) {
       console.error("Error deleting income:", error);
-      toast.error("Error deleting income");
+      toast.error(t('error_deleting_income') || "Error deleting income");
     } finally {
       setOpenDeleteAlert({ show: false, data: null });
     }
@@ -96,8 +69,8 @@ export default function Income() {
 
   const handleDownloadIncomeDetails = async () => {
     try {
-      const response = await axiosInstance.get(API_PATH.INCOME.DOWNLOAD_EXCEL,{
-          responseType: "blob",
+      const response = await axiosInstance.get(API_PATH.INCOME.DOWNLOAD_EXCEL, {
+        responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
@@ -107,12 +80,11 @@ export default function Income() {
       link.click();
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success("Income details downloaded successfully");
-    
-  } catch (error) {
+      toast.success(t('income_downloaded_success') || "Income details downloaded successfully");
+    } catch (error) {
       console.error("Error downloading income details:", error);
-      toast.error("Error downloading income details");
-  }
+      toast.error(t('error_downloading_income') || "Error downloading income details");
+    }
   };
 
   useEffect(() => {
@@ -137,19 +109,23 @@ export default function Income() {
 
         <Modal
           isOpen={openAddIncomeModal}
-          onClose={() => setOpenAddIncomeModal(false)}
-          title="Add Income"
+          onClose={() => !loading && setOpenAddIncomeModal(false)}
+          title={t('add_new_income') || "Add New Income"}
         >
-          <AddIncomeForm onAddIncome={handleAddIncome} />
+          <AddIncomeForm
+            onAddIncome={handleIncomeAdded}
+            onCancel={() => setOpenAddIncomeModal(false)}
+            isLoading={loading}
+          />
         </Modal>
 
         <Modal
           isOpen={openDeleteAlert.show}
           onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-          title="Delete Income"
+          title={t('delete_income') || "Delete Income"}
         >
           <DeleteAlert
-            content="Are you sure you want to delete this income?"
+            content={t('confirm_delete_income') || "Are you sure you want to delete this income?"}
             onDelete={() => deleteIncome(openDeleteAlert.data)}
             onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
           />

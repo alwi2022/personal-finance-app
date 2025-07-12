@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { TypeTransaction } from "../../types/type";
 import { prepareIncomeBarChartData } from "../../utils/helper";
 import CustomBarChart from "../Charts/CustomBarChart";
+import { useSettings } from "../../context/settingsContext";
 
 interface Props {
   transactions: TypeTransaction[];
@@ -9,6 +10,7 @@ interface Props {
 }
 
 const IncomeOverview: React.FC<Props> = ({ transactions, onAddIncome }) => {
+  const { t } = useSettings();
   const [chartData, setChartData] = useState<
     { month: string; amount: number; source?: string }[]
   >([]);
@@ -21,16 +23,16 @@ const IncomeOverview: React.FC<Props> = ({ transactions, onAddIncome }) => {
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h5 className="text-lg font-semibold text-gray-800">Income Overview</h5>
+          <h5 className="text-lg font-semibold text-gray-800">{t('income_analysis')}</h5>
           <p className="text-sm text-gray-500">
-            Track your earnings over time and analyze your income trends.
+            {t('income_trend_description')}
           </p>
         </div>
         <button
           className="add-btn transition hover:bg-primary hover:text-white"
           onClick={onAddIncome}
         >
-          Add Income
+          {t('add_income')}
         </button>
       </div>
 

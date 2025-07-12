@@ -11,7 +11,9 @@ export const API_PATH = {
         UPLOAD_IMAGE: "/auth/upload-image",
         RESEND_OTP: "/auth/resend-otp",
         VERIFY_REGISTER: "/auth/verify-register",
-        UPDATE_PROFILE: "/auth/update-profile"
+        UPDATE_PROFILE: "/auth/update-profile",
+        FORGOT_PASSWORD: "/auth/forgot-password",
+        RESET_PASSWORD: "/auth/reset-password",
     },
     DASHBOARD: {
         GET_DASHBOARD_DATA: "/dashboard",

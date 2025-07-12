@@ -21,7 +21,8 @@ app.get("/", (req, res) => {
 
 app.use("/", router)
 // === 🧾 Static Files ===
-const uploadsDir = path.join(process.cwd(), "backend/uploads");
+const uploadsDir = path.resolve(process.cwd(), "uploads");
+
 
 
 app.use("/uploads", express.static(uploadsDir));
@@ -32,7 +33,7 @@ app.use("/uploads", express.static(uploadsDir));
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.info(`🚀 Server is running on port ${PORT}`);
+    console.info(`http://localhost:${PORT}`);
   });
 };
 

@@ -15,6 +15,8 @@ router.post("/resend-otp", AuthController.ResendOTP);
 
 // ✅ Login biasa
 router.post("/login", AuthController.Login);
+router.post("/forgot-password", AuthController.ForgotPassword);
+router.post("/reset-password", AuthController.ResetPassword)
 
 // ✅ Info user login
 router.get("/me", authentication, AuthController.GetUserInfo);

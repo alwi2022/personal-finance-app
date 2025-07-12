@@ -23,6 +23,7 @@ export interface User extends Document {
   export interface Income extends Document {
     userId: Types.ObjectId;
     icon: string;
+    category: string;
     source: string;
     amount: number;
     date: Date;
@@ -31,7 +32,7 @@ export interface User extends Document {
   }
   export interface Expanse extends Document {
     userId: Types.ObjectId;
-    icon: string;
+    source: string;
     category: string;
     amount: number;
     date: Date;
@@ -40,5 +41,6 @@ export interface User extends Document {
   }
 
 
+  
 
   

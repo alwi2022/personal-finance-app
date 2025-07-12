@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "heroku-postbuild": "npm run build",
-    "start": "node dist/server.js"
+    "dev": "nodemon --watch src --exec ts-node src/server.ts"
   },
   "keywords": [],
   "author": "",

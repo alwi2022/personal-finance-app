@@ -28,29 +28,52 @@ export interface UserContextType {
 
 // Untuk Login response dari backend
 export interface LoginResponse {
-access_token: string;
-user: User;
+  access_token: string;
+  user: User;
 }
 
 export interface UploadImageResponse {
-imageUrl: string;
+  imageUrl: string;
 }
 
 
 
-// types/type.ts atau type.ts
-export interface TypeTransaction {
-  userId: string; // atau Types.ObjectId jika ini dari backend
-  icon: string;
-  category?: string; // ubah dari "string" → "string | undefined"
-  source?: string;
-  amount: number;
-  date: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  type: string;
-  _id: string;
 
+export interface TypeTransaction {
+  _id: string;
+  amount: number;           
+  currency?: 'USD' | 'IDR'; 
+  amountUSD?: number;       
+  exchangeRate?: number;    
+  source: string;
+  category: string;
+  date: string;
+  type?: 'income' | 'expense';
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+
+}
+
+
+
+// For API requests
+export interface CreateTransactionRequest {
+  amount: number;
+  currency: 'USD' | 'IDR';
+  amountUSD: number;
+  exchangeRate: number;
+  source: string;
+  category: string;
+  date: string;
+}
+
+// For backward compatibility with existing API
+export interface LegacyTransactionRequest {
+  amount: number;
+  source: string;
+  category: string;
+  date: string;
 }
 
 export interface DashboardData {
@@ -58,14 +81,14 @@ export interface DashboardData {
   totalExpanse: number;
   recentTransactions: Transaction[];
   incomeLast60Days: {
-      transactions: Transaction[];
-      total: number;
+    transactions: Transaction[];
+    total: number;
   };
   expanseLast60Days: {
-      transactions: Transaction[];
-      total: number;
+    transactions: Transaction[];
+    total: number;
   };
-}   
+}
 
 
 

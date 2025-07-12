@@ -10,13 +10,13 @@ export default class IncomeController {
         try {
 
             const userId = (req as any).user?._id;
-            const { icon, source, amount, date } = req.body
+            const { icon, source, amount, date , category} = req.body
             if (!source || !amount || !date) {
                 res.status(400).json({ message: "All fields are required" })
                 return
             }
 
-            const newIncome = new IncomeModel({ userId, icon, source, amount, date: new Date(date) })
+            const newIncome = new IncomeModel({ userId, icon, source, amount, date: new Date(date), category })
             await newIncome.save()
 
 
@@ -46,7 +46,8 @@ export default class IncomeController {
             const data = incomes.map((income) => ({
                 source: income.source,
                 amount: income.amount,
-                date: income.date
+                date: income.date,
+                category: income.category
             }))
             const wb = xlsx.utils.book_new()
             const ws = xlsx.utils.json_to_sheet(data)

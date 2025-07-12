@@ -1,38 +1,70 @@
-import { LuX } from "react-icons/lu";
+import { useEffect } from "react";
+import { X } from "lucide-react";
 
-const Modal = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-}: {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-}) => {
+}
+import { useSettings } from "../../context/settingsContext";
+
+const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+  const { t } = useSettings();
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  // Close modal on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0  z-50 flex items-center justify-center w-full h-[calc(100%-1rem)] max-h-full overflow-y-auto overflow-x-hidden bg-black/30 bg-opacity-50">
-      <div className="relative w-full max-w-2xl p-4 max-h-full">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-2xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
+          <h3 className="text-xl font-semibold text-gray-900">
+            {t(title)}
+          </h3>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            aria-label={t('close_modal')}
+          >
+            <X size={20} />
+          </button>
+        </div>
 
-        <div className=" relative bg-white rounded-lg dark:bg-gray-700 shadow-sm">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-5 border-b dark:border-gray-600 border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              {title}
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 bg-transparent dark:hover:bg-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex items-center justify-center dark:hover:text-white cursor-pointer"
-            >
-            <LuX className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Body */}
-          <div className="p-4 md:p-5 space-y-4">{children}</div>
+        {/* Body */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+          {children}
         </div>
       </div>
     </div>
