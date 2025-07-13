@@ -23,7 +23,7 @@ const AuthLayout = ({
       <div className="flex relative">
         {/* Language Toggle - Enhanced Visibility */}
         {showLanguageToggle && (
-          <div className="fixed top-4 right-4 z-50">
+       <div className="hidden md:block fixed top-4 right-4 z-50">
             <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-2">
               <LanguageToggle variant="header" />
             </div>
@@ -45,7 +45,7 @@ const AuthLayout = ({
             
             {/* Language Toggle for Mobile - Visible on small screens */}
             {showLanguageToggle && (
-              <div className="md:hidden">
+             <div className="block md:hidden">
                 <LanguageToggle variant="minimal" />
               </div>
             )}
@@ -145,18 +145,6 @@ const AuthLayout = ({
         )}
 
         <div className="w-full max-w-md">
-          {/* Logo */}
-          {/* <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <TrendingUp size={24} className="text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {t('app_name') || 'Personal Finance'}
-            </h1>
-            <p className="text-gray-600 text-sm mt-1">
-              {t('app_tagline') || 'Take control of your financial future'}
-            </p>
-          </div> */}
 
           {/* Content */}
           <div className="bg-white rounded-2xl shadow-lg p-8">

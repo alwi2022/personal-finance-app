@@ -25,7 +25,7 @@ export default function Profile() {
   const [imageUrl, setImageUrl] = useState("");
   const [originalName, setOriginalName] = useState("");
   const [originalImageUrl, setOriginalImageUrl] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [_file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);

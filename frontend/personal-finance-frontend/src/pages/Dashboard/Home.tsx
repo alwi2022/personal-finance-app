@@ -61,8 +61,8 @@ interface DashboardData {
 export default function Home() {
   useUserAuth();
   const navigate = useNavigate();
-  const { formatCurrency, currency, exchangeRate, convertCurrency, t } = useSettings();
-  
+  const { formatCurrency, currency, exchangeRate, t } = useSettings();
+
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +77,7 @@ export default function Home() {
         return transaction.amountUSD * exchangeRate;
       }
     }
-    
+
     // For legacy or new transactions without currency field
     // Assume backend sends amounts in the currency that was used for input
     if (currency === 'IDR') {
@@ -121,8 +121,8 @@ export default function Home() {
     try {
       const response = await axiosInstance.get(API_PATH.DASHBOARD.GET_DASHBOARD_DATA);
       if (response.data) {
-        console.log('Raw backend data:', response.data);
-        
+
+
         // Process the data with proper currency handling
         const processedData: DashboardData = {
           ...response.data,
@@ -130,7 +130,7 @@ export default function Home() {
           totalBalance: calculateDisplayTotal(response.data.totalBalance),
           totalIncome: calculateDisplayTotal(response.data.totalIncome),
           totalExpense: calculateDisplayTotal(response.data.totalExpense),
-          
+
           // Process transactions
           recentTransactions: response.data.recentTransactions.map(processTransaction),
           expenseLast30Days: {
@@ -142,8 +142,7 @@ export default function Home() {
             transactions: response.data.incomeLast60Days.transactions.map(processTransaction)
           }
         };
-        
-        console.log('Processed dashboard data:', processedData);
+
         setDashboardData(processedData);
       }
     } catch (err) {
@@ -229,7 +228,7 @@ export default function Home() {
       {/* Main Content */}
       {!isLoading && dashboardData && (
         <>
-        
+
 
           {/* Financial Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -272,8 +271,8 @@ export default function Home() {
               icon={<CreditCard size={20} />}
               label={t('monthly_flow') || 'Monthly Flow'}
               value={formatCurrency(Math.abs(metrics?.monthlyFlow || 0), currency)}
-              subtext={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? 
-                (t('surplus') || 'surplus') : 
+              subtext={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ?
+                (t('surplus') || 'surplus') :
                 (t('deficit') || 'deficit')
               }
               color={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? "bg-green-500" : "bg-red-500"}
@@ -343,8 +342,8 @@ const ModernInfoCard = ({ icon, label, value, change, changeType, color }: Moder
         </div>
         {change && (
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${changeType === "positive"
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800"
             }`}>
             {changeType === "positive" ? (
               <ArrowUpRight size={12} />
