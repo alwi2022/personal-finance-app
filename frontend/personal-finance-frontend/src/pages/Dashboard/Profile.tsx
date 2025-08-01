@@ -9,23 +9,24 @@ import { API_PATH } from "../../utils/api";
 import { toast } from "react-hot-toast";
 import { useUserAuth } from "../../hooks/userAuth";
 import CharacterAvatar from "../../components/Cards/CharAvatar";
+import { useDashboard } from "../../hooks/useDashboard";
 
 export default function Profile() {
   // Use authentication hook
   useUserAuth();
-  
+
   // Get user from context
   const userContext = useContext(UserContext);
   const { user } = userContext || {};
-  
+
   // Get settings context
-  const { language, currency, setLanguage, setCurrency, t, formatUSDAmount } = useSettings();
-  
+  const { language, currency, setLanguage, setCurrency, t, formatCurrency, exchangeRate } = useSettings();
+  const { data: dashboardData } = useDashboard();
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [originalName, setOriginalName] = useState("");
   const [originalImageUrl, setOriginalImageUrl] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [_file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -74,7 +75,7 @@ export default function Profile() {
 
     try {
       const uploadPromise = uploadImage(selectedFile);
-      
+
       toast.promise(uploadPromise, {
         loading: t('uploading_image'),
         success: t('image_uploaded'),
@@ -89,11 +90,12 @@ export default function Profile() {
     }
   };
 
+
   const handleUpdate = async () => {
     if (!user) return;
-    
+
     setLoading(true);
-    
+
     try {
       const updatePromise = axiosInstance.put(API_PATH.AUTH.UPDATE_PROFILE, {
         fullName: name,
@@ -108,10 +110,10 @@ export default function Profile() {
       });
 
       await updatePromise;
-      
+
       setOriginalName(name);
       setOriginalImageUrl(imageUrl);
-      
+
       if (userContext?.updateUser) {
         userContext.updateUser({
           ...user,
@@ -126,6 +128,39 @@ export default function Profile() {
     }
   };
 
+  // Helper function to convert and format currency properly
+  const getDisplayAmount = (amount: number): number => {
+    // Assuming the API returns amounts in a base currency (let's say IDR based on your example)
+    // We need to convert to the user's preferred display currency
+    if (currency === 'USD') {
+      // Convert from IDR to USD
+      return amount / exchangeRate;
+    } else {
+      // Display as IDR (no conversion needed if API returns IDR)
+      return amount;
+    }
+  };
+
+  // Calculate this month's data with proper currency conversion
+  const getThisMonthData = () => {
+    if (!dashboardData) return { balance: 0, change: 0, isPositive: false };
+
+    // Convert the balance to display currency
+    const displayBalance = getDisplayAmount(dashboardData.totalBalance);
+
+    // Calculate monthly flow (income - expense) and convert to display currency
+    const monthlyIncome = getDisplayAmount(dashboardData.incomeLast60Days.total);
+    const monthlyExpense = getDisplayAmount(dashboardData.expenseLast30Days.total);
+    const monthlyChange = monthlyIncome - monthlyExpense;
+
+    return {
+      balance: displayBalance,
+      change: monthlyChange,
+      isPositive: monthlyChange >= 0
+    };
+  };
+
+  const monthlyData = getThisMonthData();
   const handleCancel = () => {
     setName(originalName);
     setImageUrl(originalImageUrl);
@@ -135,12 +170,10 @@ export default function Profile() {
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
-    toast.success(t('language_updated'));
   };
 
   const handleCurrencyChange = (curr: Currency) => {
     setCurrency(curr);
-    toast.success(t('currency_updated'));
   };
 
   const isChanged = name !== originalName || imageUrl !== originalImageUrl;
@@ -176,7 +209,7 @@ export default function Profile() {
             <div className="card sticky top-6">
               <div className="text-center">
                 <h3 className="card-title mb-4">{t('profile_picture')}</h3>
-                
+
                 {/* Avatar Display */}
                 <div className="relative inline-block mb-6">
                   <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg">
@@ -203,7 +236,7 @@ export default function Profile() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Camera Icon Overlay */}
                   <label className="absolute bottom-0 right-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-colors shadow-lg">
                     <Camera size={20} />
@@ -299,7 +332,7 @@ export default function Profile() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     {isChanged && (
                       <button
@@ -310,7 +343,7 @@ export default function Profile() {
                         {t('cancel')}
                       </button>
                     )}
-                    
+
                     <button
                       onClick={handleUpdate}
                       disabled={!isChanged || loading}
@@ -349,21 +382,19 @@ export default function Profile() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleLanguageChange('en')}
-                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                        language === 'en'
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${language === 'en'
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       English
                     </button>
                     <button
                       onClick={() => handleLanguageChange('id')}
-                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                        language === 'id'
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${language === 'id'
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       Indonesia
                     </button>
@@ -379,21 +410,19 @@ export default function Profile() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleCurrencyChange('USD')}
-                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                        currency === 'USD'
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${currency === 'USD'
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       USD ($)
                     </button>
                     <button
                       onClick={() => handleCurrencyChange('IDR')}
-                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                        currency === 'IDR'
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${currency === 'IDR'
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       IDR (Rp)
                     </button>
@@ -408,7 +437,7 @@ export default function Profile() {
                         {t('currency_preview')}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {formatUSDAmount(1500)}
+                        {formatCurrency(monthlyData.balance, currency)}
                       </p>
                     </div>
                     <div className="text-right">
@@ -422,7 +451,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-               
+
               </div>
             </div>
           </div>

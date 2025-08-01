@@ -29,12 +29,7 @@ export class TransactionService {
 
     try {
       const response = await axiosInstance.post(API_PATH.INCOME.ADD_INCOME, payload);
-      console.log('Income added successfully:', {
-        originalAmount: data.amount,
-        currency: data.currency,
-        usdEquivalent: amountUSD,
-        exchangeRate: data.exchangeRate
-      });
+     
       return response;
     } catch (error: any) {
       console.warn('Backend might not support currency fields, falling back to legacy format');
@@ -47,7 +42,6 @@ export class TransactionService {
         date: data.date,
       };
       
-      console.log('Using legacy payload:', legacyPayload);
       return await axiosInstance.post(API_PATH.INCOME.ADD_INCOME, legacyPayload);
     }
   }
@@ -77,12 +71,7 @@ export class TransactionService {
 
     try {
       const response = await axiosInstance.post(API_PATH.EXPENSE.ADD_EXPENSE, payload);
-      console.log('Expense added successfully:', {
-        originalAmount: data.amount,
-        currency: data.currency,
-        usdEquivalent: amountUSD,
-        exchangeRate: data.exchangeRate
-      });
+    
       return response;
     } catch (error: any) {
       console.warn('Backend might not support currency fields, falling back to legacy format');
@@ -95,7 +84,6 @@ export class TransactionService {
         date: data.date,
       };
       
-      console.log('Using legacy payload:', legacyPayload);
       return await axiosInstance.post(API_PATH.EXPENSE.ADD_EXPENSE, legacyPayload);
     }
   }
@@ -171,7 +159,7 @@ export class TransactionService {
   }
 
   // Helper to calculate totals with mixed currencies
-  static calculateTotalInUSD(transactions: TypeTransaction[], exchangeRate: number = 16245): number {
+  static calculateTotalInUSD(transactions: TypeTransaction[]): number {
     return transactions.reduce((total, transaction) => {
       if (transaction.amountUSD !== undefined) {
         return total + transaction.amountUSD;

@@ -26,7 +26,6 @@ export const useUserAuth = () => {
         if (isMounted) {
           const actualUser = response.data.user ?? response.data; // antisipasi response nested
           updateUser(actualUser);
-          console.log(actualUser, "user di auth");
         }
       } catch (error) {
         if (isMounted) {
