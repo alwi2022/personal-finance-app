@@ -14,14 +14,14 @@ import { useDashboard } from "../../hooks/useDashboard";
 export default function Profile() {
   // Use authentication hook
   useUserAuth();
-  
+
   // Get user from context
   const userContext = useContext(UserContext);
   const { user } = userContext || {};
-  
+
   // Get settings context
-    const { language, currency, setLanguage, setCurrency, t, formatCurrency, exchangeRate } = useSettings();
-    const { data: dashboardData, loading: dashboardLoading } = useDashboard();
+  const { language, currency, setLanguage, setCurrency, t, formatCurrency, exchangeRate } = useSettings();
+  const { data: dashboardData } = useDashboard();
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [originalName, setOriginalName] = useState("");
@@ -75,7 +75,7 @@ export default function Profile() {
 
     try {
       const uploadPromise = uploadImage(selectedFile);
-      
+
       toast.promise(uploadPromise, {
         loading: t('uploading_image'),
         success: t('image_uploaded'),
@@ -93,9 +93,9 @@ export default function Profile() {
 
   const handleUpdate = async () => {
     if (!user) return;
-    
+
     setLoading(true);
-    
+
     try {
       const updatePromise = axiosInstance.put(API_PATH.AUTH.UPDATE_PROFILE, {
         fullName: name,
@@ -110,10 +110,10 @@ export default function Profile() {
       });
 
       await updatePromise;
-      
+
       setOriginalName(name);
       setOriginalImageUrl(imageUrl);
-      
+
       if (userContext?.updateUser) {
         userContext.updateUser({
           ...user,
@@ -144,15 +144,15 @@ export default function Profile() {
   // Calculate this month's data with proper currency conversion
   const getThisMonthData = () => {
     if (!dashboardData) return { balance: 0, change: 0, isPositive: false };
-    
+
     // Convert the balance to display currency
     const displayBalance = getDisplayAmount(dashboardData.totalBalance);
-    
+
     // Calculate monthly flow (income - expense) and convert to display currency
     const monthlyIncome = getDisplayAmount(dashboardData.incomeLast60Days.total);
     const monthlyExpense = getDisplayAmount(dashboardData.expenseLast30Days.total);
     const monthlyChange = monthlyIncome - monthlyExpense;
-    
+
     return {
       balance: displayBalance,
       change: monthlyChange,
@@ -209,7 +209,7 @@ export default function Profile() {
             <div className="card sticky top-6">
               <div className="text-center">
                 <h3 className="card-title mb-4">{t('profile_picture')}</h3>
-                
+
                 {/* Avatar Display */}
                 <div className="relative inline-block mb-6">
                   <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg">
@@ -236,7 +236,7 @@ export default function Profile() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Camera Icon Overlay */}
                   <label className="absolute bottom-0 right-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-colors shadow-lg">
                     <Camera size={20} />
@@ -332,7 +332,7 @@ export default function Profile() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     {isChanged && (
                       <button
@@ -343,7 +343,7 @@ export default function Profile() {
                         {t('cancel')}
                       </button>
                     )}
-                    
+
                     <button
                       onClick={handleUpdate}
                       disabled={!isChanged || loading}
@@ -382,21 +382,19 @@ export default function Profile() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleLanguageChange('en')}
-                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                        language === 'en'
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${language === 'en'
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       English
                     </button>
                     <button
                       onClick={() => handleLanguageChange('id')}
-                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                        language === 'id'
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${language === 'id'
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       Indonesia
                     </button>
@@ -412,21 +410,19 @@ export default function Profile() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleCurrencyChange('USD')}
-                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                        currency === 'USD'
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${currency === 'USD'
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       USD ($)
                     </button>
                     <button
                       onClick={() => handleCurrencyChange('IDR')}
-                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                        currency === 'IDR'
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${currency === 'IDR'
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       IDR (Rp)
                     </button>
@@ -455,7 +451,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-               
+
               </div>
             </div>
           </div>
