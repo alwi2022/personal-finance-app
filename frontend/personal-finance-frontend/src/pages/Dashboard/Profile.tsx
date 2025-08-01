@@ -9,6 +9,7 @@ import { API_PATH } from "../../utils/api";
 import { toast } from "react-hot-toast";
 import { useUserAuth } from "../../hooks/userAuth";
 import CharacterAvatar from "../../components/Cards/CharAvatar";
+import { useDashboard } from "../../hooks/useDashboard";
 
 export default function Profile() {
   // Use authentication hook
@@ -19,8 +20,8 @@ export default function Profile() {
   const { user } = userContext || {};
   
   // Get settings context
-  const { language, currency, setLanguage, setCurrency, t, formatUSDAmount } = useSettings();
-  
+    const { language, currency, setLanguage, setCurrency, t, formatCurrency, exchangeRate } = useSettings();
+    const { data: dashboardData, loading: dashboardLoading } = useDashboard();
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [originalName, setOriginalName] = useState("");
@@ -89,6 +90,7 @@ export default function Profile() {
     }
   };
 
+
   const handleUpdate = async () => {
     if (!user) return;
     
@@ -126,6 +128,39 @@ export default function Profile() {
     }
   };
 
+  // Helper function to convert and format currency properly
+  const getDisplayAmount = (amount: number): number => {
+    // Assuming the API returns amounts in a base currency (let's say IDR based on your example)
+    // We need to convert to the user's preferred display currency
+    if (currency === 'USD') {
+      // Convert from IDR to USD
+      return amount / exchangeRate;
+    } else {
+      // Display as IDR (no conversion needed if API returns IDR)
+      return amount;
+    }
+  };
+
+  // Calculate this month's data with proper currency conversion
+  const getThisMonthData = () => {
+    if (!dashboardData) return { balance: 0, change: 0, isPositive: false };
+    
+    // Convert the balance to display currency
+    const displayBalance = getDisplayAmount(dashboardData.totalBalance);
+    
+    // Calculate monthly flow (income - expense) and convert to display currency
+    const monthlyIncome = getDisplayAmount(dashboardData.incomeLast60Days.total);
+    const monthlyExpense = getDisplayAmount(dashboardData.expenseLast30Days.total);
+    const monthlyChange = monthlyIncome - monthlyExpense;
+    
+    return {
+      balance: displayBalance,
+      change: monthlyChange,
+      isPositive: monthlyChange >= 0
+    };
+  };
+
+  const monthlyData = getThisMonthData();
   const handleCancel = () => {
     setName(originalName);
     setImageUrl(originalImageUrl);
@@ -135,12 +170,10 @@ export default function Profile() {
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
-    toast.success(t('language_updated'));
   };
 
   const handleCurrencyChange = (curr: Currency) => {
     setCurrency(curr);
-    toast.success(t('currency_updated'));
   };
 
   const isChanged = name !== originalName || imageUrl !== originalImageUrl;
@@ -408,7 +441,7 @@ export default function Profile() {
                         {t('currency_preview')}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {formatUSDAmount(1500)}
+                        {formatCurrency(monthlyData.balance, currency)}
                       </p>
                     </div>
                     <div className="text-right">

@@ -63,35 +63,25 @@ const TransactionCard = ({
   onDelete,
   currency: transactionCurrency,
   amountUSD,
-  originalAmount,
-  displayAmount,
+ 
 }: TransactionCardProps) => {
   const [showActions, setShowActions] = useState(false);
   const isIncome = type === "income";
-  const { t, formatCurrency, language, currency: userCurrency, exchangeRate } = useSettings();
+  const { t, formatCurrency, language,  exchangeRate, currency } = useSettings();
 
   useEffect(() => {
     dayjs.locale(language === 'id' ? 'id' : 'en');
   }, [language]);
 
-  // Helper function to get display amount with currency conversion
-  const getDisplayAmount = (): number => {
-    // Use pre-calculated displayAmount if available
-    if (displayAmount !== undefined) {
-      return displayAmount;
+  const getDisplayAmount = (amount: number): number => {
+    // Asumsi API mengirim data dalam IDR
+    if (currency === 'USD') {
+      // Convert dari IDR ke USD
+      return amount / exchangeRate;
+    } else {
+      // Display sebagai IDR (tidak perlu konversi)
+      return amount;
     }
-    
-    // If transaction has currency info, convert appropriately
-    if (transactionCurrency && amountUSD !== undefined) {
-      if (userCurrency === 'USD') {
-        return amountUSD;
-      } else {
-        return amountUSD * exchangeRate;
-      }
-    }
-    
-    // Use original amount or fallback to amount prop
-    return originalAmount || amount;
   };
 
   // Get category info with translation
@@ -137,7 +127,7 @@ const TransactionCard = ({
 
   const styles = getStyles();
   const categoryInfo = getCategoryInfo();
-  const finalDisplayAmount = getDisplayAmount();
+    const finalDisplayAmount = getDisplayAmount(amount);
 
   return (
     <div className={`group relative flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-white ${styles.hoverBg} transition-all duration-200 hover:shadow-md`}>
@@ -168,11 +158,12 @@ const TransactionCard = ({
           <div className="flex items-center gap-3">
             <div className={`flex flex-col items-end gap-1 px-3 py-2 rounded-lg ${styles.amountBg} ${styles.border}`}>
               <span className={`text-sm font-semibold ${styles.amountText}`}>
-                {formatCurrency(finalDisplayAmount, userCurrency)}
+                {formatCurrency(finalDisplayAmount, currency)}
+
               </span>
               
               {/* Show original amount if different currency */}
-              {transactionCurrency && transactionCurrency !== userCurrency && amountUSD && (
+                {transactionCurrency && transactionCurrency !== currency && amountUSD && (
                 <span className="text-xs text-gray-500">
                   {t('originally') || 'Orig'}: {transactionCurrency} {amount.toLocaleString()}
                 </span>

@@ -15,7 +15,7 @@ interface SideMenuProps {
 
 const SideMenu = ({ activeMenu, isOpen, onClose }: SideMenuProps) => {
   const userContext = useContext(UserContext);
-  const { t, formatCurrency, currency } = useSettings();
+  const { t, formatCurrency, currency, exchangeRate } = useSettings();
   const { data: dashboardData, loading: dashboardLoading } = useDashboard();
   
   if (!userContext) {
@@ -40,18 +40,35 @@ const SideMenu = ({ activeMenu, isOpen, onClose }: SideMenuProps) => {
     navigate("/login");
   };
 
-  // Calculate this month's data (last 30 days expense vs last 60 days income)
+  // Helper function to convert and format currency properly
+  const getDisplayAmount = (amount: number): number => {
+    // Assuming the API returns amounts in a base currency (let's say IDR based on your example)
+    // We need to convert to the user's preferred display currency
+    if (currency === 'USD') {
+      // Convert from IDR to USD
+      return amount / exchangeRate;
+    } else {
+      // Display as IDR (no conversion needed if API returns IDR)
+      return amount;
+    }
+  };
+
+  // Calculate this month's data with proper currency conversion
   const getThisMonthData = () => {
     if (!dashboardData) return { balance: 0, change: 0, isPositive: false };
     
-    const monthlyIncome = dashboardData.incomeLast60Days.total;
-    const monthlyExpense = dashboardData.expenseLast30Days.total;
-    const monthlyBalance = monthlyIncome - monthlyExpense;
+    // Convert the balance to display currency
+    const displayBalance = getDisplayAmount(dashboardData.totalBalance);
+    
+    // Calculate monthly flow (income - expense) and convert to display currency
+    const monthlyIncome = getDisplayAmount(dashboardData.incomeLast60Days.total);
+    const monthlyExpense = getDisplayAmount(dashboardData.expenseLast30Days.total);
+    const monthlyChange = monthlyIncome - monthlyExpense;
     
     return {
-      balance: dashboardData.totalBalance,
-      change: monthlyBalance,
-      isPositive: monthlyBalance >= 0
+      balance: displayBalance,
+      change: monthlyChange,
+      isPositive: monthlyChange >= 0
     };
   };
 
@@ -138,9 +155,9 @@ const SideMenu = ({ activeMenu, isOpen, onClose }: SideMenuProps) => {
                   <div className="w-16 h-4 bg-gray-200 rounded animate-pulse mx-auto"></div>
                 ) : (
                   <p className={`text-sm font-semibold ${
-                    monthlyData.isPositive ? 'text-green-600' : 'text-red-600'
+                    monthlyData.change >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                 {formatCurrency(monthlyData.balance, currency)}
+                    {formatCurrency(Math.abs(monthlyData.change), currency)}
                   </p>
                 )}
               </div>
