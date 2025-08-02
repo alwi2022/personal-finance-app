@@ -1,3 +1,4 @@
+// CustomPieChart.tsx
 import {
   PieChart,
   Pie,
@@ -43,6 +44,7 @@ const CustomPieChart = ({
             outerRadius={100}
             paddingAngle={2}
             dataKey="amount"
+            stroke="none"
           >
             {data.map((_, index) => (
               <Cell 
@@ -61,10 +63,10 @@ const CustomPieChart = ({
       {showTextAnchors && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="text-center">
-            <div className="text-sm font-medium text-gray-600 mb-1">
+            <div className="text-sm font-medium text-gray-500 mb-1">
               {label}
             </div>
-            <div className="text-xl font-bold text-gray-900">
+            <div className="text-xl font-semibold text-gray-900">
               {formatCurrency(totalAmount, currency)}
             </div>
           </div>
@@ -75,3 +77,4 @@ const CustomPieChart = ({
 };
 
 export default CustomPieChart;
+

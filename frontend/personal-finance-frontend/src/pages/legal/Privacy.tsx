@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { TrendingUp, ArrowLeft, Shield, Database, Users, Lock } from "lucide-react";
+import { TrendingUp,  Shield, Database, Users, Lock } from "lucide-react";
 import { useSettings } from "../../context/settingsContext";
 import LanguageToggle from "../../components/common/LanguageToggle";
 
@@ -28,7 +28,6 @@ export default function Privacy() {
 
               {/* Back Button */}
               <Link to="/login" className="btn-outline btn-sm">
-                <ArrowLeft size={16} />
                 {t('back_to_login') || 'Back to Login'}
               </Link>
             </div>
@@ -57,8 +56,8 @@ export default function Privacy() {
             {/* Introduction */}
             <section className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Shield size={20} className="text-blue-600" />
+                <div className="w-10 h-10  rounded-lg flex items-center justify-center bg-white border border-gray-200">
+                  <Shield size={20} className="text-gray-600" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {t('introduction') || 'Introduction'}
@@ -72,8 +71,8 @@ export default function Privacy() {
             {/* Information We Collect */}
             <section className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Database size={20} className="text-green-600" />
+                <div className="w-10 h-10  rounded-lg flex items-center justify-center bg-white border border-gray-200">
+                  <Database size={20} className="text-gray-600" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {t('information_we_collect') || 'Information We Collect'}
@@ -119,8 +118,8 @@ export default function Privacy() {
             {/* How We Use Information */}
             <section className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Users size={20} className="text-purple-600" />
+                <div className="w-10 h-10  rounded-lg flex items-center justify-center bg-white border border-gray-200">
+                  <Users size={20} className="text-gray-600" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {t('how_we_use_information') || 'How We Use Your Information'}
@@ -169,8 +168,8 @@ export default function Privacy() {
             {/* Data Protection */}
             <section className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                  <Lock size={20} className="text-red-600" />
+                <div className="w-10 h-10 border border-gray-200 bg-white rounded-lg flex items-center justify-center">
+                  <Lock size={20} className="text-gray-700" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {t('data_protection') || 'Data Protection'}
@@ -179,42 +178,31 @@ export default function Privacy() {
 
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Shield size={20} className="text-white" />
+                  <div className="w-12 h-12 border border-gray-200 rounded-full bg-white flex items-center justify-center mx-auto mb-3">
+                    <Shield size={20} className="text-gray-700" />
                   </div>
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    {t('encryption') || 'Encryption'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {t('ssl_encryption') || '256-bit SSL encryption'}
-                  </p>
+                  <h3 className="font-medium text-gray-900 mb-2">{t('encryption') || 'Encryption'}</h3>
+                  <p className="text-sm text-gray-600">{t('ssl_encryption') || '256-bit SSL encryption'}</p>
                 </div>
 
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Lock size={20} className="text-white" />
+                  <div className="w-12 h-12 border border-gray-200 rounded-full bg-white flex items-center justify-center mx-auto mb-3">
+                    <Lock size={20} className="text-gray-700" />
                   </div>
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    {t('secure_storage') || 'Secure Storage'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {t('bank_level_security') || 'Bank-level security'}
-                  </p>
+                  <h3 className="font-medium text-gray-900 mb-2">{t('secure_storage') || 'Secure Storage'}</h3>
+                  <p className="text-sm text-gray-600">{t('bank_level_security') || 'Bank-level security'}</p>
                 </div>
 
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Users size={20} className="text-white" />
+                  <div className="w-12 h-12 border border-gray-200 rounded-full bg-white flex items-center justify-center mx-auto mb-3">
+                    <Users size={20} className="text-gray-700" />
                   </div>
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    {t('limited_access') || 'Limited Access'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {t('authorized_personnel_only') || 'Authorized personnel only'}
-                  </p>
+                  <h3 className="font-medium text-gray-900 mb-2">{t('limited_access') || 'Limited Access'}</h3>
+                  <p className="text-sm text-gray-600">{t('authorized_personnel_only') || 'Authorized personnel only'}</p>
                 </div>
               </div>
             </section>
+
 
             {/* Your Rights */}
             <section className="card">
@@ -223,7 +211,7 @@ export default function Privacy() {
               </h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                  <div className="text-gray-600">•</div>
                   <div>
                     <h3 className="font-medium text-gray-900">
                       {t('access_export') || 'Access & Export'}
@@ -235,7 +223,7 @@ export default function Privacy() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                  <div className="text-gray-600">•</div>
                   <div>
                     <h3 className="font-medium text-gray-900">
                       {t('correction') || 'Correction'}
@@ -247,7 +235,7 @@ export default function Privacy() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                  <div className="text-gray-600">•</div>
                   <div>
                     <h3 className="font-medium text-gray-900">
                       {t('deletion') || 'Deletion'}

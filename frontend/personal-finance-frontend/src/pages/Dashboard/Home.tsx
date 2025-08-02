@@ -9,7 +9,9 @@ import {
   ArrowDownRight,
   DollarSign,
   CreditCard,
-  PiggyBank
+  PiggyBank,
+  BarChart3,
+  Activity,
 } from "lucide-react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import { useUserAuth } from "../../hooks/userAuth";
@@ -66,6 +68,7 @@ export default function Home() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
 
   // Helper function to determine transaction display amount
   const getTransactionDisplayAmount = (transaction: any): number => {
@@ -121,8 +124,6 @@ export default function Home() {
     try {
       const response = await axiosInstance.get(API_PATH.DASHBOARD.GET_DASHBOARD_DATA);
       if (response.data) {
-
-
         // Process the data with proper currency handling
         const processedData: DashboardData = {
           ...response.data,
@@ -176,144 +177,194 @@ export default function Home() {
 
   return (
     <DashboardLayout activeMenu="Dashboard">
-      {/* Quick Actions Bar */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {t('financial_overview') || 'Financial Overview'}
-          </h2>
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-gray-500">
-              {t('currency') || 'Currency'}: <span className="font-medium">{currency}</span>
-            </div>
-            <button
-              onClick={fetchDashboardData}
-              disabled={isLoading}
-              className="btn-ghost btn-sm"
-            >
-              <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-              {t('refresh') || 'Refresh'}
-            </button>
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+              {t('financial_overview') || 'Financial Overview'}
+            </h1>
+            <p className="text-gray-500">
+              {t('welcome_back') || 'Welcome back'} • {currency}
+            </p>
           </div>
+          <button
+            onClick={fetchDashboardData}
+            disabled={isLoading}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+            {t('refresh') || 'Refresh'}
+          </button>
         </div>
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            <p className="text-red-800 text-sm">{error}</p>
-          </div>
+        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg">
+          <p className="text-red-700 text-sm">{error}</p>
         </div>
       )}
 
       {/* Loading State */}
       {isLoading && !dashboardData && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="card animate-pulse">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-gray-200 rounded-full"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white border border-gray-100 rounded-lg p-6 animate-pulse">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-100 rounded w-3/4"></div>
+                    <div className="h-6 bg-gray-100 rounded w-1/2"></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
       {/* Main Content */}
       {!isLoading && dashboardData && (
         <>
-
-
-          {/* Financial Metrics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {/* Primary Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <ModernInfoCard
-              icon={<Wallet size={24} />}
+              icon={<Wallet size={20} />}
               label={t('total_balance') || 'Total Balance'}
               value={formatCurrency(dashboardData.totalBalance || 0, currency)}
               change={metrics?.netWorth && metrics.netWorth > 0 ? "+2.5%" : "0%"}
-              changeType="positive"
               color="bg-blue-500"
+              changeType="positive"
             />
-            <ModernInfoCard
-              icon={<TrendingUp size={24} />}
+            <ModernInfoCard 
+              icon={<TrendingUp size={20} />}
               label={t('total_income') || 'Total Income'}
               value={formatCurrency(dashboardData.totalIncome || 0, currency)}
               change="+12.3%"
-              changeType="positive"
               color="bg-green-500"
+              changeType="positive"
             />
             <ModernInfoCard
-              icon={<TrendingDown size={24} />}
+              icon={<TrendingDown size={20} />}
               label={t('total_expenses') || 'Total Expenses'}
               value={formatCurrency(dashboardData.totalExpense || 0, currency)}
               change="-8.2%"
-              changeType="negative"
               color="bg-red-500"
+              changeType="negative"
             />
           </div>
 
-          {/* Additional Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <QuickMetricCard
-              icon={<PiggyBank size={20} />}
-              label={t('savings_rate') || 'Savings Rate'}
-              value={`${metrics?.savingsRate || 0}%`}
-              subtext={t('of_total_income') || 'of total income'}
-              color="bg-purple-500"
-            />
-            <QuickMetricCard
-              icon={<CreditCard size={20} />}
-              label={t('monthly_flow') || 'Monthly Flow'}
-              value={formatCurrency(Math.abs(metrics?.monthlyFlow || 0), currency)}
-              subtext={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ?
-                (t('surplus') || 'surplus') :
-                (t('deficit') || 'deficit')
-              }
-              color={metrics?.monthlyFlow && metrics.monthlyFlow > 0 ? "bg-green-500" : "bg-red-500"}
-            />
-            <QuickMetricCard
-              icon={<DollarSign size={20} />}
-              label={t('net_worth') || 'Net Worth'}
-              value={formatCurrency(dashboardData.totalBalance || 0, currency)}
-              subtext={t('total_assets') || 'total assets'}
-              color="bg-indigo-500"
-            />
+          {/* Navigation Tabs */}
+          <div className="mb-6">
+            <nav className="flex space-x-8 border-b border-gray-200">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'overview'
+                    ? 'border-gray-900 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Activity size={16} className="text-gray-600" />
+                  {t('overview') || 'Overview'}
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'analytics'
+                    ? 'border-gray-900 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <BarChart3 size={16} className="text-gray-600" />
+                  {t('analytics') || 'Analytics'}
+                </div>
+              </button>
+            </nav>
           </div>
 
-          {/* Dashboard Widgets Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RecentTransactions
-              transactions={dashboardData.recentTransactions}
-              onSeeMore={() => navigate("/dashboard/expense")}
-            />
-            <FinancialOverview
-              totalBalance={dashboardData.totalBalance || 0}
-              totalIncome={dashboardData.totalIncome || 0}
-              totalExpense={dashboardData.totalExpense || 0}
-            />
-            <ExpanseTransactionsChart
-              transactions={dashboardData.expenseLast30Days?.transactions || []}
-              onSeeMore={() => navigate("/dashboard/expense")}
-            />
-            <Last30DaysExpenseChart
-              transactions={dashboardData.expenseLast30Days?.transactions || []}
-              onSeeMore={() => navigate("/dashboard/expense")}
-            />
-            <RecentIncomeWithChart
-              transactions={dashboardData.incomeLast60Days?.transactions?.slice(0, 4) || []}
-              totalIncome={dashboardData.totalIncome || 0}
-            />
-            <RecentIncome
-              transactions={dashboardData.incomeLast60Days?.transactions || []}
-              onSeeMore={() => navigate("/dashboard/income")}
-            />
-          </div>
+          {/* Tab Content */}
+          {activeTab === 'overview' && (
+            <div className="space-y-8">
+              {/* Secondary Metrics */}
+              <div className="bg-white border border-gray-100 rounded-lg p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  {t('key_metrics') || 'Key Metrics'}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div  style={{backgroundColor: '#FFD700'}} className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+                      <PiggyBank size={20} className="text-white" />
+                    </div>
+                    <p className="text-2xl font-semibold text-gray-900">{metrics?.savingsRate || 0}%</p>
+                    <p className="text-sm text-gray-500">{t('savings_rate') || 'Savings Rate'}</p>
+                  </div>
+                  <div className="text-center">
+                    <div style={{backgroundColor: '#007BFF'}} className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+                      <CreditCard size={20} className="text-white" />
+                    </div>
+                    <p className="text-2xl font-semibold text-gray-900">
+                      {formatCurrency(Math.abs(metrics?.monthlyFlow || 0), currency)}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {metrics?.monthlyFlow && metrics.monthlyFlow > 0 ?
+                        (t('surplus') || 'Surplus') :
+                        (t('deficit') || 'Deficit')
+                      }
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                      <DollarSign size={20} className="text-white" />
+                    </div>
+                    <p className="text-2xl font-semibold text-gray-900">
+                      {formatCurrency(dashboardData.totalBalance || 0, currency)}
+                    </p>
+                    <p className="text-sm text-gray-500">{t('net_worth') || 'Net Worth'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <RecentTransactions
+                  transactions={dashboardData.recentTransactions}
+                  onSeeMore={() => navigate("/dashboard/expense")}
+                />
+                <FinancialOverview
+                  totalBalance={dashboardData.totalBalance || 0}
+                  totalIncome={dashboardData.totalIncome || 0}
+                  totalExpense={dashboardData.totalExpense || 0}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'analytics' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ExpanseTransactionsChart
+                transactions={dashboardData.expenseLast30Days?.transactions || []}
+                onSeeMore={() => navigate("/dashboard/expense")}
+              />
+              <Last30DaysExpenseChart
+                transactions={dashboardData.expenseLast30Days?.transactions || []}
+                onSeeMore={() => navigate("/dashboard/expense")}
+              />
+              <RecentIncomeWithChart
+                transactions={dashboardData.incomeLast60Days?.transactions?.slice(0, 4) || []}
+                totalIncome={dashboardData.totalIncome || 0}
+              />
+              <RecentIncome
+                transactions={dashboardData.incomeLast60Days?.transactions || []}
+                onSeeMore={() => navigate("/dashboard/income")}
+              />
+            </div>
+          )}
         </>
       )}
     </DashboardLayout>
@@ -363,28 +414,4 @@ const ModernInfoCard = ({ icon, label, value, change, changeType, color }: Moder
   );
 };
 
-// Quick Metric Card Component
-interface QuickMetricCardProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  subtext: string;
-  color: string;
-}
 
-const QuickMetricCard = ({ icon, label, value, subtext, color }: QuickMetricCardProps) => {
-  return (
-    <div className="card">
-      <div className="flex items-center gap-3 mb-2">
-        <div className={`w-8 h-8 ${color} rounded-lg flex items-center justify-center text-white`}>
-          {icon}
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-500">{label}</p>
-          <p className="text-lg font-semibold text-gray-900">{value}</p>
-        </div>
-      </div>
-      <p className="text-xs text-gray-500">{subtext}</p>
-    </div>
-  );
-};

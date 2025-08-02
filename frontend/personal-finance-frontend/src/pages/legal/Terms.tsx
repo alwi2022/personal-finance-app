@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { TrendingUp, ArrowLeft, FileText, User, Shield, AlertTriangle } from "lucide-react";
+import { TrendingUp,  FileText, User, Shield, AlertTriangle } from "lucide-react";
 import { useSettings } from "../../context/settingsContext";
 import LanguageToggle from "../../components/common/LanguageToggle";
 
@@ -28,7 +28,6 @@ export default function Terms() {
 
               {/* Back Button */}
               <Link to="/login" className="btn-outline btn-sm">
-                <ArrowLeft size={16} />
                 {t('back_to_login') || 'Back to Login'}
               </Link>
             </div>
@@ -57,8 +56,8 @@ export default function Terms() {
             {/* Acceptance */}
             <section className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <FileText size={20} className="text-green-600" />
+                <div className="w-10 h-10  rounded-lg flex items-center justify-center bg-white border border-gray-200">
+                  <FileText size={20} className="text-gray-600" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {t('acceptance_of_terms') || 'Acceptance of Terms'}
@@ -72,8 +71,8 @@ export default function Terms() {
             {/* Service Description */}
             <section className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <User size={20} className="text-blue-600" />
+                <div className="w-10 h-10  rounded-lg flex items-center justify-center bg-white border border-gray-200">
+                  <User size={20} className="text-gray-600" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {t('our_service') || 'Our Service'}
@@ -114,8 +113,8 @@ export default function Terms() {
             {/* User Responsibilities */}
             <section className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Shield size={20} className="text-purple-600" />
+                <div className="w-10 h-10  rounded-lg flex items-center justify-center bg-white border border-gray-200">
+                  <Shield size={20} className="text-gray-600" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {t('your_responsibilities') || 'Your Responsibilities'}
@@ -161,16 +160,16 @@ export default function Terms() {
             {/* Limitations */}
             <section className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <AlertTriangle size={20} className="text-yellow-600" />
+                <div className="w-10 h-10  rounded-lg flex items-center justify-center bg-white border border-gray-200">
+                  <AlertTriangle size={20} className="text-gray-600" />
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {t('important_disclaimers') || 'Important Disclaimers'}
                 </h2>
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                <ul className="space-y-3 text-yellow-800">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                <ul className="space-y-3 text-gray-800">
                   <li>• {t('no_financial_advice') || 'FinanceTracker does not provide financial advice'}</li>
                   <li>• {t('no_responsibility_decisions') || 'We are not responsible for financial decisions'}</li>
                   <li>• {t('service_as_is') || 'Service provided "as is" without warranties'}</li>

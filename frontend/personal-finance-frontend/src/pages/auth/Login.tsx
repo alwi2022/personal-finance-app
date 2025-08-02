@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import AuthLayout from "../../components/layouts/AuthLayout";
@@ -6,66 +6,50 @@ import axiosInstance from "../../utils/axios-instance";
 import { API_PATH } from "../../utils/api";
 import { validateEmail } from "../../utils/helper";
 import { UserContext } from "../../context/userContext";
-import type { LoginResponse } from "../../types/type";
 import { useSettings } from "../../context/settingsContext";
+import type { LoginResponse } from "../../types/type";
+import clsx from "clsx";
 
 interface FormData {
   email: string;
   password: string;
 }
 
-interface FormErrors {
-  email?: string;
-  password?: string;
-}
-
 export default function Login() {
   const { t } = useSettings();
   const navigate = useNavigate();
   const userContext = useContext(UserContext);
-
-  const [form, setForm] = useState<FormData>({ email: "", password: "" });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  if (!userContext) {
-    throw new Error("UserContext must be used within a UserProvider");
-  }
+  if (!userContext) throw new Error("UserContext must be used within a UserProvider");
 
   const { updateUser } = userContext;
 
-  const handleChange = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setForm(prev => ({ ...prev, [field]: value }));
+  const [form, setForm] = useState<FormData>({ email: "", password: "" });
+  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleChange = useCallback(
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setForm(prev => ({ ...prev, [field]: value }));
+      if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
+    },
+    [errors]
+  );
 
-  const validateForm = (): FormErrors => {
-    const newErrors: FormErrors = {};
+  const validateForm = useCallback((): Partial<FormData> => {
+    const newErrors: Partial<FormData> = {};
+    if (!form.email) newErrors.email = "Email is required";
+    else if (!validateEmail(form.email)) newErrors.email = "Please enter a valid email";
 
-    if (!form.email) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(form.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!form.password) {
-      newErrors.password = "Password is required";
-    } else if (form.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
+    if (!form.password) newErrors.password = "Password is required";
+    else if (form.password.length < 6) newErrors.password = "Password must be at least 6 characters";
 
     return newErrors;
-  };
+  }, [form]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
@@ -76,164 +60,151 @@ export default function Login() {
     setErrors({});
 
     try {
-      const response = await axiosInstance.post<LoginResponse>(API_PATH.AUTH.LOGIN, {
-        email: form.email,
-        password: form.password,
-      });
-
-      const { access_token, user } = response.data;
-
-      localStorage.setItem("access_token", access_token);
-      updateUser(user);
-
-      // Success feedback
+      const { data } = await axiosInstance.post<LoginResponse>(API_PATH.AUTH.LOGIN, form);
+      localStorage.setItem("access_token", data.access_token);
+      updateUser(data.user);
       navigate("/dashboard");
     } catch (err: any) {
-      console.error("Login failed:", err);
-
-      const errorMessage = err?.response?.data?.message || "Login failed. Please try again.";
-
-      // Check if it's a field-specific error
-      if (err?.response?.status === 401) {
-        setErrors({ password: "Invalid email or password" });
-      } else {
-        setErrors({ email: errorMessage });
-      }
+      const status = err?.response?.status;
+      const msg = err?.response?.data?.message || "Login failed. Please try again.";
+      setErrors(status === 401 ? { password: "Invalid email or password" } : { email: msg });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
-    <AuthLayout variant="split" showLanguageToggle={true}>
+    <AuthLayout variant="split" showLanguageToggle>
       <div className="w-full max-w-md mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('sign_in')}</h1>
-          <p className="text-gray-600">
-            {t('sign_in_to_your_account_to_continue')}
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t("sign_in")}</h1>
+          <p className="text-gray-600">{t("sign_in_to_your_account_to_continue")}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Field */}
-          <div>
-            <label className="input-label">
-              {t('email_address')}
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <Mail size={20} />
-              </span>
-              <input
-                type="email"
-                placeholder={t('enter_your_email')}
-                value={form.email}
-                onChange={handleChange("email")}
-                className={`w-full pl-11 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
-                autoComplete="email"
-                disabled={isLoading}
-              />
-            </div>
-            {errors.email && (
-              <p className="input-error">{errors.email}</p>
-            )}
-          </div>
+          {/* Email */}
+          <InputField
+            type="email"
+            icon={<Mail size={20} />}
+            placeholder={t("enter_your_email")}
+            label={t("email_address")}
+            value={form.email}
+            error={errors.email}
+            disabled={isLoading}
+            onChange={handleChange("email")}
+          />
 
-          {/* Password Field */}
-          <div>
-            <label className="input-label">
-              {t('password')}
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <Lock size={20} />
-              </span>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder={t('enter_your_password')}
-                value={form.password}
-                onChange={handleChange("password")}
-                className={`w-full pl-11 pr-11 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.password ? "border-red-500" : "border-gray-300"
-                  }`}
-                autoComplete="current-password"
-                disabled={isLoading}
-              />
+          {/* Password */}
+          <InputField
+            type={showPassword ? "text" : "password"}
+            icon={<Lock size={20} />}
+            placeholder={t("enter_your_password")}
+            label={t("password")}
+            value={form.password}
+            error={errors.password}
+            disabled={isLoading}
+            onChange={handleChange("password")}
+            rightIcon={
               <button
                 type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                onClick={() => setShowPassword(v => !v)}
                 disabled={isLoading}
+                className="text-gray-400 hover:text-gray-600 focus:outline-none"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
-            </div>
-            {errors.password && (
-              <p className="input-error">{errors.password}</p>
-            )}
-          </div>
+            }
+          />
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-end">
-
-            <Link
-              to="/forgot-password"
-              className="text-sm text-primary -mt-4 hover:text-primary-dark  underline"
-            >
-              {t('forgot_password')}
+          {/* Forgot Password */}
+          <div className="flex justify-end">
+            <Link to="/forgot-password" className="text-sm text-primary underline">
+              {t("forgot_password")}
             </Link>
           </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="btn-primary group"
-          >
+          {/* Submit */}
+          <button type="submit" disabled={isLoading} className="btn-primary group">
             {isLoading ? (
-              <div className="loading-spinner"></div>
+              <div className="loading-spinner" />
             ) : (
               <>
-                {t('sign_in')}
+                {t("sign_in")}
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </>
             )}
           </button>
 
-
-
-          {/* Sign Up Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              {t('dont_have_an_account')}
-              <Link
-                to="/signup"
-                className="text-primary ml-1 hover:text-primary-dark font-medium"
-              >
-                {t('sign_up_for_free')}
-              </Link>
-            </p>
-          </div>
+          {/* Sign Up */}
+          <p className="text-sm text-gray-600 text-center">
+            {t("dont_have_an_account")}
+            <Link to="/signup" className="text-primary ml-1 font-medium hover:text-primary-dark">
+              {t("sign_up_for_free")}
+            </Link>
+          </p>
         </form>
 
         {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            By signing in, you agree to our{" "}
-            <Link to="/terms" className="text-primary hover:underline">
-              {t('terms_of_service')}
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="text-primary hover:underline">
-              {t('privacy_policy')}
-            </Link>
-          </p>
-        </div>
+        <p className="mt-8 text-xs text-center text-gray-500">
+          By signing in, you agree to our{" "}
+          <Link to="/terms" className="text-primary hover:underline">
+            {t("terms_of_service")}
+          </Link>{" "}
+          and{" "}
+          <Link to="/privacy" className="text-primary hover:underline">
+            {t("privacy_policy")}
+          </Link>
+        </p>
       </div>
     </AuthLayout>
+  );
+}
+
+interface InputFieldProps {
+  label: string;
+  icon: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  placeholder?: string;
+  error?: string;
+  disabled?: boolean;
+}
+
+function InputField({
+  label,
+  icon,
+  rightIcon,
+  value,
+  onChange,
+  type = "text",
+  placeholder = "",
+  error,
+  disabled = false,
+}: InputFieldProps) {
+  return (
+    <div>
+      <label className="input-label">{label}</label>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</span>
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          className={clsx(
+            "w-full pl-11 pr-11 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary",
+            error ? "border-red-500" : "border-gray-300"
+          )}
+          autoComplete={type === "password" ? "current-password" : "email"}
+          disabled={disabled}
+        />
+        {rightIcon && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2">{rightIcon}</span>
+        )}
+      </div>
+      {error && <p className="input-error">{error}</p>}
+    </div>
   );
 }
